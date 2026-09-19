@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentEvent",
+  "description": "Schema for agent execution events recorded in events.jsonl. Each line in events.jsonl is a self-contained JSON object conforming to this schema.",
+  "type": "object",
+  "required": ["event", "timestamp", "source"],
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "TASK_STARTED",
+        "TASK_COMPLETED",
+        "TASK_FAILED",
+        "TASK_BLOCKED",
+        "PHASE_CHANGED",
+        "DECISION_MADE",
+        "MEMORY_SYNCED",
+        "ERROR_OCCURRED",
+        "RECOVERY_ATTEMPTED",
+        "BLOCKER_RECORDED",
+        "BLOCKER_RESOLVED",
+        "VERIFICATION_PASSED",
+        "VERIFICATION_FAILED",
+        "CHECKPOINT_REACHED",
+        "WORKTREE_CREATED",
+        "WORKTREE_REMOVED",
+        "DEPLOYMENT_STARTED",
+        "DEPLOYMENT_COMPLETED"
+      ],
+      "description": "The type of event that occurred."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the event occurred."
+    },
+    "source": {
+      "type": "string",
+      "description": "The agent, role, or system component that produced the event."
+    },
+    "taskId": {
+      "type": ["string", "null"],
+      "description": "The task this event relates to, if any."
+    },
+    "phase": {
+      "type": ["string", "null"],
+      "description": "The execution phase (from agent-operating-contract.md) when the event occurred."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warn", "error"],
+      "description": "Severity level of the event."
+    },
+    "details": {
+      "type": "string",
+      "description": "Human-readable description of the event."
+    },
+    "filesMutated": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files created, modified, or deleted during this event."
+    },
+    "commandExitCode": {
+      "type": ["integer", "null"],
+      "description": "Exit code of a command that triggered or relates to this event."
+    },
+    "errorClass": {
+      "type": ["string", "null"],
+      "enum": [null, "client", "domain", "infrastructure", "unexpected", "agent"],
+      "description": "Classification of the error, if this is an error event."
+    },
+    "duration": {
+      "type": ["string", "null"],
+      "description": "How long the associated operation took (e.g., '12.3s')."
+    }
+  },
+  "additionalProperties": false
+}

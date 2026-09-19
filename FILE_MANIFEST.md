@@ -1,6 +1,6 @@
 # File Manifest
 
-Every file in this package has one primary responsibility. The manifest is itself part of the package's documentation and should be updated when the structure changes.
+Every file listed below is included in this package. Each has one primary responsibility. Update this manifest when the structure changes.
 
 ## Package-level
 
@@ -94,7 +94,8 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/state/tasks.json` | Stores tasks, dependencies, status, and outputs. |
 | `.agents/state/blockers.json` | Stores unresolved blockers and their disposition. |
 | `.agents/state/retries.json` | Stores failed attempts, reasons, and retry policy state. |
-| `.agents/state/events.jsonl` | Stores append-only execution events for traceability. |
+| `.agents/state/events.jsonl` | Stores append-only execution events for traceability. Starts empty; events are recorded during actual execution. |
+| `.agents/state/events.schema.json` | JSON Schema defining the structure and allowed values for events in `events.jsonl`. |
 | `.agents/state/agents.json` | Stores active logical roles/tasks and ownership state. |
 
 ## Templates
@@ -140,4 +141,11 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `docs/CURRENT_STATE.md` | Records what is completed, in progress, blocked, next, and known to be risky. |
 | `docs/REFERENCES.md` | Lists external source material used by this project when version-sensitive guidance matters. |
 | `docs/decisions/INDEX.md` | Indexes accepted, superseded, and proposed ADRs without replacing the individual ADR files. |
-| `docs/decisions/ADR-<sequential-number>-<decision-name>.md` | Placeholder path pattern for each future durable decision; real ADRs are created only when decisions occur. |
+
+## Naming conventions (not packaged files)
+
+These are naming patterns for files created during project execution:
+
+| Pattern | When created |
+|---|---|
+| `docs/decisions/ADR-<NNN>-<decision-name>.md` | When a durable architectural or technical decision is made. Use the ADR template. |

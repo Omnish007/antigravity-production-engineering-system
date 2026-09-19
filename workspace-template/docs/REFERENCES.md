@@ -20,7 +20,8 @@ Use this document for project-specific external references that materially influ
 | Reference | Version | Applicability | URL | Last reviewed |
 |---|---|---|---|---|
 | OWASP API Security Top 10 | 2023 | API endpoint design and validation | https://owasp.org/API-Security/ | |
-| OWASP Top 10 for LLM Applications | 2025 | Agent safety (see `13-agent-safety.md`) | https://genai.owasp.org/ | |
+| OWASP Top 10 for LLM Applications | 2026 | Agent safety (see `13-agent-safety.md`) | https://genai.owasp.org/ | |
+| OWASP Top 10 for Agentic Applications | 2026 | Agentic security (goal hijacking, tool misuse, identity abuse) | https://genai.owasp.org/ | |
 | OWASP Session Management Cheat Sheet | | Session/cookie handling | https://cheatsheetseries.owasp.org/ | |
 | OWASP Password Storage Cheat Sheet | | Password hashing (Argon2id) | https://cheatsheetseries.owasp.org/ | |
 | NIST SSDF | 1.1 | Secure development lifecycle | https://csrc.nist.gov/ | |

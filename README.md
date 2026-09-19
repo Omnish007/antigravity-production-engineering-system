@@ -19,8 +19,8 @@ cp global/GEMINI.md ~/.gemini/GEMINI.md
 # 2. Copy workspace template into your project (includes hidden dirs .agents/ and .github/)
 cp -a workspace-template/. /path/to/your-project/
 
-# 3. Update .nvmrc to match your project's Node.js version
-echo "22" > /path/to/your-project/.nvmrc
+# 3. Update .nvmrc to match your project's Node.js version (default: 24 LTS)
+echo "24" > /path/to/your-project/.nvmrc
 
 # 4. Open your project in your AI coding tool and start working
 ```

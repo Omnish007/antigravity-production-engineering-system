@@ -4,7 +4,7 @@ Recommended activation: **Always On**
 
 ## Purpose
 
-Protect the engineering process from AI-specific risks including prompt injection, excessive agency, and unintended execution of adversarial instructions. This rule complements `07-security.md` (application security) with agent-operational security aligned to OWASP Top 10 for LLMs (LLM05: Improper Output Handling, LLM06: Excessive Agency).
+Protect the engineering process from AI-specific risks including prompt injection, excessive agency, and unintended execution of adversarial instructions. This rule complements `07-security.md` (application security) with agent-operational security aligned to OWASP Top 10 for LLMs 2026 (LLM03: Excessive Agency, LLM08: Hidden Context Exposure, LLM10: Improper Output Handling) and the OWASP Top 10 for Agentic Applications 2026.
 
 ## Indirect prompt injection
 
