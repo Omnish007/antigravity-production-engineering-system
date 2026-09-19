@@ -10,6 +10,22 @@ Instead of keeping important decisions inside chat history, this system stores t
 
 ---
 
+## Quick start
+
+```bash
+# 1. Copy global rules (once per machine)
+cp global/GEMINI.md ~/.gemini/GEMINI.md
+
+# 2. Copy workspace template into your project
+cp -r workspace-template/* /path/to/your-project/
+
+# 3. Open your project in your AI coding tool and start working
+```
+
+The system works immediately with any AI coding tool that reads `AGENTS.md` at the repository root.
+
+---
+
 ## What this package gives you
 
 This system has eight main parts:
@@ -59,6 +75,8 @@ The system is designed around your usual stack:
 The files do **not** permanently force one exact patch version. The intended approach is to use the version already declared by the project and consult version-matched official documentation when technical behavior depends on the installed version.
 
 A project can intentionally use a different technology or architecture. That change should be documented as a deliberate project decision rather than silently changing the system's assumptions.
+
+**This system is stack-agnostic by design.** The engineering discipline (testing, security, verification, memory) applies to any stack. See `.agents/rules/02-tech-stack.md` for alternative stack profiles.
 
 ---
 
@@ -474,6 +492,10 @@ antigravity-engineering-system/
 │   │   ├── state/
 │   │   └── templates/
 │   │
+│   ├── .github/
+│   │   └── workflows/
+│   │       └── ai-validation.yml
+│   │
 │   └── docs/
 │       ├── project memory
 │       ├── requirements
@@ -552,3 +574,45 @@ The code, rules, Skills, state, requirements, conventions, and ADRs should work 
 - `.agents/orchestration/` — task routing and lifecycle policies
 - `docs/` — persistent project memory
 - `docs/decisions/` — architectural and technical decisions
+
+---
+
+## Cross-tool compatibility
+
+This system works with any AI coding tool:
+
+| Tool | How it integrates |
+|---|---|
+| **Gemini / Antigravity** | Reads `AGENTS.md` and `.agents/` natively |
+| **Cursor** | Symlink or copy relevant content to `.cursor/rules/` |
+| **Claude Code** | Symlink: `ln -s AGENTS.md CLAUDE.md` |
+| **GitHub Copilot** | Reference in `.github/copilot-instructions.md` |
+| **Other agents** | Most tools read `AGENTS.md` at the repository root |
+
+The detailed rules, skills, and orchestration under `.agents/` provide depth. `AGENTS.md` provides the universal entry point.
+
+---
+
+## What's new in v2.0
+
+| Addition | Purpose |
+|---|---|
+| `13-agent-safety.md` | OWASP LLM-aligned agent safety guardrails |
+| `14-observability.md` | Agent tracing, context budget, drift detection |
+| `context-budget-policy.md` | Context window management and token optimization |
+| `error-recovery-policy.md` | Graduated failure recovery with anti-doom-loop |
+| `multi-agent-policy.md` | Sub-agent delegation and handoff protocol |
+| `quality-gates/SKILL.md` | Self-evaluation and CI/CD gating |
+| `refactoring/SKILL.md` | Behavior-preserving transformation discipline |
+| `performance/SKILL.md` | Evidence-driven performance engineering |
+| `incident-template.md` | Structured incident post-mortem |
+| `migration-template.md` | Safe data/schema/API migration planning |
+| `.github/workflows/` | CI/CD template for AI-generated changes |
+| Stack-agnostic design | Rules work with any technology stack |
+| Cross-tool interop | Works with Cursor, Claude, Copilot, and others |
+| Risk classification | Tasks classified by risk level |
+| Supply chain security | Lockfile integrity, SBOM, phantom dependency defense |
+| Structured logging | Correlation IDs, consistent log levels, observability |
+| Circuit breakers | Resilience patterns for external dependencies |
+| Feature flags | Safe rollout discipline |
+| Enhanced deployment | Blue/green, canary, SLO/SLI monitoring |

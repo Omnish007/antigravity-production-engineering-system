@@ -50,6 +50,46 @@ Do not add indexes speculatively; every index adds write/storage/maintenance cos
 
 Remember MongoDB's BSON document size limit and avoid indexed arrays whose growth is effectively unbounded.
 
+## Connection management
+
+- Configure connection pool size based on actual application concurrency and deployment topology.
+- Monitor connection utilization, checkout latency, and pool exhaustion.
+- Use connection pool events for observability.
+- Close connections gracefully during application shutdown.
+
+## Read preferences and replicas
+
+When using replica sets:
+
+- use `primary` reads for write-then-read consistency;
+- use `secondaryPreferred` for read-heavy workloads where slight staleness is acceptable;
+- use `nearest` for latency-sensitive, geo-distributed reads;
+- document the read preference strategy in conventions when it affects application behavior.
+
+## Change streams
+
+For real-time data observation:
+
+- use change streams instead of polling when reactive behavior is needed;
+- handle resume tokens for reliable change stream consumption;
+- filter change streams to the minimum required scope;
+- implement error handling and reconnection for stream interruptions.
+
+## Sharding awareness
+
+When the project uses or plans to use sharded collections:
+
+- choose shard keys based on query patterns and write distribution;
+- avoid scatter-gather queries that hit all shards;
+- design schemas that allow shard-key-based query routing;
+- understand the limitations of transactions across shards.
+
+## TTL and data lifecycle
+
+- Use TTL indexes for automatic expiration of time-limited data (sessions, temporary tokens, audit logs with retention policies).
+- Document retention policies and TTL configuration.
+- Verify TTL behavior in test environments before production deployment.
+
 ## Verification
 
 Test schema invariants, indexes, query behavior, duplicate/conflict paths, and data migration outcomes. Use representative data volumes for performance-sensitive work.

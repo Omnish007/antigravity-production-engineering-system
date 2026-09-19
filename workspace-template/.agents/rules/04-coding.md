@@ -36,6 +36,30 @@ Comments should explain **why**, invariants, security constraints, trade-offs, o
 - Normalize only when normalization is part of the contract.
 - Never log passwords, session identifiers, access tokens, refresh tokens, API keys, or raw sensitive payloads.
 
+## Structured logging
+
+- Use structured log formats (JSON or key-value) rather than unstructured string messages.
+- Include correlation/request IDs in every log entry for cross-service tracing.
+- Use consistent log levels: `error` for failures requiring attention, `warn` for degraded states, `info` for significant business events, `debug` for development diagnostics.
+- Never log secrets, tokens, passwords, or raw personal data.
+- Include sufficient context (user ID, resource ID, action) to diagnose issues without reproducing them.
+
+## Resilience patterns
+
+- **Circuit breaker**: For external dependencies, implement circuit breaker logic to prevent cascade failures. Open the circuit after repeated failures; periodically test recovery before fully closing.
+- **Graceful degradation**: When a non-critical dependency fails, degrade functionality rather than failing the entire request. Communicate the degraded state to the user.
+- **Timeouts**: Set explicit timeouts for all outbound calls. Never wait indefinitely.
+- **Bulkhead**: Isolate resource pools for independent subsystems to prevent resource exhaustion in one area from affecting others.
+
+## Feature flags
+
+When introducing significant new behavior:
+
+- wrap the feature behind a flag for gradual rollout when appropriate;
+- ensure the old code path remains functional when the flag is off;
+- clean up feature flags after rollout is complete and stable;
+- do not leave dead feature flag branches indefinitely.
+
 ## Anti-patterns
 
 Do not:
@@ -45,4 +69,6 @@ Do not:
 - catch and ignore exceptions;
 - hardcode environment-specific URLs or secrets;
 - put database calls directly into presentational components;
-- create generic abstractions before a concrete repeated need exists.
+- create generic abstractions before a concrete repeated need exists;
+- introduce circular dependencies between modules;
+- use mutable global state for request-scoped data.

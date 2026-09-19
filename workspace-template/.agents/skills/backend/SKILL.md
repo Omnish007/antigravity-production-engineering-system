@@ -58,6 +58,58 @@ Include where applicable:
 - health/readiness endpoints;
 - graceful shutdown.
 
+### Structured logging
+
+Use structured log output (JSON) with consistent fields:
+
+- `requestId` / correlation ID for tracing;
+- `userId` for authenticated requests (without sensitive fields);
+- `action` / event type;
+- `duration` for timed operations;
+- `error` with structured error details for failures.
+
+Propagate correlation IDs from incoming requests through all downstream calls.
+
+### Circuit breaker
+
+For external service dependencies:
+
+- track failure rates over a sliding window;
+- open the circuit after threshold failures to prevent cascade;
+- provide fallback behavior when the circuit is open;
+- periodically attempt recovery (half-open state);
+- log circuit state transitions.
+
+### Background jobs and queues
+
+For work that does not need to be synchronous:
+
+- use job queues for deferred processing when the project warrants them;
+- ensure jobs are idempotent when retries are possible;
+- implement dead-letter handling for permanently failed jobs;
+- monitor queue depth and processing latency;
+- set timeouts for job execution.
+
+### Rate limiting
+
+Implement rate limiting for:
+
+- authentication endpoints (strict limits);
+- API endpoints with costly operations;
+- public-facing endpoints susceptible to abuse.
+
+Return appropriate HTTP status (429) with `Retry-After` headers. Use sliding window or token bucket algorithms.
+
+### Graceful shutdown
+
+When receiving a termination signal:
+
+- stop accepting new connections;
+- complete in-flight requests within a reasonable timeout;
+- close database connections and external clients;
+- flush logs and metrics;
+- exit cleanly.
+
 ## External dependencies
 
 Use bounded retries only for operations that are safe to retry. Add idempotency keys or deduplication where a repeated request could create duplicate side effects.

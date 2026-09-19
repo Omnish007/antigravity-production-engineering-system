@@ -30,6 +30,55 @@ Configure:
 - health checks;
 - timeouts for dependencies.
 
+## Deployment strategies
+
+Choose the appropriate deployment strategy based on risk and infrastructure:
+
+- **Rolling update**: Default for low-risk changes. Gradually replace instances.
+- **Blue/green**: Maintain two identical environments; switch traffic atomically. Use for high-risk changes requiring instant rollback.
+- **Canary**: Route a percentage of traffic to the new version; monitor before full rollout. Use for changes where gradual confidence building is needed.
+- **Feature flags**: Deploy code changes behind flags for runtime activation. Use for decoupling deployment from release.
+
+Document the chosen strategy in the deployment plan and rollback procedure.
+
+## Feature flag rollout
+
+When using feature flags for deployment:
+
+- start with internal/staff users;
+- expand to a small percentage;
+- monitor error rates, latency, and business metrics;
+- expand to full traffic;
+- clean up the flag after stable rollout.
+
+## Infrastructure as code
+
+When infrastructure configuration exists:
+
+- validate configuration changes before applying;
+- use version-controlled infrastructure definitions;
+- test infrastructure changes in staging before production;
+- document infrastructure dependencies and resource limits.
+
+## Container security
+
+When using containerized deployments:
+
+- scan container images for known vulnerabilities;
+- use minimal base images;
+- do not run containers as root;
+- do not embed secrets in images;
+- pin image versions rather than using `:latest`.
+
+## Service level objectives
+
+Where SLOs are defined:
+
+- monitor SLIs (latency, error rate, availability) aligned with SLOs;
+- set alerting thresholds below the SLO to allow response time;
+- document SLOs, error budgets, and escalation procedures;
+- review SLO compliance as part of deployment verification.
+
 ## Migration safety
 
 Prefer backwards-compatible expand/migrate/contract sequences for changes that cannot be deployed atomically.

@@ -47,6 +47,34 @@ Prefer semantic HTML and shadcn primitives. Verify keyboard behavior, focus mana
 
 Minimize client JavaScript, avoid unnecessary re-renders, optimize images/fonts, defer non-critical work, and investigate Core Web Vitals when performance matters.
 
+### Error boundaries
+
+Wrap major UI sections in error boundaries to prevent a single component failure from crashing the entire page. Provide user-friendly fallback UI that explains the error and offers recovery actions.
+
+### Streaming and Suspense
+
+Use React Suspense boundaries with streaming SSR where the framework supports it. Show meaningful loading states for deferred content rather than blank areas.
+
+### Image optimization
+
+- Use `next/image` or equivalent framework-provided image component.
+- Serve modern formats (WebP, AVIF) with fallbacks.
+- Set explicit `width` and `height` or use `fill` with proper aspect ratios to prevent CLS.
+- Lazy-load below-the-fold images.
+- Preload hero/LCP images.
+
+### Font optimization
+
+- Use `next/font` or equivalent to self-host fonts and eliminate render-blocking requests.
+- Apply `font-display: swap` or `optional` to prevent invisible text.
+- Subset fonts to include only the character sets needed.
+
+### Prefetching
+
+- Use framework-provided link prefetching for likely navigation targets.
+- Avoid prefetching everything; prioritize high-probability user paths.
+- Use `priority` hints for critical resources.
+
 ## Verification
 
 Run type-check, lint, relevant unit/integration tests, and E2E for critical changed flows where configured. Validate loading/error/empty states, responsive layouts, and keyboard operation.

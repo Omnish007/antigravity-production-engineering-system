@@ -73,6 +73,44 @@ Then add task-specific context.
 - environment/configuration docs;
 - current state.
 
+### Performance
+
+- performance skill;
+- frontend/backend/database skill depending on scope;
+- architecture;
+- affected source files;
+- relevant ADRs;
+- current performance baselines if documented.
+
+### Refactoring
+
+- refactoring skill;
+- architecture;
+- coding/naming;
+- testing;
+- affected source files;
+- relevant ADRs;
+- existing test coverage for affected modules.
+
+### Infrastructure
+
+- deployment skill;
+- security;
+- tech stack;
+- environment configuration;
+- CI/CD configuration files;
+- current state.
+
+### Migration
+
+- database skill;
+- backend skill;
+- security;
+- architecture;
+- affected schema/migration files;
+- relevant data-model ADRs;
+- current state.
+
 ## Routing principles
 
 1. Never assume every skill is relevant.
@@ -81,3 +119,16 @@ Then add task-specific context.
 4. When a task crosses layers, combine their context groups.
 5. When an accepted decision is relevant, read the exact ADR rather than guessing from its title.
 6. When version behavior matters, read installed package documentation before implementation.
+7. Respect the context budget policy (`.agents/orchestration/context-budget-policy.md`): load invariant rules first, volatile data last.
+8. Monitor context consumption; if the session becomes heavily loaded, decompose into sub-tasks.
+
+## Do not load
+
+Unless specifically investigating them:
+
+- lockfiles (`package-lock.json`, `yarn.lock`);
+- generated code and build artifacts;
+- `node_modules/` contents (except version-matched framework docs);
+- large binary or media files;
+- unrelated test fixtures and sample data;
+- files clearly outside the affected scope.

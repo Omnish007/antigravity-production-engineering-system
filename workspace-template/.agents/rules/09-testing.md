@@ -14,6 +14,8 @@ Tests are executable specifications and risk controls, not a coverage contest. S
 - Critical user journeys: E2E coverage where practical.
 - Bug fixes: regression test for the original failure whenever feasible.
 - Security-sensitive changes: security-focused positive and negative tests.
+- Performance-sensitive changes: baseline measurement and post-change comparison.
+- Accessibility-impacting UI: automated accessibility checks (axe-core, Pa11y, or equivalent).
 
 ## Test tools
 
@@ -31,6 +33,28 @@ The installed repository configuration is authoritative. Do not replace an estab
 Prefer behavior-focused assertions over implementation-detail assertions. Use deterministic fixtures and factories. Keep tests isolated, repeatable, and independent.
 
 For Playwright, prefer user-facing locators and web-first assertions rather than fragile CSS selectors or manual visibility checks.
+
+## Additional test strategies
+
+### Contract testing
+
+When services communicate across boundaries (frontend-backend, microservice-microservice), consider contract tests that verify the agreed-upon request/response schemas remain compatible independently of full integration tests.
+
+### Snapshot testing
+
+Use snapshot tests for UI components when visual regression detection is valuable. Review snapshot changes deliberately; do not update snapshots blindly.
+
+### Performance testing
+
+For performance-sensitive work, establish baseline metrics and compare after changes. Use representative data volumes and realistic concurrency. See `.agents/skills/performance/SKILL.md`.
+
+### Accessibility testing
+
+Integrate automated accessibility scanning (axe-core, Pa11y) into the test pipeline for UI work. Automated tools catch a subset of issues; supplement with manual keyboard and screen-reader testing for critical workflows.
+
+### Mutation testing
+
+When test confidence matters (critical business logic, security controls), consider mutation testing to verify that tests detect meaningful code changes. Use judiciously; mutation testing is expensive and most valuable for high-risk modules.
 
 ## Graduated verification
 

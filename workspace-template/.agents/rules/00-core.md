@@ -26,6 +26,9 @@ Define non-negotiable engineering behavior for all meaningful changes.
 - Design for cancellation, timeouts, retries, and idempotency when external operations are involved.
 - Avoid hidden global state.
 - Avoid premature optimization; measure before introducing complexity for performance.
+- Be aware of context budget; load only the files and information needed for the current task.
+- Verify incrementally during implementation; do not defer all verification to the end.
+- Detect doom loops; if the same approach fails twice, change strategy before retrying.
 
 ## Dependency discipline
 
@@ -54,3 +57,10 @@ Never use `catch {}` to silently discard a meaningful failure.
 ## Completion
 
 Do not mark work complete until verification and memory synchronization have been considered. A clean build is evidence of build correctness, not proof that product behavior is correct.
+
+## Agent self-discipline
+
+- Stay within the requested scope. Log out-of-scope improvements for separate consideration.
+- When uncertainty is high, research before acting. When confidence is high and risk is low, act without asking.
+- Track the number of recovery attempts. Escalate to the user after exhausting the error recovery policy.
+- Prefer structured output for machine-consumable artifacts; prefer clear prose for human-facing artifacts.

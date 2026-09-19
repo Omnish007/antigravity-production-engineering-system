@@ -14,5 +14,7 @@ Roles are responsibilities, not mandatory personas or separate model instances. 
 | QA Engineer | Design and execute risk-based tests | testing, verification |
 | Reviewer | Review final change and evidence | code-review |
 | Release Engineer | Validate production readiness | deployment, verification |
+| Performance Engineer | Profile, measure, and optimize performance | performance, testing |
+| Infrastructure Engineer | Manage CI/CD, deployment, environment, IaC | deployment, security |
 | Documentation Steward | Maintain docs and memory | documentation, project-memory |
-| Orchestrator | Route context, policy, dependencies, and task state | orchestration files |
+| Orchestrator | Route context, policy, dependencies, task state, and multi-agent coordination | orchestration files, context-budget-policy, multi-agent-policy |

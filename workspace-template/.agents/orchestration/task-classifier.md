@@ -21,6 +21,10 @@ Classify incoming work so the agent loads the smallest sufficient set of context
 | `review` | code review/audit | code-review + verification + relevant specialty |
 | `documentation` | docs/ADR/project-memory work | documentation + project-memory |
 | `deployment` | CI/CD, release, environment, runtime | deployment + verification + security when applicable |
+| `performance` | profiling, optimization, Core Web Vitals, load testing | performance + affected layer skills + testing |
+| `refactor` | internal restructuring, behavior preserved | refactoring + testing + verification |
+| `infrastructure` | CI/CD config, environment, DevOps, IaC | deployment + security + verification |
+| `migration` | data, schema, or API migration | database/backend + testing + verification + security |
 
 ## Classification rules
 
@@ -29,6 +33,17 @@ Classify incoming work so the agent loads the smallest sufficient set of context
 - Cross-layer changes should not be treated as a simple fix.
 - PRD analysis precedes coding unless the user explicitly requests implementation of an already-resolved plan.
 - A change affecting auth, data integrity, payment, secrets, destructive operations, or public compatibility should be treated as high-risk.
+
+## Risk classification
+
+Assign a risk level to each task:
+
+| Risk | Signal | Implications |
+|---|---|---|
+| `low` | cosmetic, documentation, isolated utility | minimal verification, no approval needed |
+| `medium` | localized feature, internal refactor, test changes | focused testing, standard verification |
+| `high` | cross-layer feature, API change, auth/data change | full planning, comprehensive testing, code review |
+| `critical` | production deployment, data migration, security control, destructive operation | full planning, approval required, rollback plan, comprehensive testing |
 
 ## Output
 

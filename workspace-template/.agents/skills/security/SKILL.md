@@ -48,3 +48,39 @@ Server-side validation must be strict and explicit. Prefer allowlists and length
 ## Output
 
 Record concrete risks, affected paths, severity, remediation, and verification. Avoid speculative vulnerabilities that cannot be tied to a reachable data/control flow.
+
+## Supply chain security
+
+- Audit `package.json` and lockfile for unexpected dependency changes.
+- Check for known vulnerabilities in direct and transitive dependencies.
+- Verify that new dependencies have active maintenance and no unresolved security advisories.
+- Be aware of typosquat and phantom dependency attacks.
+- Consider generating SBOM (Software Bill of Materials) for production releases.
+
+## Container and image security
+
+When the project uses containers:
+
+- scan images for known CVEs before deployment;
+- use minimal base images to reduce attack surface;
+- ensure no secrets are baked into images;
+- enforce non-root execution.
+
+## Secret scanning
+
+- Verify no secrets, API keys, or credentials exist in source code or configuration.
+- Use `.env.example` with placeholder values, never real credentials.
+- Integrate secret detection into CI/CD (e.g., TruffleHog, gitleaks).
+- Rotate any secrets that were accidentally committed, even if the commit was reverted.
+
+## Security headers checklist
+
+Verify that production responses include:
+
+- `Strict-Transport-Security` (HSTS) with appropriate `max-age`;
+- `Content-Security-Policy` with nonce-based or hash-based script allowlisting;
+- `X-Content-Type-Options: nosniff`;
+- `X-Frame-Options` or CSP `frame-ancestors`;
+- `Referrer-Policy` with a privacy-preserving value;
+- `Permissions-Policy` restricting unused browser features;
+- appropriate `Cache-Control` headers for sensitive responses.

@@ -33,6 +33,8 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/rules/10-verification.md` | Defines the completion gate and required objective evidence. |
 | `.agents/rules/11-project-memory.md` | Defines how durable knowledge is read, classified, and synchronized. |
 | `.agents/rules/12-requirements.md` | Defines requirements interpretation, ambiguity handling, assumptions, and acceptance criteria discipline. |
+| `.agents/rules/13-agent-safety.md` | Defines AI-agent-specific safety: prompt injection defense, excessive agency prevention, output sanitization, and OWASP LLM alignment. |
+| `.agents/rules/14-observability.md` | Defines agent execution tracing, context budget awareness, error classification, and drift detection. |
 
 ## Skills
 
@@ -60,6 +62,9 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/skills/documentation/SKILL.md` | Maintains technical docs, API docs, ADRs, and project knowledge. |
 | `.agents/skills/deployment/SKILL.md` | Prepares and verifies production release, configuration, health, rollback, and smoke-check concerns. |
 | `.agents/skills/project-memory/SKILL.md` | Performs the durable memory synchronization step after meaningful work. |
+| `.agents/skills/quality-gates/SKILL.md` | Evaluates agent output quality through self-assessment, trajectory analysis, regression detection, and CI/CD gating. |
+| `.agents/skills/refactoring/SKILL.md` | Performs behavior-preserving code transformations with characterization testing and scope control. |
+| `.agents/skills/performance/SKILL.md` | Measures, analyzes, and optimizes performance across frontend, backend, and database layers. |
 
 ## Orchestration
 
@@ -75,6 +80,9 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/orchestration/worktree-policy.md` | Defines safe worktree isolation and reconciliation behavior when worktrees are used. |
 | `.agents/orchestration/role-registry.md` | Defines logical roles and their normal skill/context responsibilities. |
 | `.agents/orchestration/verification-schema.json` | Machine-readable contract for task verification evidence. |
+| `.agents/orchestration/context-budget-policy.md` | Defines context window management, hierarchical loading, and token optimization strategy. |
+| `.agents/orchestration/error-recovery-policy.md` | Defines graduated failure recovery with detect-diagnose-isolate-repair-learn cycle. |
+| `.agents/orchestration/multi-agent-policy.md` | Defines sub-agent delegation, handoff protocol, and multi-agent coordination patterns. |
 
 ## State
 
@@ -102,6 +110,14 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/templates/adr-template.md` | Standardizes durable architectural and technical decision records. |
 | `.agents/templates/task-template.md` | Standardizes executable task records for the task graph. |
 | `.agents/templates/verification-template.md` | Standardizes human-readable verification reports and evidence capture. |
+| `.agents/templates/incident-template.md` | Standardizes production incident reports with timeline, root cause, and prevention. |
+| `.agents/templates/migration-template.md` | Standardizes data/schema/API migration planning with rollback and validation. |
+
+## CI/CD
+
+| Path | Purpose |
+|---|---|
+| `.github/workflows/ai-validation.yml` | GitHub Actions workflow for automated validation of AI-generated changes (format, lint, type-check, test, build, security). |
 
 ## Requirements
 
