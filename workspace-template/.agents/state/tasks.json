@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0.0",
+  "tasks": [],
+  "phases": [],
+  "validStatuses": ["PENDING", "READY", "IN_PROGRESS", "VERIFYING", "COMPLETED", "FAILED", "BLOCKED", "CANCELLED"],
+  "notes": "Task state must reflect actual execution. Do not use this file as speculative documentation. Each tracked task should have a stable id and explicit dependencies."
+}

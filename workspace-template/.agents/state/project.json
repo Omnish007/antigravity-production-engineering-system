@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStatus": "NOT_INITIALIZED",
+  "projectId": null,
+  "name": null,
+  "currentPhase": null,
+  "phases": [],
+  "createdAt": null,
+  "lastUpdatedAt": null,
+  "initializedBy": null,
+  "activeTaskCount": 0,
+  "activeBlockerCount": 0,
+  "notes": "Populate during project initialization. This file records current state only; durable decisions belong in docs/decisions/."
+}

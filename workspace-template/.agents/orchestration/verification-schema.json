@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AntigravityTaskVerificationEvidence",
+  "type": "object",
+  "required": [
+    "taskId",
+    "verifiedAt",
+    "status",
+    "acceptanceCriteria",
+    "filesChanged"
+  ],
+  "properties": {
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verifiedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verifiedBy": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "BLOCKED"
+      ]
+    },
+    "commandsExecuted": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "command",
+          "exitCode"
+        ],
+        "properties": {
+          "command": {
+            "type": "string"
+          },
+          "exitCode": {
+            "type": "integer"
+          },
+          "stdoutExcerpt": {
+            "type": "string"
+          },
+          "stderrExcerpt": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "testsRun": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "testsPassed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "testsFailed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filesChanged": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptanceCriteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "criterion",
+          "status"
+        ],
+        "properties": {
+          "criterion": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "SKIPPED"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "followUp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "qualityChecks": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string"
+        },
+        "lint": {
+          "type": "string"
+        },
+        "typecheck": {
+          "type": "string"
+        },
+        "build": {
+          "type": "string"
+        },
+        "security": {
+          "type": "string"
+        }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "memoryUpdates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
