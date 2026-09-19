@@ -26,6 +26,17 @@ Default starting point: modular monolith with explicit boundaries. Avoid microse
 
 External services and async systems should be added here when actually adopted.
 
+## API design
+
+Document:
+
+- API versioning strategy;
+- authentication/authorization flow;
+- rate limiting;
+- error response contract;
+- pagination/filtering patterns;
+- API documentation approach (OpenAPI, etc.).
+
 ## Repository structure
 
 Document the actual structure here. For a common full-stack layout:
@@ -82,6 +93,38 @@ Document browser/API, API/database, API/external-service, worker/database, and o
 ## Runtime/deployment architecture
 
 Document hosts, processes, containers, reverse proxies, storage, queues, monitoring, and secrets management.
+
+## Cross-cutting concerns
+
+Document:
+
+- structured logging and correlation ID propagation;
+- centralized error handling and error classification;
+- configuration management (environment variables, config files, feature flags);
+- health checks and readiness probes;
+- graceful shutdown behavior;
+- secrets management and rotation.
+
+## Scalability considerations
+
+Document:
+
+- expected load characteristics;
+- horizontal/vertical scaling approach;
+- caching strategy;
+- database connection pooling;
+- queue/worker scaling;
+- CDN/edge strategy.
+
+## Disaster recovery
+
+Document:
+
+- backup strategy and schedule;
+- recovery time objective (RTO);
+- recovery point objective (RPO);
+- failover procedures;
+- data retention policies.
 
 ## Dependency direction
 

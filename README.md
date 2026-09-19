@@ -16,8 +16,8 @@ Instead of keeping important decisions inside chat history, this system stores t
 # 1. Copy global rules (once per machine)
 cp global/GEMINI.md ~/.gemini/GEMINI.md
 
-# 2. Copy workspace template into your project
-cp -r workspace-template/* /path/to/your-project/
+# 2. Copy workspace template into your project (includes hidden dirs .agents/ and .github/)
+cp -a workspace-template/. /path/to/your-project/
 
 # 3. Open your project in your AI coding tool and start working
 ```
@@ -502,8 +502,6 @@ antigravity-engineering-system/
 │       └── decisions / ADRs
 │
 ├── FILE_MANIFEST.md
-├── RESEARCH_BASIS.md
-├── VALIDATION.md
 └── README.md
 ```
 
@@ -511,18 +509,6 @@ For a one-line explanation of **every file**, see:
 
 ```text
 FILE_MANIFEST.md
-```
-
-For the external standards and official documentation used as reference material, see:
-
-```text
-RESEARCH_BASIS.md
-```
-
-For the structural/content checks performed on the package, see:
-
-```text
-VALIDATION.md
 ```
 
 ---

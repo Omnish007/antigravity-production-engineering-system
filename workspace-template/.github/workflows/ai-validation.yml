@@ -1,7 +1,11 @@
 # AI-Generated Change Validation
 #
 # This workflow validates AI-generated changes with the same rigor as human-authored code.
-# Customize the tool commands, Node version, and database configuration for your project.
+#
+# CUSTOMIZATION REQUIRED:
+# - Update Node.js version to match your project's .nvmrc or engines field.
+# - Update action SHAs when upgrading (use Dependabot or manual audit).
+# - Uncomment E2E, CodeQL, or MongoDB sections as needed.
 
 name: AI Change Validation
 
@@ -11,9 +15,9 @@ on:
   push:
     branches: [main, develop, dev]
 
+# Least-privilege permissions — only what the workflow actually needs.
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   quality-gates:
@@ -29,13 +33,16 @@ jobs:
     #       - 27017:27017
 
     steps:
+      # Pin actions to full SHA for supply-chain security.
+      # Update SHAs when upgrading; use Dependabot to automate.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v7.0.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@8f152de45cc393bb4806a77d70425d082269a84a # v7.0.0
         with:
-          node-version: 22
+          # Match your project's Node.js version. Check .nvmrc or package.json engines.
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install dependencies
@@ -43,23 +50,18 @@ jobs:
 
       - name: Format check
         run: npm run format:check --if-present
-        continue-on-error: false
 
       - name: Lint
         run: npm run lint --if-present
-        continue-on-error: false
 
       - name: Type check
         run: npm run typecheck --if-present
-        continue-on-error: false
 
       - name: Unit and integration tests
         run: npm test --if-present
-        continue-on-error: false
 
       - name: Build
         run: npm run build --if-present
-        continue-on-error: false
 
   security:
     name: Security Scan
@@ -68,12 +70,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v7.0.0
+        with:
+          fetch-depth: 0  # Full history for effective secret scanning
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@8f152de45cc393bb4806a77d70425d082269a84a # v7.0.0
         with:
-          node-version: 22
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install dependencies
@@ -81,14 +85,16 @@ jobs:
 
       - name: Dependency audit
         run: npm audit --audit-level=high
-        continue-on-error: false
 
+      # Pin TruffleHog to a specific SHA for supply-chain safety.
+      # Find the latest release SHA at: https://github.com/trufflesecurity/trufflehog/releases
+      # Update this SHA periodically via Dependabot or manual audit.
       - name: Secret detection
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@b6dc520fb74ffa5a57bbb8cd8e3edce7273925ca # v3.88.0
         with:
           extra_args: --only-verified
 
-      # Uncomment for CodeQL analysis:
+      # Uncomment for CodeQL static analysis:
       # - name: Initialize CodeQL
       #   uses: github/codeql-action/init@v3
       #   with:
@@ -97,7 +103,8 @@ jobs:
       # - name: Perform CodeQL Analysis
       #   uses: github/codeql-action/analyze@v3
 
-  # Uncomment for E2E tests:
+  # Uncomment and configure for E2E tests.
+  # This job runs after quality-gates to avoid wasting E2E resources on code that fails basic checks.
   # e2e:
   #   name: E2E Tests
   #   runs-on: ubuntu-latest
@@ -106,18 +113,18 @@ jobs:
   #
   #   steps:
   #     - name: Checkout
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v7.0.0
   #
   #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
+  #       uses: actions/setup-node@8f152de45cc393bb4806a77d70425d082269a84a # v7.0.0
   #       with:
-  #         node-version: 22
+  #         node-version-file: '.nvmrc'
   #         cache: 'npm'
   #
   #     - name: Install dependencies
   #       run: npm ci
   #
-  #     - name: Install Playwright
+  #     - name: Install Playwright browsers
   #       run: npx playwright install --with-deps
   #
   #     - name: Run E2E tests
@@ -125,7 +132,8 @@ jobs:
   #
   #     - name: Upload test results
   #       if: always()
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
   #       with:
   #         name: playwright-report
   #         path: playwright-report/
+  #         retention-days: 14

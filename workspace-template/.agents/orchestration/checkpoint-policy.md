@@ -16,7 +16,9 @@ The agent may normally:
 - create branches/worktrees when repository policy permits;
 - run local, non-destructive development commands;
 - generate seed/test data in isolated development environments;
-- inspect Git history and diffs.
+- inspect Git history and diffs;
+- delegate well-scoped sub-tasks to sub-agents (see `multi-agent-policy.md`);
+- install development dependencies declared in `package.json`.
 
 ## Approval required before
 
@@ -41,8 +43,21 @@ The agent may normally:
 ### Medium/high judgment
 
 - material architecture changes not covered by project decisions;
-- introducing a new externally managed service with significant cost/security/operational implications.
+- introducing a new externally managed service with significant cost/security/operational implications;
+- major dependency upgrades that cross breaking-change boundaries;
+- adding new authentication/authorization providers;
+- changing database schemas in production environments.
 
-## Safe alternative
+## Escalation procedure
 
-When approval is required, prepare everything possible without executing the irreversible step. Provide the exact action, risk, expected effect, and verification plan.
+When approval is required:
+
+1. Prepare everything possible without executing the irreversible step.
+2. Provide the exact action, risk, expected effect, and verification plan.
+3. Clearly state what will happen if the action is approved.
+4. Clearly state what will happen if the action is rejected (alternative plan).
+5. Wait for explicit approval before proceeding.
+
+## Sub-agent checkpoint inheritance
+
+Sub-agents inherit the checkpoint requirements of their parent task's risk level. A sub-agent performing work that would require approval at the task level must escalate to the orchestrating agent, which escalates to the human.

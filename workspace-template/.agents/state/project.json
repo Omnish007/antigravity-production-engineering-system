@@ -1,14 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "projectStatus": "NOT_INITIALIZED",
+  "validStatuses": ["NOT_INITIALIZED", "INITIALIZING", "ACTIVE", "PAUSED", "MAINTENANCE", "ARCHIVED"],
   "projectId": null,
   "name": null,
+  "description": null,
+  "repository": null,
   "currentPhase": null,
   "phases": [],
+  "techStack": null,
   "createdAt": null,
   "lastUpdatedAt": null,
   "initializedBy": null,
   "activeTaskCount": 0,
   "activeBlockerCount": 0,
-  "notes": "Populate during project initialization. This file records current state only; durable decisions belong in docs/decisions/."
+  "lastVerification": null,
+  "deploymentState": null,
+  "notes": "Populate during project initialization via project-init skill. This file records current state only; durable decisions belong in docs/decisions/. The techStack field should reference the actual installed versions from package.json, not the template defaults."
 }

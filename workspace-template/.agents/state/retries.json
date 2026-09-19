@@ -2,9 +2,31 @@
   "schemaVersion": "1.0.0",
   "policy": {
     "maxRetriesPerFailure": 3,
+    "maxAlternativeApproaches": 2,
+    "maxTotalRecoveryAttempts": 6,
     "scope": "failed-task-only",
     "preserveSuccessfulWork": true,
-    "onExhaustion": "record-blocker-and-request-human-input"
+    "onExhaustion": "record-blocker-and-request-human-input",
+    "escalationLadder": [
+      "retry-same-approach",
+      "change-approach",
+      "research-problem",
+      "reduce-scope",
+      "request-human-input"
+    ]
   },
-  "records": []
+  "records": [],
+  "recordSchema": {
+    "id": "string — unique retry record identifier",
+    "taskId": "string — task that failed",
+    "failureClass": "client | domain | infrastructure | unexpected | agent",
+    "errorMessage": "string — the error that triggered the retry",
+    "approach": "string — what was attempted",
+    "attempt": "integer — attempt number for this failure",
+    "escalationLevel": "string — current level from escalationLadder",
+    "outcome": "success | failed | escalated",
+    "timestamp": "ISO 8601 timestamp",
+    "notes": "string or null — additional context"
+  },
+  "notes": "Track retry attempts to prevent doom loops and inform the error recovery policy. Each record captures what failed, what was tried, and the outcome. Reference: .agents/orchestration/error-recovery-policy.md"
 }

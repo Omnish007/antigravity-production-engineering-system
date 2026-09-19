@@ -49,6 +49,8 @@ Read `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`, and only the relevant ADRs w
 
 Use `.agents/orchestration/context-router.md` and `.agents/orchestration/context-budget-policy.md` to load the minimum sufficient context without wasting the context budget.
 
+For the canonical task execution sequence (RECEIVE → CLASSIFY → LOAD → PLAN → IMPLEMENT → TEST → VERIFY → REVIEW → SYNC → UPDATE → COMPLETE), see `.agents/orchestration/agent-operating-contract.md`.
+
 ## Version-matched documentation
 
 When making framework-specific changes, use the documentation bundled with the installed packages when available, for example:

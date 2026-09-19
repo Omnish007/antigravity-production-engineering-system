@@ -21,6 +21,11 @@
 
 ### Affected data
 
+- Collections/tables affected:
+- Estimated document/row count:
+- Embedded document changes:
+- Reference/relationship changes:
+
 ## Pre-migration checklist
 
 - [ ] Backup/snapshot taken and verified
@@ -30,21 +35,24 @@
 - [ ] Monitoring/alerting configured for migration metrics
 - [ ] Dependencies identified and coordinated
 - [ ] Feature flags in place for gradual rollout (if applicable)
+- [ ] Migration script tested against representative data volume
+- [ ] Idempotency verified (safe to re-run if interrupted)
 
 ## Backward compatibility
 
 - Is the migration backward-compatible?
 - If not, what is the coordination plan for dependent systems?
 - Can the old and new versions coexist during migration?
+- Can the application read/write both old and new formats during transition?
 
 ## Migration strategy
 
 ### Expand/migrate/contract (preferred for zero-downtime)
 
 ```text
-Phase 1 (Expand): Deploy new structure alongside old
-Phase 2 (Migrate): Move data/traffic to new structure
-Phase 3 (Contract): Remove old structure
+Phase 1 (Expand): Deploy new schema/structure alongside old. Application writes both formats.
+Phase 2 (Migrate): Backfill existing data to new format. Verify completeness.
+Phase 3 (Contract): Remove old format support. Clean up dual-write code.
 ```
 
 ### Big-bang (when coexistence is not possible)
@@ -64,16 +72,27 @@ Phase 3 (Contract): Remove old structure
 - What is the maximum rollback window?
 - What data would be lost on rollback?
 - Has rollback been tested?
+- Is forward-fix preferable to rollback for this migration?
 
 ## Data validation plan
 
 | Validation check | Method | Expected result |
 |---|---|---|
-| Record count matches | Query comparison | Old count == New count |
-| Data integrity | Checksum/sampling | No corruption |
-| Referential integrity | Foreign key / reference check | No orphans |
-| Application behavior | Smoke test | All critical paths work |
-| Performance | Benchmark comparison | No degradation |
+| Document/record count | Aggregation/query comparison | Old count ≤ New count (≤ accounts for concurrent writes) |
+| Data integrity | Sampling + field-level comparison | No corruption or data loss |
+| Reference integrity | Application-level reference check | No orphaned references or broken links |
+| Embedded document structure | Schema validation or spot checks | All documents match expected shape |
+| Index coverage | `explain()` on critical queries | Queries use expected indexes |
+| Duplicate detection | Aggregation on unique fields | No unintended duplicates created |
+| Application behavior | Smoke test of critical paths | All reads/writes function correctly |
+| Performance | Benchmark critical queries pre/post | No degradation beyond threshold |
+
+## Concurrent write safety
+
+- How are concurrent writes handled during migration?
+- Is the migration idempotent (safe to re-run)?
+- Are there race conditions between the migration and live traffic?
+- Is a read/write lock or pause needed?
 
 ## Cutover procedure
 
@@ -90,7 +109,9 @@ Step-by-step execution plan:
 - [ ] Performance benchmarks acceptable
 - [ ] No error rate increase
 - [ ] Monitoring confirms healthy state
+- [ ] Index usage verified with `explain()`
 - [ ] Rollback artifacts cleaned up (after confidence period)
+- [ ] Dual-write code removed (after confidence period)
 
 ## Communication plan
 
@@ -112,6 +133,8 @@ Record actual migration execution details here after completion:
 
 - Start time:
 - End time:
+- Duration:
+- Documents/records processed:
 - Issues encountered:
 - Rollback needed: yes/no
 - Validation results:

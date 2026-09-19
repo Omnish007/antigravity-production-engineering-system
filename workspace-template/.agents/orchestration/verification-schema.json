@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "AntigravityTaskVerificationEvidence",
+  "description": "Machine-readable contract for task verification evidence. Used by quality-gates skill and CI/CD gating to evaluate agent output.",
   "type": "object",
   "required": [
     "taskId",
@@ -12,20 +13,33 @@
   "properties": {
     "taskId": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Stable task identifier (e.g., TASK-001)"
+    },
+    "taskType": {
+      "type": "string",
+      "enum": ["feature", "bugfix", "refactor", "performance", "review", "deployment", "infrastructure", "migration", "documentation"],
+      "description": "Task type from task-classifier.md"
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Risk classification from task-classifier.md"
     },
     "verifiedAt": {
       "type": "string",
       "format": "date-time"
     },
     "verifiedBy": {
-      "type": "string"
+      "type": "string",
+      "description": "Agent or role that performed verification"
     },
     "status": {
       "enum": [
         "PASSED",
         "FAILED",
-        "BLOCKED"
+        "BLOCKED",
+        "PASSED_WITH_WARNINGS"
       ]
     },
     "commandsExecuted": {
@@ -42,6 +56,10 @@
           },
           "exitCode": {
             "type": "integer"
+          },
+          "duration": {
+            "type": "string",
+            "description": "Execution duration (e.g., '12.3s')"
           },
           "stdoutExcerpt": {
             "type": "string"
@@ -63,6 +81,14 @@
     "testsFailed": {
       "type": "integer",
       "minimum": 0
+    },
+    "testsSkipped": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "coverageDelta": {
+      "type": "string",
+      "description": "Coverage change from this task (e.g., '+2.3%', '-0.1%', 'no change')"
     },
     "filesChanged": {
       "type": "array",
@@ -86,7 +112,8 @@
             "enum": [
               "PASSED",
               "FAILED",
-              "SKIPPED"
+              "SKIPPED",
+              "NOT_APPLICABLE"
             ]
           },
           "evidence": {
@@ -102,7 +129,8 @@
       "type": "object",
       "properties": {
         "format": {
-          "type": "string"
+          "type": "string",
+          "description": "PASSED | FAILED | SKIPPED | NOT_CONFIGURED"
         },
         "lint": {
           "type": "string"
@@ -115,10 +143,51 @@
         },
         "security": {
           "type": "string"
+        },
+        "accessibility": {
+          "type": "string"
+        },
+        "performance": {
+          "type": "string"
+        }
+      }
+    },
+    "performanceMetrics": {
+      "type": "object",
+      "description": "Pre/post performance comparison when applicable",
+      "properties": {
+        "baseline": { "type": "object" },
+        "current": { "type": "object" },
+        "regression": { "type": "boolean" }
+      }
+    },
+    "trajectory": {
+      "type": "object",
+      "description": "Agent execution path evaluation",
+      "properties": {
+        "planFollowed": {
+          "type": "string",
+          "enum": ["yes", "no", "adapted"]
+        },
+        "doomLoops": {
+          "type": "boolean"
+        },
+        "scopeMaintained": {
+          "type": "boolean"
+        },
+        "recoveryActions": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     },
     "failures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
       "type": "array",
       "items": {
         "type": "string"

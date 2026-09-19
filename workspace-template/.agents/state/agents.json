@@ -2,5 +2,18 @@
   "schemaVersion": "1.0.0",
   "activeRoles": [],
   "ownership": [],
-  "notes": "Logical role state only. A single agent may own multiple roles."
+  "roleSchema": {
+    "role": "string — logical role from role-registry.md",
+    "assignedTo": "string — agent session or identifier",
+    "assignedAt": "ISO 8601 timestamp",
+    "taskId": "string or null — current task being worked",
+    "status": "active | idle | completed"
+  },
+  "ownershipSchema": {
+    "resource": "string — file path or module name",
+    "owner": "string — role or agent identifier",
+    "scope": "exclusive | shared",
+    "since": "ISO 8601 timestamp"
+  },
+  "notes": "Logical role state only. A single agent may own multiple roles. Update when roles are assigned or released. Use ownership to prevent concurrent modification conflicts during multi-agent work."
 }

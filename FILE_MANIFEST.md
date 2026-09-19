@@ -83,6 +83,7 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | `.agents/orchestration/context-budget-policy.md` | Defines context window management, hierarchical loading, and token optimization strategy. |
 | `.agents/orchestration/error-recovery-policy.md` | Defines graduated failure recovery with detect-diagnose-isolate-repair-learn cycle. |
 | `.agents/orchestration/multi-agent-policy.md` | Defines sub-agent delegation, handoff protocol, and multi-agent coordination patterns. |
+| `.agents/orchestration/agent-operating-contract.md` | Defines the canonical 11-phase task execution sequence and maps all policies to their phases. |
 
 ## State
 

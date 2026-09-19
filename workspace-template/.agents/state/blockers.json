@@ -2,5 +2,18 @@
   "schemaVersion": "1.0.0",
   "active": [],
   "resolved": [],
-  "notes": "Blockers must state what is blocked, why, owner/decision needed, and the condition that would unblock the work."
+  "blockerSchema": {
+    "id": "string — stable unique identifier (e.g., BLOCKER-001)",
+    "taskId": "string or null — task that is blocked",
+    "what": "string — what is blocked",
+    "why": "string — why it is blocked",
+    "owner": "string — who can resolve this (role, person, or external party)",
+    "decisionNeeded": "string — what decision or action would unblock",
+    "unblockCondition": "string — measurable condition that proves the blocker is resolved",
+    "severity": "low | medium | high | critical",
+    "createdAt": "ISO 8601 timestamp",
+    "resolvedAt": "ISO 8601 timestamp or null",
+    "resolution": "string or null — how the blocker was resolved"
+  },
+  "notes": "Blockers must state what is blocked, why, owner/decision needed, and the condition that would unblock the work. Move resolved blockers from active to resolved with a resolution note; do not delete them."
 }

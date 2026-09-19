@@ -57,11 +57,13 @@ Use React Suspense boundaries with streaming SSR where the framework supports it
 
 ### Image optimization
 
-- Use `next/image` or equivalent framework-provided image component.
+- Use `next/image` or the framework-provided image component.
 - Serve modern formats (WebP, AVIF) with fallbacks.
 - Set explicit `width` and `height` or use `fill` with proper aspect ratios to prevent CLS.
-- Lazy-load below-the-fold images.
-- Preload hero/LCP images.
+- Lazy-load below-the-fold images (the default behavior for `next/image`).
+- For the LCP image, use `<Image preload />` (Next.js 16+) to inject a `<link rel="preload">` and set `fetchPriority="high"` automatically. The older `priority` prop is deprecated in Next.js 16.
+- Do not preload multiple images on the same page; only the confirmed LCP candidate should be preloaded.
+- Use `loading="eager"` when an above-the-fold image must render immediately but is not the LCP element.
 
 ### Font optimization
 
@@ -69,12 +71,31 @@ Use React Suspense boundaries with streaming SSR where the framework supports it
 - Apply `font-display: swap` or `optional` to prevent invisible text.
 - Subset fonts to include only the character sets needed.
 
-### Prefetching
+### Prefetching and resource hints
 
 - Use framework-provided link prefetching for likely navigation targets.
 - Avoid prefetching everything; prioritize high-probability user paths.
-- Use `priority` hints for critical resources.
+- Use `fetchPriority="high"` on critical resources and `fetchPriority="low"` on deferrable ones where the browser API supports it.
+- Always verify resource hint behavior against the installed framework version; these APIs evolve across major releases.
+
+### State management
+
+- Prefer Server Components for data that does not require client interactivity.
+- Use the project's chosen client-state library consistently; do not introduce competing solutions.
+- Colocate state with the component that owns it; lift only when siblings or parents genuinely need the value.
+- Avoid global client state for server-derivable data.
+
+### Responsive design
+
+- Design mobile-first using the project's responsive utilities.
+- Test layouts at standard breakpoints and between breakpoints.
+- Use relative units and fluid typography where appropriate.
+- Ensure touch targets meet minimum size requirements (48x48 CSS pixels).
 
 ## Verification
 
 Run type-check, lint, relevant unit/integration tests, and E2E for critical changed flows where configured. Validate loading/error/empty states, responsive layouts, and keyboard operation.
+
+## Version sensitivity
+
+Next.js APIs (image props, caching, routing, metadata, server actions) change across major versions. Always verify behavior against the installed version's documentation before making consequential changes. Record version-specific conventions in `docs/CONVENTIONS.md` when they differ from defaults.

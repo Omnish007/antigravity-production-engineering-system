@@ -5,6 +5,9 @@
 - Task/PR:
 - Reviewed files:
 - Related requirements/ADRs:
+- Risk level: low | medium | high | critical
+- Reviewer:
+- Date:
 
 ## Findings
 
@@ -30,15 +33,30 @@ Only note concrete strengths relevant to maintainability, correctness, or risk r
 
 ## Verification review
 
-- Acceptance criteria mapped: yes/no
-- Tests reviewed: yes/no
-- Build/type/lint evidence reviewed: yes/no
-- Security impact reviewed: yes/no
-- Diff scope reviewed: yes/no
+| Check | Status | Notes |
+|---|---|---|
+| Acceptance criteria mapped | | |
+| Tests reviewed and adequate | | |
+| Build/type-check/lint evidence | | |
+| Security impact assessed | | |
+| Performance impact assessed | | |
+| Accessibility impact assessed | | |
+| Diff scope appropriate (no unrelated changes) | | |
+| Error handling reviewed | | |
+| Documentation updated if needed | | |
+| Memory sync needs identified | | |
 
 ## Decision
 
-Approved | Changes required | Blocked
+- Verdict: Approved | Changes required | Blocked
+- Blocking findings count:
+- Conditions for approval (if changes required):
+
+## Follow-up actions
+
+| Action | Owner | Priority | Status |
+|---|---|---|---|
+| | | | |
 
 ## Memory impact
 
