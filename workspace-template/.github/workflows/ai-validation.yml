@@ -38,10 +38,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v7.0.0
 
+      - name: Verify Node version configuration
+        run: |
+          if [ ! -f .nvmrc ] && ! node -e "const p=require('./package.json'); if(!p.engines||!p.engines.node) process.exit(1)" 2>/dev/null; then
+            echo "::error::No .nvmrc file or package.json engines.node found."
+            echo "Create a .nvmrc file with your desired Node version (e.g., '22') or add engines.node to package.json."
+            echo "The workspace template ships with a .nvmrc containing Node 22 — if you removed it, recreate it."
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@8f152de45cc393bb4806a77d70425d082269a84a # v7.0.0
         with:
-          # Match your project's Node.js version. Check .nvmrc or package.json engines.
+          # Reads from .nvmrc (shipped with template) or package.json engines.
           node-version-file: '.nvmrc'
           cache: 'npm'
 

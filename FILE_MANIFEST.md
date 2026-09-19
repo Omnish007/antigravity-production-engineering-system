@@ -15,6 +15,7 @@ Every file in this package has one primary responsibility. The manifest is itsel
 | Path | Purpose |
 |---|---|
 | `workspace-template/AGENTS.md` | Gives general-purpose agents a compact entry point into the same memory, architecture, rules, and version-matched Next.js documentation contract. |
+| `workspace-template/.nvmrc` | Declares the project's Node.js version for local tooling and CI. Update to match your project's required version. |
 
 ## Rules
 

@@ -19,10 +19,27 @@ cp global/GEMINI.md ~/.gemini/GEMINI.md
 # 2. Copy workspace template into your project (includes hidden dirs .agents/ and .github/)
 cp -a workspace-template/. /path/to/your-project/
 
-# 3. Open your project in your AI coding tool and start working
+# 3. Update .nvmrc to match your project's Node.js version
+echo "22" > /path/to/your-project/.nvmrc
+
+# 4. Open your project in your AI coding tool and start working
 ```
 
 The system works immediately with any AI coding tool that reads `AGENTS.md` at the repository root.
+
+### Post-setup: configure rule activation in Antigravity
+
+After copying `.agents/rules/` into your project, configure the intended activation mode for each rule in Antigravity's **Rules customization panel** (Settings → Rules):
+
+| Mode | When to use | Example rules |
+|---|---|---|
+| **Always On** | Rules that should apply to every task | `00-core.md`, `01-project-context.md`, `11-project-memory.md`, `13-agent-safety.md` |
+| **Glob** | Rules that apply only to specific file types | `04-coding.md` (→ `**/*.{ts,tsx,js,jsx}`), `06-uiux.md` (→ `**/*.{tsx,jsx,css}`) |
+| **Model Decision** | Rules the AI loads when it judges them relevant | `07-security.md`, `08-git.md`, `14-observability.md` |
+
+Each rule file includes a `Recommended activation:` line at the top as guidance. The activation mode is configured in Antigravity's UI, not in the Markdown file itself.
+
+Skills (`.agents/skills/`) are automatically loaded by Antigravity when they are relevant to the current task — no manual activation configuration is needed.
 
 ---
 
@@ -588,6 +605,7 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 | `context-budget-policy.md` | Context window management and token optimization |
 | `error-recovery-policy.md` | Graduated failure recovery with anti-doom-loop |
 | `multi-agent-policy.md` | Sub-agent delegation and handoff protocol |
+| `agent-operating-contract.md` | Canonical 11-phase task execution sequence |
 | `quality-gates/SKILL.md` | Self-evaluation and CI/CD gating |
 | `refactoring/SKILL.md` | Behavior-preserving transformation discipline |
 | `performance/SKILL.md` | Evidence-driven performance engineering |
@@ -602,3 +620,26 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 | Circuit breakers | Resilience patterns for external dependencies |
 | Feature flags | Safe rollout discipline |
 | Enhanced deployment | Blue/green, canary, SLO/SLI monitoring |
+
+---
+
+## Packaging for distribution
+
+When creating a distributable archive of this engineering system, **exclude the `.git/` directory**:
+
+```bash
+# From the repository root:
+zip -r production-engineering-system.zip . -x ".git/*"
+
+# Or with tar:
+tar --exclude='.git' -czf production-engineering-system.tar.gz .
+```
+
+The distributable archive should contain only the engineering system files (~88 files), not Git history (~192+ files).
+
+Verify the archive is clean:
+
+```bash
+# Should show 0 results:
+unzip -l production-engineering-system.zip | grep ".git/"
+```
