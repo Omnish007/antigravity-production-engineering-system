@@ -547,8 +547,6 @@ The code, rules, Skills, state, requirements, conventions, and ADRs should work 
 ## Further reading inside this package
 
 - `FILE_MANIFEST.md` — one-line purpose of every file
-- `RESEARCH_BASIS.md` — research and official references used to shape the system
-- `VALIDATION.md` — package validation results
 - `.agents/rules/` — project-wide constraints
 - `.agents/skills/` — reusable procedures
 - `.agents/orchestration/` — task routing and lifecycle policies
