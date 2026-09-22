@@ -30,6 +30,7 @@ Do not claim completion unless the task satisfies the full completion gate:
    - Typechecker
    - Relevant Unit / Integration / E2E test suites
    - Build compiler / packager
+   - **Architecture Integrity**: Run `python3 .agents/validation/check-architecture.py` (or project equivalent). Zero architecture layer violations permitted.
 3. The final git diff is reviewed to ensure zero unrelated changes or debug artifacts remain.
 4. Project memory is updated if durable facts changed.
 </VERIFICATION_POLICY>

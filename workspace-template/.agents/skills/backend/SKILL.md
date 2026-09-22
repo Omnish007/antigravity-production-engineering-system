@@ -23,18 +23,21 @@ Activate this skill when executing tasks requiring backend capabilities, workflo
 
 ### Pre-flight Checklist
 - [ ] Active backend and language profiles loaded from `.agents/technology/profiles/`
-    - [ ] Worker concurrency bounded
-    - [ ] Graceful shutdown and signal traps verified
-    - [ ] Idempotency key checked before execution
-    - [ ] Error handling and retry backoff configured
+- [ ] 4-Layer directory structure verified (routes, controllers, services, repositories, dtos)
+- [ ] Architectural constraints loaded: no DB queries in routes/controllers, no HTTP objects in services
+- [ ] Worker concurrency bounded
+- [ ] Graceful shutdown and signal traps verified
+- [ ] Idempotency key checked before execution
+- [ ] Error handling and retry backoff configured
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>
+- Strict adherence to RULE-ARCH-LAYER-001 (15-layered-architecture.md). Any inline DB query in routes or controllers is an automatic task failure.
 - Decouple long-running background workers from HTTP request cycles.
-    - Enforce graceful shutdown on SIGTERM and SIGINT with connection draining.
-    - All external operations must have explicit timeouts and cancellation tokens.
-    - Mutating jobs must enforce idempotency keys to prevent duplicate processing.
-    - If meeting the Canonical ADR Trigger (Type 1 Reversibility OR any two of: D1 Blast Radius, D3 Trade-offs, D4 Non-Functional Impact), an ADR MUST be authored in `docs/decisions/` and `.agents/skills/architecture/SKILL.md` must be read before implementation.
+- Enforce graceful shutdown on SIGTERM and SIGINT with connection draining.
+- All external operations must have explicit timeouts and cancellation tokens.
+- Mutating jobs must enforce idempotency keys to prevent duplicate processing.
+- If meeting the Canonical ADR Trigger (Type 1 Reversibility OR any two of: D1 Blast Radius, D3 Trade-offs, D4 Non-Functional Impact), an ADR MUST be authored in `docs/decisions/` and `.agents/skills/architecture/SKILL.md` must be read before implementation.
 </NON_NEGOTIABLES>
 
 <PROCEDURE>
@@ -126,7 +129,8 @@ Every backend change requires verification covering:
 - Authentication (HTTP 401) and authorization (HTTP 403) enforcement;
 - Resource not found (HTTP 404) and conflict states (HTTP 409);
 - Error propagation and boundary masking (no leaked stack traces);
-- Database persistence side effects and transactional rollback.
+- Database persistence side effects and transactional rollback;
+- Architecture Verification: Must execute `.agents/validation/check-architecture.py` before declaring completion. Zero violations allowed.
 
 ### Exit Criteria
 Backend service builds cleanly and passes concurrency/stress tests.

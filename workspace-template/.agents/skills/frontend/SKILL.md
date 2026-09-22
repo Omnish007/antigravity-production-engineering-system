@@ -30,9 +30,11 @@ Activate this skill when executing tasks requiring frontend capabilities, workfl
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>
+- Strict adherence to RULE-ARCH-LAYER-001 (15-layered-architecture.md). Frontend code MUST follow: `UI Component -> Custom Hook / Composable / State -> API Service -> HTTP Client`.
+- Direct `fetch()` or `axios()` calls inside UI component rendering bodies, lifecycle hooks, or button handlers are STRICTLY FORBIDDEN. Always route requests through dedicated API services and custom hooks.
 - Provide explicit UI states for loading, error, empty, and data on every async view.
-    - Never expose API keys, database secrets, or private tokens in client bundles.
-    - Ensure responsive layout supporting desktop, tablet, and mobile viewports.
+- Never expose API keys, database secrets, or private tokens in client bundles.
+- Ensure responsive layout supporting desktop, tablet, and mobile viewports.
 </NON_NEGOTIABLES>
 
 <PROCEDURE>

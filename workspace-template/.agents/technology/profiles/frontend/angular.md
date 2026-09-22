@@ -34,6 +34,12 @@ Applies to client-side, SSR, and hybrid enterprise applications built with Angul
 - Official: https://angular.dev
 
 ## 5. Core Architectural Guidance
+- **Mandatory Layered Separation (RULE-ARCH-LAYER-001)**:
+  - Enforce the 4-tier separation:
+    `Component` ──> `State / Feature Service` ──> `API Service` ──> `HttpClient`
+  - **Components (`src/app/**/component.ts`)**: Pure presentation, template control flow, and Signal bindings. Making direct `HttpClient` calls or `fetch()` directly inside component methods is STRICTLY FORBIDDEN.
+  - **Feature / Store Services (`@Injectable()`)**: Component/feature state management using Signals (`signal()`, `computed()`).
+  - **API Services (`@Injectable({ providedIn: 'root' })`)**: Dedicated typed HTTP communication methods.
 - **Standalone Components**: Default exclusively to standalone components, directives, and pipes (`standalone: true` or default in v19+). Avoid introducing `NgModule` for new features.
 - **Signals & Reactivity**:
   - Use Angular Signals (`signal()`, `computed()`, `effect()`, `linkedSignal()`) for fine-grained, synchronous reactivity.
@@ -41,9 +47,6 @@ Applies to client-side, SSR, and hybrid enterprise applications built with Angul
 - **Modern Control Flow**:
   - Use built-in control flow blocks (`@if`, `@for`, `@switch`) instead of legacy structural directives (`*ngIf`, `*ngFor`, `*ngSwitch`).
   - Always provide a unique `track` expression in `@for` loops (e.g. `@for (item of items; track item.id)`).
-- **Deferrable Views (`@defer`)**:
-  - Use `@defer (on viewport)` to automatically code-split and lazy-load non-critical or below-the-fold component trees.
-  - Always provide `@placeholder` and `@loading` blocks with `@defer`.
 - **Dependency Injection**:
   - Use the `inject()` function for dependency injection in component fields and functional guards/interceptors rather than verbose constructor injection.
 
@@ -61,7 +64,23 @@ Applies to client-side, SSR, and hybrid enterprise applications built with Angul
 - Unit & Component: Angular TestBed with modern test runners (Vitest or Karma/Jest).
 - E2E: Playwright testing against production builds (`ng build && npx http-server dist/`).
 
-## 9. Common Anti-Patterns
+## 9. Common Anti-Patterns & FORBIDDEN Practices
+
+### FORBIDDEN: Direct HTTP Calls inside Component Classes
+```typescript
+// ❌ FORBIDDEN: Component calling HttpClient or fetch directly
+@Component({ ... })
+export class UserComponent implements OnInit {
+  private http = inject(HttpClient);
+  users = signal<User[]>([]);
+
+  ngOnInit() {
+    // VIOLATION: Direct HTTP request bypassing API service layer!
+    this.http.get<User[]>('/api/users').subscribe(u => this.users.set(u));
+  }
+}
+```
+
 - Introducing new `NgModule` wrappers for standalone-compatible features.
 - Using `*ngFor` without `trackBy` or `@for` without a `track` expression.
 - Writing heavy calculations inside template method calls instead of `computed()` signals.
@@ -70,5 +89,69 @@ Applies to client-side, SSR, and hybrid enterprise applications built with Angul
 ## 10. Verification Commands
 - Typecheck: `npx tsc --noEmit`
 - Lint: `ng lint` or `npm run lint`
+- Architecture Check: `python3 .agents/validation/check-architecture.py`
 - Test: `ng test --watch=false` or `npm test`
 - Build: `ng build`
+
+## 11. Standard Layered Code Blueprint
+
+```typescript
+// 1. DTO Contract (src/app/core/models/user.model.ts)
+export interface UserDto {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// 2. Dedicated API Service (src/app/core/services/user-api.service.ts)
+@Injectable({ providedIn: 'root' })
+export class UserApiService {
+  private http = inject(HttpClient);
+
+  getUsers(): Observable<UserDto[]> {
+    return this.http.get<UserDto[]>('/api/users');
+  }
+}
+
+// 3. Feature State Store (src/app/features/users/user.store.ts)
+@Injectable()
+export class UserStore {
+  private api = inject(UserApiService);
+  users = signal<UserDto[]>([]);
+  loading = signal(false);
+
+  loadUsers() {
+    this.loading.set(true);
+    this.api.getUsers().subscribe({
+      next: (data) => this.users.set(data),
+      complete: () => this.loading.set(false),
+    });
+  }
+}
+
+// 4. Standalone UI Component (src/app/features/users/user-list.component.ts)
+@Component({
+  selector: 'app-user-list',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [UserStore],
+  template: `
+    @if (store.loading()) {
+      <p>Loading...</p>
+    } @else {
+      <ul>
+        @for (user of store.users(); track user.id) {
+          <li>{{ user.name }} ({{ user.email }})</li>
+        }
+      </ul>
+    }
+  `,
+})
+export class UserListComponent implements OnInit {
+  protected store = inject(UserStore);
+
+  ngOnInit() {
+    this.store.loadUsers();
+  }
+}
+```

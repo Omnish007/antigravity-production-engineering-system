@@ -38,10 +38,11 @@ Applies to JVM enterprise services, REST APIs, and microservices built with Spri
 - Official: https://spring.io/projects/spring-boot
 
 ## 5. Core Architectural Guidance
-- **Layered Boundary Architecture**:
-  - **Web / API Layer**: `@RestController` with explicit request/response DTOs (using immutable Java records).
-  - **Service Layer**: `@Service` containing pure business logic and transaction boundaries (`@Transactional`).
-  - **Data / Repository Layer**: `@Repository` interfaces extending `JpaRepository` or `CrudRepository`.
+- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+  - **Controllers (`@RestController`)**: Thin HTTP entry points. Accept `@Valid` DTO records, delegate to `@Service`, and return `ResponseEntity<T>`. Querying repositories or databases directly inside controllers is STRICTLY FORBIDDEN.
+  - **Services (`@Service`)**: Contain domain business logic, workflow rules, validation, and transaction boundaries (`@Transactional`). Completely decoupled from `HttpServletRequest` or `HttpServletResponse`.
+  - **Repositories (`@Repository`)**: Spring Data JPA repositories or custom persistence implementations. Encapsulate all database queries and projections.
+  - **DTOs / Contracts**: Immutable Java records with Jakarta Bean Validation annotations (`@NotNull`, `@Email`, `@Size`).
 - **Dependency Injection**:
   - Use constructor injection exclusively (facilitated by Lombok `@RequiredArgsConstructor` or explicit constructors).
   - Never use field injection (`@Autowired` on private fields), which hinders unit testing and violates encapsulation.
@@ -68,7 +69,35 @@ Applies to JVM enterprise services, REST APIs, and microservices built with Spri
 - Web Slice Tests: `@WebMvcTest` for controller validation, input constraint checks, and mock MVC assertions.
 - Integration Tests: `@SpringBootTest` with **Testcontainers** for real database and cache integration testing.
 
-## 9. Common Anti-Patterns
+## 9. Common Anti-Patterns & FORBIDDEN Practices
+
+### FORBIDDEN: Direct Repository Access in Controllers
+```java
+// ❌ FORBIDDEN: Injecting repository directly into controller
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    @Autowired
+    private UserRepository userRepository; // VIOLATION: Bypassing service layer!
+
+    @PostMapping
+    public User create(@RequestBody User user) {
+        return userRepository.save(user); // VIOLATION: Database query in controller!
+    }
+}
+```
+
+### FORBIDDEN: HttpServletRequest/Response in Service Layer
+```java
+// ❌ FORBIDDEN: Passing HttpServletRequest into Service
+@Service
+public class UserService {
+    public void register(HttpServletRequest request) { // VIOLATION: Transport coupling!
+        String token = request.getHeader("Authorization");
+    }
+}
+```
+
 - Using field injection (`@Autowired private FooService fooService`).
 - Executing external HTTP requests or heavy computation inside `@Transactional` database methods.
 - Using `FetchType.EAGER` on `@OneToMany` or `@ManyToMany` JPA relationships.
@@ -81,3 +110,59 @@ Applies to JVM enterprise services, REST APIs, and microservices built with Spri
 - Gradle:
   - Test: `./gradlew test`
   - Build: `./gradlew build`
+- Architecture Check: `python3 .agents/validation/check-architecture.py`
+
+## 11. Standard Layered Code Blueprint
+
+```java
+// 1. DTO Record (src/main/java/com/example/dto/CreateUserRequest.java)
+public record CreateUserRequest(
+    @NotBlank @Email String email,
+    @NotBlank @Size(min = 2) String name
+) {}
+
+public record UserResponse(UUID id, String email, String name) {}
+
+// 2. Repository Layer (src/main/java/com/example/repository/UserRepository.java)
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+    Optional<UserEntity> findByEmail(String email);
+}
+
+// 3. Service Layer (src/main/java/com/example/service/UserService.java)
+@Service
+@Transactional
+public class UserService {
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public UserResponse register(CreateUserRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email exists");
+        }
+        UserEntity entity = new UserEntity(request.email(), request.name());
+        UserEntity saved = userRepository.save(entity);
+        return new UserResponse(saved.getId(), saved.getEmail(), saved.getName());
+    }
+}
+
+// 4. Controller Layer (src/main/java/com/example/controller/UserController.java)
+@RestController
+@RequestMapping("/api/v1/users")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody CreateUserRequest request) {
+        UserResponse response = userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+}
+```

@@ -48,12 +48,14 @@ Apply these universally across all code. They are not optional guidelines; they 
 - Implement what is needed now, and design so that future extension is possible but not pre-built.
 - If a requirement is uncertain, defer the implementation until it is validated.
 
-### Separation of concerns
+### Separation of concerns (NON-NEGOTIABLE)
 
-- Keep presentation, business logic, data access, and infrastructure in distinct layers.
-- Each layer should be independently testable.
-- Cross-layer calls should flow in one direction (presentation → business → data); never allow data access to call presentation directly.
-- Configuration, logging, and error handling are cross-cutting concerns; centralize them rather than scattering them through business logic.
+- Comply strictly with `15-layered-architecture.md`.
+- **Backend Flow**: `Route -> Controller -> Service -> Repository -> Data Access`.
+- **Frontend Flow**: `UI Component -> Custom Hook / State -> API Service -> HTTP Client`.
+- **FORBIDDEN**: Placing database queries, ORM/ODM calls (`find()`, `query()`, `create()`), or business logic inside route handlers or controllers.
+- **FORBIDDEN**: Passing transport objects (`req`, `res`, `next`) into service or repository methods.
+- **FORBIDDEN**: Calling `fetch` or `axios` directly inside React/Vue/Svelte UI component rendering bodies.
 
 ### Composition over inheritance
 

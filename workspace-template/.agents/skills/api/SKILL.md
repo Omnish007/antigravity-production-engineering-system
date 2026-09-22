@@ -28,7 +28,9 @@ Activate this skill when executing tasks requiring api capabilities, workflows, 
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>
-- Enforce server-side schema validation (Zod, Pydantic, JSON Schema, etc.) on all endpoints.
+- Strict adherence to RULE-ARCH-LAYER-001 (15-layered-architecture.md). Placing business logic, database queries, or ORM/ODM calls directly in API route handlers or controllers is STRICTLY FORBIDDEN.
+- Mandate explicit DTO schema validation (Zod, Pydantic, TypeBox, class-validator) on every incoming endpoint payload BEFORE reaching the domain service layer.
+- Enforce server-side schema validation on all endpoints.
 - Use standard HTTP status codes (200, 201, 400, 401, 403, 404, 409, 422, 500).
 - Enforce constant-time comparison (e.g. `timingSafeEqual`, `hmac.compare_digest`) for webhook and token signatures.
 - Every mutating endpoint must have an explicit trust model and abuse-control model: user-authenticated (session/token), cryptographically verified (webhook signature), or intentionally public with documented abuse controls (rate limiting, CAPTCHA, or proof-of-work).

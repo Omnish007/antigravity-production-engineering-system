@@ -38,7 +38,7 @@ Activate this skill when executing tasks requiring feature-development capabilit
 ## Lifecycle
 
 ```text
-Understand -> Plan -> Implement -> Test -> Verify -> Review -> Memory Sync
+Understand -> Plan -> Scaffold Architecture -> Implement -> Test -> Verify -> Review -> Memory Sync
 ```
 
 ## Understand
@@ -50,6 +50,16 @@ Understand -> Plan -> Implement -> Test -> Verify -> Review -> Memory Sync
 ## Plan
 
 For localized low-risk work, use a compact plan. For cross-layer or high-risk work, use the full planning skill and task graph.
+
+## Phase 1.5: Architectural Scaffolding
+
+Before writing any business logic or persistence implementation:
+- Scaffold the 4-layer structure complying with `15-layered-architecture.md`:
+  - `dtos/`: Define input/output validation schemas and typed contracts.
+  - `controllers/`: Declare thin transport adapters.
+  - `services/`: Declare pure domain service classes or functions.
+  - `repositories/`: Declare persistence interfaces and data access logic.
+- Ensure dependency flow points strictly inward toward domain contracts.
 
 ## Implement
 

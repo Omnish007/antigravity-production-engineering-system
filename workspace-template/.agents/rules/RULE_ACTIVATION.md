@@ -19,6 +19,7 @@ Provide an authoritative catalog of all project rules, their stable IDs, activat
 | `RULE-CORE-001` | Core Engineering Principles | `00-core.md` | ALWAYS | 100 | Universal engineering constraints |
 | `RULE-SAFETY-001` | Agent Safety Invariants | `13-agent-safety.md` | ALWAYS | 95 | Sandboxing, credentials, prompt safety |
 | `RULE-CODE-001` | Coding Discipline | `04-coding.md` | CODE_TOUCH | 90 | Language/code style and cleanliness |
+| `RULE-ARCH-LAYER-001` | Layered Architecture Standard | `15-layered-architecture.md` | CODE_TOUCH | 88 | 4-layer separation & anti-patterns |
 | `RULE-VERIFY-001` | Verification Rules | `10-verification.md` | GOVERNED_TASK | 85 | Mandatory verification & exit codes |
 | `RULE-ARCH-001` | Architecture & Design | `03-architecture.md` | DOMAIN_MATCH | 80 | System boundaries, ADR triggers |
 | `RULE-SEC-001` | Security Engineering | `07-security.md` | DOMAIN_MATCH | 80 | Security, auth, SAST scanning |

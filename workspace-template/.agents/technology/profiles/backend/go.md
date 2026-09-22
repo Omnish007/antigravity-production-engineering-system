@@ -30,7 +30,11 @@ Applies to backend microservices, high-concurrency HTTP servers, gRPC services, 
 - Baseline: Go 1.21+.
 
 ## 4. Core Architectural Guidance
-- **Standard Library First**: Prefer `net/http` with lightweight routing (`chi` or standard library multiplexer in Go 1.22+).
+- **Standard Go Clean Architecture (RULE-ARCH-LAYER-001)**:
+  - **Transport / Handlers (`internal/transport/http/handler.go`)**: Decode JSON/URL payloads, invoke domain services, and encode JSON responses. Executing raw SQL, calling database connection pools, or direct query building in handlers is STRICTLY FORBIDDEN.
+  - **Domain Services (`internal/domain/service.go`)**: Pure business logic, invariants, workflow orchestration, and domain error definitions. Takes `context.Context` and repository interfaces. Must have ZERO references to `net/http` or HTTP status codes.
+  - **Repositories (`internal/repository/postgres.go`)**: Database queries, SQL scanning, transaction management, and persistence mapping.
+  - **Domain Models / DTOs (`internal/domain/user.go`)**: Core data structures and validation methods.
 - **Context Propagation**: Always pass `context.Context` as the first argument to functions performing I/O, database queries, or external calls. Respect cancellation and deadlines.
 - **Error Handling**:
   - Explicit error returns `(result, error)`.
@@ -52,7 +56,28 @@ Applies to backend microservices, high-concurrency HTTP servers, gRPC services, 
 - Benchmarking: `go test -bench=. -benchmem ./...`
 - Verification: `go build ./...`
 
-## 7. Common Anti-patterns
+## 7. Common Anti-patterns & FORBIDDEN Practices
+
+### FORBIDDEN: Direct SQL Execution inside HTTP Handlers
+```go
+// ❌ FORBIDDEN: Raw SQL query executed directly inside HTTP handler
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+    // VIOLATION: Database interaction directly inside HTTP transport layer!
+    _, err := h.db.ExecContext(r.Context(), "INSERT INTO users (email) VALUES ($1)", email)
+    if err != nil {
+        http.Error(w, err.Error(), 500)
+    }
+}
+```
+
+### FORBIDDEN: Passing HTTP Types to Domain Services
+```go
+// ❌ FORBIDDEN: Service method taking http.ResponseWriter or http.Request
+type UserService struct{}
+func (s *UserService) Register(w http.ResponseWriter, r *http.Request) { // VIOLATION!
+}
+```
+
 - Spawning unbounded goroutines without concurrency limits or context cancellation, leading to resource exhaustion.
 - Ignoring errors or shadowing error variables in nested blocks.
 - Using `panic()` in production code instead of returning structured errors.
@@ -62,3 +87,75 @@ Applies to backend microservices, high-concurrency HTTP servers, gRPC services, 
 - Official Documentation: https://go.dev/doc/
 - Standard Library Reference: https://pkg.go.dev/std
 - Local Inspection: Run `go doc <package>` or inspect `go.mod`.
+
+## 9. Standard Layered Code Blueprint
+
+```go
+// 1. Domain Entities & Interfaces (internal/domain/user.go)
+package domain
+
+import "context"
+
+type User struct {
+    ID    string `json:"id"`
+    Email string `json:"email"`
+}
+
+type UserRepository interface {
+    GetByEmail(ctx context.Context, email string) (*User, error)
+    Create(ctx context.Context, email string) (*User, error)
+}
+
+type UserService interface {
+    Register(ctx context.Context, email string) (*User, error)
+}
+
+// 2. Domain Service Implementation (internal/domain/service.go) - Transport-agnostic
+type userService struct {
+    repo UserRepository
+}
+
+func NewUserService(repo UserRepository) UserService {
+    return &userService{repo: repo}
+}
+
+func (s *userService) Register(ctx context.Context, email string) (*User, error) {
+    existing, err := s.repo.GetByEmail(ctx, email)
+    if err == nil && existing != nil {
+        return nil, ErrDuplicateEmail
+    }
+    return s.repo.Create(ctx, email)
+}
+
+// 3. Repository Layer (internal/repository/postgres/user.go) - Database only
+type PostgresUserRepository struct {
+    db *sql.DB
+}
+
+func (r *PostgresUserRepository) Create(ctx context.Context, email string) (*domain.User, error) {
+    var u domain.User
+    err := r.db.QueryRowContext(ctx, "INSERT INTO users (email) VALUES ($1) RETURNING id, email", email).
+        Scan(&u.ID, &u.Email)
+    return &u, err
+}
+
+// 4. HTTP Transport Handler (internal/transport/http/user.go) - Thin adapter
+type UserHandler struct {
+    service domain.UserService
+}
+
+func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+    var req struct{ Email string `json:"email"` }
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "invalid request body", http.StatusBadRequest)
+        return
+    }
+    user, err := h.service.Register(r.Context(), req.Email)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(user)
+}
+```

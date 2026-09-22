@@ -18,6 +18,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/agents/security-reviewer.md` | Defines security-reviewer.md specification and implementation. |
 | `workspace-template/.agents/agents/test-engineer.md` | Defines test-engineer.md specification and implementation. |
 | `workspace-template/.agents/hooks.json` | Defines hooks.json specification and implementation. |
+| `workspace-template/.agents/validation/check-architecture.py` | Automated static architecture linter enforcing RULE-ARCH-LAYER-001 boundaries. |
 | `workspace-template/.agents/validation/core/__init__.py` | Python package initializer for core governance and verification engine. |
 | `workspace-template/.agents/validation/core/governance_core.py` | Authoritative governance evaluation engine enforcing task-scoped stop conditions and completion invariants. |
 | `workspace-template/.agents/validation/core/verification_policy.py` | Executable verification policy engine implementing canonical gate registry and taxonomy. |
@@ -92,6 +93,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/rules/12-requirements.md` | Defines requirements interpretation, ambiguity handling, assumptions, and acceptance criteria discipline. |
 | `workspace-template/.agents/rules/13-agent-safety.md` | Defines AI-agent-specific safety: prompt injection defense, excessive agency prevention, output sanitization, and OWASP LLM alignment. |
 | `workspace-template/.agents/rules/14-observability.md` | Defines agent execution tracing, context budget awareness, error classification, and drift detection. |
+| `workspace-template/.agents/rules/15-layered-architecture.md` | Mandates strict 4-layer separation (Routes -> Controllers -> Services -> Repositories) and forbids mixed responsibilities. |
 | `workspace-template/.agents/rules/RULE_ACTIVATION.md` | Authoritative catalog of all project rules, activation criteria, and precedence levels. |
 | `workspace-template/.agents/rules/rule-activation.yaml` | Declarative matrix defining rule activation triggers, stable IDs, and domain mappings. |
 

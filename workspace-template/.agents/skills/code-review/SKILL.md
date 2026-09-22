@@ -45,7 +45,7 @@ Key principles:
 
 ## Review evaluation dimensions
 
-Review every change across seven essential dimensions:
+Review every change across eight essential dimensions:
 
 ### 1. Design & Architecture
 - Does this change fit the overall system architecture (`docs/ARCHITECTURE.md`)?
@@ -86,6 +86,12 @@ Review every change across seven essential dimensions:
 - Are there obvious algorithmic bottlenecks ($O(n^2)$ on unbounded sets)?
 - Does the change introduce N+1 query patterns or unindexed database lookups?
 - Are database connections, file handles, and network sockets deterministically released?
+
+### 8. Architectural Layering & Boundaries
+- Check for DB queries or ORM calls inside route files or controllers (Severity: P0 - BLOCKER).
+- Check for HTTP objects (`req`, `res`, status codes) inside service or repository files (Severity: P0 - BLOCKER).
+- Check for direct `fetch` / `axios` calls inside UI component files (Severity: P1 - MAJOR).
+- Ensure strict compliance with `15-layered-architecture.md` and verify zero violations via `check-architecture.py`.
 
 ## Finding severity classification
 

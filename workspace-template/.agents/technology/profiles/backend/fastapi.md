@@ -31,10 +31,11 @@ Applies to Python asynchronous REST APIs, microservices, and backend services bu
 - Official: https://fastapi.tiangolo.com/
 
 ## 5. Core Architectural Guidance
-- **Pydantic v2 Data Validation**:
-  - Define explicit request, query, and response models using `pydantic.BaseModel`.
-  - Use `model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)` to reject unmapped input fields.
-  - Always specify `response_model` on endpoints to filter internal database fields and ensure type-safe serialization.
+- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+  - **Routers (`src/routers/`)**: Define `@router.post("/")`, URL paths, query parameters, HTTP status codes, and `response_model`. Must inject domain services via `Depends(get_service)`. Zero direct database queries or session manipulation allowed.
+  - **Domain Services (`src/services/`)**: Implement business logic, orchestration, and domain rules. Accept and return domain objects or DTOs. Completely decoupled from FastAPI `Request`, `Response`, or status codes.
+  - **Repositories (`src/repositories/`)**: Pure persistence abstractions taking `AsyncSession` (or DB client) and executing SQLAlchemy/asyncpg queries.
+  - **Schemas / DTOs (`src/schemas/`)**: Pydantic v2 models defining strict Request and Response schemas (`ConfigDict(extra='forbid', str_strip_whitespace=True)`).
 - **Dependency Injection (`Depends`)**:
   - Use FastAPI's dependency injection system for database session management, authentication/authorization checks, and service dependencies.
   - Use lifespan handlers (`@asynccontextmanager async def lifespan(app: FastAPI): ...`) for startup and shutdown resource lifecycles.
@@ -58,13 +59,94 @@ Applies to Python asynchronous REST APIs, microservices, and backend services bu
 - Testing Client: Pytest with `httpx.AsyncClient` (`ASGITransport`) for asynchronous endpoint testing.
 - Database Fixtures: Use isolated test database schemas or transactional rollbacks per test case.
 
-## 9. Common Anti-Patterns
+## 9. Common Anti-Patterns & FORBIDDEN Practices
+
+### FORBIDDEN: Direct Database Queries or SQL in Route Endpoints
+```python
+# ❌ FORBIDDEN: Direct session.execute or model query inside router
+@router.post("/users")
+async def create_user(dto: UserCreate, db: AsyncSession = Depends(get_db)):
+    # VIOLATION: Database query directly inside route handler!
+    result = await db.execute(select(UserModel).where(UserModel.email == dto.email))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="User exists")
+```
+
+### FORBIDDEN: Transport Objects (Request/Response) in Domain Services
+```python
+# ❌ FORBIDDEN: Domain service taking FastAPI Request
+class UserService:
+    async def register(self, request: Request):  # VIOLATION: HTTP coupling in service!
+        body = await request.json()
+```
+
 - Calling blocking synchronous I/O (`requests.get()`, `time.sleep()`) inside `async def` routes, stalling the entire event loop.
 - Omitting `response_model`, causing internal database entity fields (e.g. password hashes) to leak to clients.
 - Mixing legacy Pydantic v1 methods (`.dict()`, `.parse_obj()`) with Pydantic v2 (`.model_dump()`, `.model_validate()`).
-- Instantiating database sessions directly inside route handlers instead of using `Depends`.
 
 ## 10. Verification Commands
 - Typecheck: `mypy .`
 - Lint & Format: `ruff check .` and `ruff format --check .`
+- Architecture Check: `python3 .agents/validation/check-architecture.py`
 - Test: `pytest`
+
+## 11. Standard Layered Code Blueprint
+
+```python
+# 1. Schemas / DTOs (src/schemas/user.py)
+from pydantic import BaseModel, EmailStr, ConfigDict
+
+class UserCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    email: EmailStr
+    name: str
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    email: EmailStr
+    name: str
+
+# 2. Repository Layer (src/repositories/user_repo.py)
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+class UserRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def get_by_email(self, email: str) -> UserModel | None:
+        result = await self.session.execute(select(UserModel).where(UserModel.email == email))
+        return result.scalar_one_or_none()
+
+    async def create(self, user: UserModel) -> UserModel:
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user
+
+# 3. Domain Service Layer (src/services/user_service.py) - Zero HTTP knowledge
+class UserService:
+    def __init__(self, repo: UserRepository):
+        self.repo = repo
+
+    async def register_user(self, dto: UserCreate) -> UserResponse:
+        existing = await self.repo.get_by_email(dto.email)
+        if existing:
+            raise DuplicateEntityError("Email already registered")
+        entity = UserModel(email=dto.email, name=dto.name)
+        saved = await self.repo.create(entity)
+        return UserResponse.model_validate(saved)
+
+# 4. Router Adapter (src/routers/user_router.py) - Thin declarative adapter
+from fastapi import APIRouter, Depends, status
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(
+    dto: UserCreate,
+    service: UserService = Depends(get_user_service),
+) -> UserResponse:
+    return await service.register_user(dto)
+```

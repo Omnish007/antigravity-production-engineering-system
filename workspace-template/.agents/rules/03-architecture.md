@@ -21,6 +21,7 @@ Govern structural architecture, module boundaries, dependency flow, and architec
     - D3 (Trade-offs: 2+ viable alternatives evaluated with competing trade-offs)
     - D4 (Non-Functional Impact: durability, consistency, security boundary, or new external infrastructure)
   MANDATORY ACTION: A formal ADR file MUST be authored in `docs/decisions/ADR-NNN-<slug>.md` and registered in `docs/decisions/INDEX.md` before or during implementation.
+- **ARC-05 (Mandatory 4-Layer Separation)**: All backend code MUST strictly separate Routes, Controllers, Services, and Repositories. Direct database or model operations in routes or controllers are STRICTLY FORBIDDEN. All changes must comply with `15-layered-architecture.md`.
 </NON_NEGOTIABLES>
 
 <ACTION_SPACE_CONSTRAINTS>
