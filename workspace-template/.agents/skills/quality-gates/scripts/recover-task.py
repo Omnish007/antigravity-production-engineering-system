@@ -3,7 +3,7 @@
 
 Deterministic Task Recovery & Remediation Tool:
 - P0-10: Emits strictly schematized recovery events (TASK_RECOVERED_RESET, TASK_RESUMED, TASK_RECOVERED_FAILED)
-  conforming to event.schema.json without arbitrary payload properties.
+  conforming to events.schema.json without arbitrary payload properties.
 - P0-11: Mutates ONLY canonical per-task state (.agents/state/tasks/TASK-xxx.json) and
   canonical per-task events (.agents/state/events/TASK-xxx.jsonl), then triggers scratch aggregation.
 - P0-12: Fails closed on Git errors (never interprets git failure as clean tree).
@@ -118,7 +118,7 @@ def append_canonical_event(
     previous_status: str,
     details_str: str,
 ):
-    """P0-10: Emit formal recovery event conforming strictly to event.schema.json."""
+    """P0-10: Emit formal recovery event conforming strictly to events.schema.json."""
     events_dir = state_dir / "events"
     events_dir.mkdir(parents=True, exist_ok=True)
     ev_path = events_dir / f"{task_id}.jsonl"

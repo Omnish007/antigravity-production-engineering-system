@@ -61,13 +61,8 @@ KNOWN_PURPOSES = {
     "workspace-template/.agents/validation/core/workspace_resolver.py": "Deterministic workspace and governance root resolver enforcing explicit sentinels.",
     "workspace-template/.agents/validation/core/verification_policy.py": "Executable verification policy engine implementing canonical gate registry and taxonomy.",
     "workspace-template/.agents/validation/core/governance_core.py": "Authoritative governance evaluation engine enforcing task-scoped stop conditions and completion invariants.",
-    "workspace-template/.agents/state/task-record.schema.json": "Strict canonical schema for per-task state records.",
-    "workspace-template/.agents/state/governance-record.schema.json": "Strict canonical schema for per-task governance records.",
-    "workspace-template/.agents/state/blocker-record.schema.json": "Strict canonical schema for blocker records.",
-    "workspace-template/.agents/state/event.schema.json": "Strict canonical schema for task lifecycle and recovery events.",
     "workspace-template/.agents/state/governance.json": "Stores task-scoped governance requirements, quality gate evidence, and completion status.",
     "workspace-template/.agents/state/governance.schema.json": "JSON Schema defining task-scoped governance state and completion gate structures.",
-    "workspace-template/.agents/CONTROL_PLANE_MANIFEST.json": "Authoritative SHA-256 integrity manifest for protected control-plane files.",
     "workspace-template/.agents/agents/coordinator.md": "Central engineering coordinator responsible for task decomposition, context routing, subagent delegation, result synthesis, and final governance enforcement.",
 }
 

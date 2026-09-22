@@ -6,16 +6,9 @@ Every file listed below is included in this package. Each has one primary respon
 
 | Path | Purpose |
 |---|---|
-| `.gitignore` | Defines .gitignore specification and implementation. |
-| `CHANGELOG.md` | Documents release history, migrations, and freeze specifications across all versions. |
-| `COMPATIBILITY.md` | Defines COMPATIBILITY.md specification and implementation. |
 | `FILE_MANIFEST.md` | Gives a one-line purpose for every packaged file. |
 | `README.md` | Explains the architecture, installation, source-of-truth hierarchy, and completion contract. |
-| `RESEARCH_BASIS.md` | Documents researched official sources, release lines, and architectural baselines. |
-| `VALIDATION.md` | Documents comprehensive validation matrix, test results, and adversarial security assessments. |
-| `VERSION.md` | Freezes the system specification at version 4.0.0. |
 | `global/GEMINI.md` | Defines cross-project agent behavior and durable engineering principles. |
-| `workspace-template/.agents/CONTROL_PLANE_MANIFEST.json` | Authoritative SHA-256 integrity manifest for protected control-plane files. |
 | `workspace-template/.agents/agents/architect.md` | Defines architect.md specification and implementation. |
 | `workspace-template/.agents/agents/code-reviewer.md` | Defines code-reviewer.md specification and implementation. |
 | `workspace-template/.agents/agents/database-specialist.md` | Defines database-specialist.md specification and implementation. |
@@ -29,20 +22,6 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/validation/core/governance_core.py` | Authoritative governance evaluation engine enforcing task-scoped stop conditions and completion invariants. |
 | `workspace-template/.agents/validation/core/verification_policy.py` | Executable verification policy engine implementing canonical gate registry and taxonomy. |
 | `workspace-template/.agents/validation/core/workspace_resolver.py` | Deterministic workspace and governance root resolver enforcing explicit sentinels. |
-| `workspace-template/.agents/validation/fixtures/invalid/contradictory-classification.json` | Defines contradictory-classification.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/fake-quality-gate.json` | Defines fake-quality-gate.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/fake-security-evidence.json` | Defines fake-security-evidence.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/missing-adr.json` | Defines missing-adr.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/missing-start-event.json` | Defines missing-start-event.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/missing-test.json` | Defines missing-test.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/ungrounded-approval.json` | Defines ungrounded-approval.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/invalid/unresolved-blocker.json` | Defines unresolved-blocker.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/valid/high-risk-task.json` | Defines high-risk-task.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/valid/migration-task.json` | Defines migration-task.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/valid/minimal-fast-task.json` | Defines minimal-fast-task.json specification and implementation. |
-| `workspace-template/.agents/validation/fixtures/valid/standard-feature-task.json` | Defines standard-feature-task.json specification and implementation. |
-| `workspace-template/.agents/validation/tests/test-lifecycle-simulation.py` | Defines test-lifecycle-simulation.py specification and implementation. |
-| `workspace-template/.agents/validation/tests/test-validators.py` | Defines test-validators.py specification and implementation. |
 | `workspace-template/.gitignore` | Defines .gitignore specification and implementation. |
 
 ## Workspace bridge
@@ -201,28 +180,19 @@ Every file listed below is included in this package. Each has one primary respon
 |---|---|
 | `workspace-template/.agents/state/agents.json` | Stores active logical roles/tasks and ownership state. |
 | `workspace-template/.agents/state/agents.schema.json` | JSON Schema defining agent roles, tasks, and state. |
-| `workspace-template/.agents/state/blocker-record.schema.json` | Strict canonical schema for blocker records. |
 | `workspace-template/.agents/state/blockers.json` | Stores unresolved blockers and their disposition. |
 | `workspace-template/.agents/state/blockers.schema.json` | JSON Schema defining blocker severity, resolution, and tracking. |
-| `workspace-template/.agents/state/blockers/.gitkeep` | Defines .gitkeep specification and implementation. |
-| `workspace-template/.agents/state/event.schema.json` | Strict canonical schema for task lifecycle and recovery events. |
-| `workspace-template/.agents/state/events.jsonl` | Stores append-only execution events for traceability. Starts empty; events are recorded during actual execution. |
 | `workspace-template/.agents/state/events.schema.json` | JSON Schema defining the structure and allowed values for events in `events.jsonl`. |
-| `workspace-template/.agents/state/events/.gitkeep` | Defines .gitkeep specification and implementation. |
-| `workspace-template/.agents/state/governance-record.schema.json` | Strict canonical schema for per-task governance records. |
 | `workspace-template/.agents/state/governance.json` | Defines governance.json specification and implementation. |
 | `workspace-template/.agents/state/governance.schema.json` | Defines governance.schema.json specification and implementation. |
-| `workspace-template/.agents/state/governance/.gitkeep` | Defines .gitkeep specification and implementation. |
 | `workspace-template/.agents/state/project.json` | Stores project lifecycle and current phase metadata. |
 | `workspace-template/.agents/state/project.schema.json` | JSON Schema defining valid project metadata and lifecycle phase structure. |
 | `workspace-template/.agents/state/retries.json` | Stores failed attempts, reasons, and retry policy state. |
 | `workspace-template/.agents/state/retries.schema.json` | JSON Schema defining retry logging and escalation ladder state. |
 | `workspace-template/.agents/state/stack.json` | Stores detected and declared technology stack state. |
 | `workspace-template/.agents/state/stack.schema.json` | JSON Schema defining technology stack structure, categories, and version metadata. |
-| `workspace-template/.agents/state/task-record.schema.json` | Strict canonical schema for per-task state records. |
 | `workspace-template/.agents/state/tasks.json` | Stores tasks, dependencies, status, and outputs. |
 | `workspace-template/.agents/state/tasks.schema.json` | JSON Schema defining the task DAG structure, statuses, and properties. |
-| `workspace-template/.agents/state/tasks/.gitkeep` | Defines .gitkeep specification and implementation. |
 
 ## Templates
 

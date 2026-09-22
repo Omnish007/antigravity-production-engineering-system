@@ -110,6 +110,19 @@ The system features a **modular technology layer**:
    Agent Default
    ```
 
+### Cleaning up unused technology profiles
+
+This system ships with **30 technology profiles** covering a wide range of stacks. When you clone this system into your project, **delete the profiles you do not use** to reduce context size and keep the AI focused on your actual stack.
+
+For example, if your project uses Next.js, React, TypeScript, Express, and MongoDB, you would keep only:
+- `profiles/frontend/nextjs.md`, `profiles/frontend/react.md`
+- `profiles/backend/express.md`, `profiles/backend/node.md`
+- `profiles/database/mongodb.md`
+- `profiles/language/typescript.md`, `profiles/language/javascript.md`
+- `profiles/deployment/` — keep whichever matches your deployment target
+
+Delete all other profile files. Also update `registry.json` to remove the entries for deleted profiles.
+
 Any deliberate architectural deviation is documented as an ADR (`docs/decisions/ADR-*.md`) rather than silently changing the system's assumptions.
 
 ---
