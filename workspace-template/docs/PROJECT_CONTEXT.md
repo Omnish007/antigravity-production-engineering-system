@@ -28,12 +28,15 @@
 
 ## Technology baseline
 
-- Frontend: Next.js / React / TypeScript / Tailwind CSS / shadcn/ui
-- Backend: Node.js / Express.js
-- Database: MongoDB
-- Other dependencies/services:
+- Primary language(s) & runtime:
+- Frontend framework & styling:
+- Backend framework & API protocol:
+- Database & persistence layer:
+- Cache & message broker (if applicable):
+- Infrastructure & deployment target:
+- Other external services / APIs:
 
-Record actual pinned versions and project deviations separately in the repository configuration and, when material, ADRs.
+Record actual pinned versions in project manifests (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, etc.) and record major technical choices or deviations in ADRs.
 
 ## Environment matrix
 

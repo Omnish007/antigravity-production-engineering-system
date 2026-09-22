@@ -1,19 +1,49 @@
 ---
 name: security
+id: SKILL-SEC-001
 description: Perform security-focused design and code review using OWASP API/security guidance, secure session practices, validation controls, and NIST SSDF principles.
 ---
 
 # Security Skill
 
+<MISSION>
+Perform security-focused design and code review using OWASP API/security guidance, secure session practices, validation controls, and NIST SSDF principles.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring security capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] Zero secrets in code audited
+    - [ ] SSRF protection active on outbound calls
+    - [ ] Constant-time crypto verified
+    - [ ] Server-side authorization verified
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Zero secrets, API keys, or private certificates in version control.
+- Enforce SSRF prevention on all outbound network requests.
+- Use constant-time comparisons for HMAC signatures and auth tokens.
+- Enforce server-side authorization appropriate to the request context: authenticated application requests must validate user identity and resource permissions (BOLA/BPLA/RBAC); public endpoints must enforce abuse controls and rate limits; incoming webhooks must cryptographically verify signatures; internal services must validate service tokens, IAM credentials, or mTLS.
+- Sensitive data at rest MUST use an approved encryption-at-rest mechanism appropriate to the deployment environment and threat model (e.g. provider-managed storage encryption or application-level encryption such as AES-256-GCM / ChaCha20-Poly1305 where tenant isolation or host zero-trust is required); cryptographic keys MUST be stored separately from ciphertext.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Threat-driven review
 
 Identify assets, actors, trust boundaries, abuse cases, and failure impact before choosing controls.
 
 ## Required review areas
 
-- authentication;
+- authentication and authorization boundaries;
 - session/token storage and rotation;
-- authorization at object and action level;
+- authorization at object and action level (BOLA/BPLA);
 - input validation;
 - injection;
 - XSS/output encoding;
@@ -33,9 +63,11 @@ Identify assets, actors, trust boundaries, abuse cases, and failure impact befor
 
 Use Argon2id where passwords are managed directly. Never store plaintext passwords or reversible password encryption.
 
-## Browser sessions
+## Authentication & Session Management
 
-Do not place authentication tokens or session IDs in web storage. Prefer secure HttpOnly cookies with deliberate `Secure` and `SameSite` attributes when using cookie-based browser sessions.
+- **Browser Sessions**: When implementing cookie-based browser sessions, never place session tokens in web storage (localStorage/sessionStorage). Prefer secure `HttpOnly` cookies with deliberate `Secure` and `SameSite` (`Lax` or `Strict`) attributes.
+- **APIs & Service-to-Service**: For stateless APIs, mobile clients, or microservices, use short-lived bearer tokens (JWT/OAuth2), API keys passed via `Authorization` headers, or mTLS.
+- **Webhooks**: Verify webhook signatures (HMAC-SHA256) using a shared secret and constant-time comparison before processing payloads.
 
 ## API authorization
 
@@ -84,3 +116,14 @@ Verify that production responses include:
 - `Referrer-Policy` with a privacy-preserving value;
 - `Permissions-Policy` restricting unused browser features;
 - appropriate `Cache-Control` headers for sensitive responses.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+Security controls implemented and verified via automated security tests.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Threat modeling findings, security audit report, vulnerability remediations.
+- Secrets scanning and dependency vulnerability check evidence.
+</DELIVERABLES>

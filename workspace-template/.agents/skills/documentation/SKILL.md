@@ -1,10 +1,38 @@
 ---
 name: documentation
+id: SKILL-DOC-001
 description: Maintain durable technical documentation, API docs, project context, conventions, and ADRs without duplicating source-of-truth information.
 ---
 
 # Documentation Skill
 
+<MISSION>
+Maintain durable technical documentation, API docs, project context, conventions, and ADRs without duplicating source-of-truth information.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring documentation capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] Code examples tested and working
+    - [ ] Architecture diagrams match implementation
+    - [ ] docs/PROJECT_CONTEXT.md updated
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Documentation must reflect actual code behavior; never document speculative features.
+- All code snippets and curl commands in docs must be syntactically valid and tested.
+- Keep docs synchronized with durable project memory in docs/.
+- Any technical choice meeting the Dynamic Decision Significance Rubric (Type 1, multi-option trade-off, or non-functional shift) must be documented as an ADR in `docs/decisions/ADR-NNN-<slug>.md` and indexed in `docs/decisions/INDEX.md`.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Documentation hierarchy
 
 - `docs/INDEX.md`: entry point and navigation map for all project knowledge.
@@ -54,7 +82,9 @@ Never renumber, reuse, or silently rewrite an ADR. Supersede with a new ADR and 
 - Include authentication, authorization, validation, error responses, and rate limits.
 - Keep API documentation synchronized with implementation.
 - Use OpenAPI/Swagger specs when the project adopts them.
+</PROCEDURE>
 
+<VERIFICATION_POLICY>
 ## Verification
 
 Documentation changes should be checked for:
@@ -71,3 +101,11 @@ Documentation changes should be checked for:
 - Update `FILE_MANIFEST.md` when adding new system files.
 - Trigger memory sync (`.agents/skills/project-memory/SKILL.md`) when durable knowledge changes.
 - Reference the verification template when producing formal reports.
+
+### Exit Criteria
+Documentation complete, verified, and free of broken links.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Accurate, version-matched documentation, API references, or project memory updates without transient noise.
+</DELIVERABLES>

@@ -1,53 +1,43 @@
+<!-- ID: RULE-GIT-001 -->
 # Git Rules
 
-Recommended activation: **Always On**
+<ROLE>
+Operate as a Source Control Specialist enforcing Git hygiene, Conventional Commits, branch isolation, and zero secrets exposure.
+</ROLE>
 
-## Safety
+<MISSION>
+Govern safe source-control operations, commit discipline, diff auditing, and branch workflows across all repository tasks.
+</MISSION>
 
-Before substantial edits:
+<NON_NEGOTIABLES>
+- **GIT-01 (Conventional Commits)**: Commit messages must follow the Conventional Commits specification (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`) with an imperative, descriptive summary.
+- **GIT-02 (Zero Secrets Committed)**: Never commit `.env` files, credentials, API keys, certificates, or build artifacts. Verify `git status` and `git diff` before staging.
+</NON_NEGOTIABLES>
 
-- inspect `git status`;
-- understand existing local changes;
-- do not reset, checkout, clean, or revert unrelated user work;
-- inspect recent history when it helps explain an existing convention or change.
+<ACTION_SPACE_CONSTRAINTS>
+  <EXECUTE>
+    <ALLOWED>Inspect status (`git status`, `git diff`, `git log`) and create local branches or commits.</ALLOWED>
+    <APPROVAL_REQUIRED>Force-pushing (`git push --force`), branch deletion, hard resets (`git reset --hard`), or history rewriting.</APPROVAL_REQUIRED>
+  </EXECUTE>
+</ACTION_SPACE_CONSTRAINTS>
 
-## Branching
+<DECISION_RULES>
+### Safety Before Edits
+- Inspect `git status` to establish existing uncommitted changes.
+- Never reset, checkout, clean, or discard unrelated user work.
 
-Follow the repository's established branch strategy. For new branches, use a consistent prefix such as:
+### Branching Convention
+- Name branches with task prefixes: `feat/<task-id>`, `fix/<task-id>`, `refactor/<task-id>`, `chore/<task-id>`.
 
-```text
-feat/<short-task-id>
-fix/<short-task-id>
-refactor/<short-task-id>
-chore/<short-task-id>
-```
+### Diff Hygiene
+- Inspect `git diff` and `git diff --stat` before finishing a task.
+- Verify that only files directly related to the task are modified.
+- Remove temporary debugging logs or commented-out scratch code.
+</DECISION_RULES>
 
-## Commits
-
-Keep commits logically coherent. When Conventional Commits are adopted, use:
-
-```text
-<type>(optional-scope): imperative summary
-```
-
-Examples: `feat(auth): add refresh-token rotation`, `fix(api): reject expired reset tokens`.
-
-Do not create meaningless commits such as `changes`, `update`, or `final fix`.
-
-## Diff hygiene
-
-Before completion:
-
-- inspect `git diff` and `git diff --stat`;
-- verify only intended files changed;
-- remove accidental debug output;
-- ensure generated files are treated according to repository policy;
-- ensure no secrets or environment credentials were added.
-
-## History rewriting
-
-Force-push, branch deletion, history rewriting, or destructive cleanup requires explicit approval unless the user has clearly authorized the exact operation.
-
-## Parallel work
-
-Use `.agents/orchestration/parallel-work-policy.md` and `.agents/orchestration/worktree-policy.md`. Never merge work blindly; reconcile semantic conflicts as well as text conflicts.
+<ANTI_PATTERNS>
+- Committing with vague messages like "update", "fix", or "wip".
+- Force-pushing to shared branches without explicit human authorization.
+- Committing temporary environment files (`.env.local`, `.env`) or private keys.
+- Discarding uncommitted user changes during task execution.
+</ANTI_PATTERNS>

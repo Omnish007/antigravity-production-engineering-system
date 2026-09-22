@@ -1,94 +1,128 @@
 ---
 name: deployment
-description: Prepare and verify production releases with configuration, build, health, rollback, migration, security, and smoke-test discipline.
+id: SKILL-DEPLOY-001
+description: Prepare, execute, and verify zero-downtime production releases using modern cloud-native deployment patterns, immutable artifacts, health checks, and automated rollback triggers.
 ---
 
 # Deployment Skill
 
-## Pre-deployment
+<MISSION>
+Prepare, execute, and verify zero-downtime production releases using modern cloud-native deployment patterns, immutable artifacts, health checks, and automated rollback triggers.
+</MISSION>
 
-Verify:
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring deployment capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
 
-- application build succeeds;
-- required environment variables are documented and present in the deployment system;
-- secrets are not embedded in artifacts;
-- database migration/backfill plan is safe;
-- health/readiness checks exist where required;
-- observability and logs are adequate;
-- dependencies have no known release-blocking issue;
-- rollback/forward-fix path is understood.
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
 
-## Runtime
+### Pre-flight Checklist
+- [ ] Build succeeds in production mode
+    - [ ] Health endpoints respond within 2 seconds
+    - [ ] Environment variables validated on startup
+    - [ ] Rollback procedure documented
+</PRECONDITIONS>
 
-Configure:
+<NON_NEGOTIABLES>
+- Expose dedicated health probes (/health/live, /health/ready).
+    - Never deploy without passing all quality gates (lint, typecheck, test, build).
+    - All configuration must come from environment variables (15-Factor App).
+</NON_NEGOTIABLES>
 
-- HTTPS/TLS at the appropriate boundary;
-- secure headers;
-- restricted CORS;
-- resource limits;
-- graceful shutdown;
-- health checks;
-- timeouts for dependencies.
+<PROCEDURE>
+## 15-Factor release discipline
 
-## Deployment strategies
+Enforce the strict separation of lifecycle stages:
+```text
+Build (Compile & Package) -> Release (Artifact + Environment Config) -> Run (Process Execution)
+```
 
-Choose the appropriate deployment strategy based on risk and infrastructure:
+- **Immutable artifacts**: Build artifacts once (e.g., container images, compiled binaries) tagged with the exact Git commit SHA. Never re-build between staging and production; promote the identical artifact.
+- **Never deploy `:latest`**: Always deploy explicit, immutable version tags or content digests (`sha256:...`).
+- **Config in environment**: Store configuration in the deployment environment, never baked into images or checked into source control.
+- **Stateless processes**: Design processes to be stateless and disposable; share state only via attached backing services (databases, distributed caches).
 
-- **Rolling update**: Default for low-risk changes. Gradually replace instances.
-- **Blue/green**: Maintain two identical environments; switch traffic atomically. Use for high-risk changes requiring instant rollback.
-- **Canary**: Route a percentage of traffic to the new version; monitor before full rollout. Use for changes where gradual confidence building is needed.
-- **Feature flags**: Deploy code changes behind flags for runtime activation. Use for decoupling deployment from release.
+## Pre-deployment readiness checklist
 
-Document the chosen strategy in the deployment plan and rollback procedure.
+Verify before executing any deployment:
+- [ ] **Artifact verified**: Automated quality gates (format, lint, typecheck, tests, build) passed in CI.
+- [ ] **Secrets & config confirmed**: Required environment variables and secret vault references exist in the target environment.
+- [ ] **Database migrations staged**: Schema changes are backwards-compatible (Expand phase) and tested against staging data volumes.
+- [ ] **Rollback plan documented**: Exact commands, procedures, and conditions for rolling back are prepared and tested.
+- [ ] **Monitoring & alerting active**: Dashboards for error rates, latency, and resource saturation are open and monitoring.
 
-## Feature flag rollout
+## Zero-downtime deployment strategies
 
-When using feature flags for deployment:
+Choose the appropriate strategy based on criticality and infrastructure capabilities:
 
-- start with internal/staff users;
-- expand to a small percentage;
-- monitor error rates, latency, and business metrics;
-- expand to full traffic;
-- clean up the flag after stable rollout.
+### 1. Rolling update
+- Gradually replaces instances of the previous version with instances of the new version.
+- **Configuration**:
+  - `maxSurge`: Maximum number of extra instances created above desired count (e.g., 25%).
+  - `maxUnavailable`: Maximum number of instances unavailable during rollout (e.g., 0% for zero-downtime).
+- **Best for**: Low-to-medium risk updates, stateless web and API services.
 
-## Infrastructure as code
+### 2. Blue / Green deployment
+- Deploys the new version (Green) alongside the running version (Blue) in an identical environment.
+- Validates the Green environment fully using smoke tests and internal traffic.
+- Atomically shifts live traffic at the router or load balancer from Blue to Green.
+- **Rollback**: Instant traffic reversion to Blue if errors are detected.
+- **Best for**: High-risk releases, major framework upgrades, or services requiring instant rollback capability.
 
-When infrastructure configuration exists:
+### 3. Canary deployment
+- Routes a small percentage of production traffic (e.g., 2% -> 10% -> 50% -> 100%) to the new version.
+- Compares Service Level Indicators (SLIs: HTTP 5xx error rate, p99 latency) between canary and baseline pods.
+- **Automated rollback**: Automatically aborts rollout and shifts traffic back if canary error rates exceed thresholds.
+- **Best for**: Mission-critical services, complex algorithm updates, or performance-sensitive paths.
 
-- validate configuration changes before applying;
-- use version-controlled infrastructure definitions;
-- test infrastructure changes in staging before production;
-- document infrastructure dependencies and resource limits.
+### 4. Feature flags (Dark launching)
+- Deploys new code with the execution path wrapped behind a runtime feature flag.
+- Decouples deployment (shipping code) from release (enabling user visibility).
+- Allows gradual percentage rollouts, user targeting, and instant feature disabling without redeployment.
 
-## Container security
+## Runtime health & container lifecycle
 
-When using containerized deployments:
+Ensure containers and processes integrate cleanly with orchestrators:
 
-- scan container images for known vulnerabilities;
-- use minimal base images;
-- do not run containers as root;
-- do not embed secrets in images;
-- pin image versions rather than using `:latest`.
+- **Startup probe**: Allows slow-starting applications (cache initialization, warm-up) time to initialize before liveness probes start.
+- **Liveness probe**: Periodically verifies the application process is healthy and not deadlocked. Restarts container on failure.
+- **Readiness probe**: Verifies the application is ready to accept user traffic (database connections alive, dependencies reachable). Removes container from load balancer on failure.
+- **Graceful shutdown (`SIGTERM`)**:
+  1. Receive `SIGTERM` signal.
+  2. Orchestrator stops sending new traffic to the instance.
+  3. Complete in-flight HTTP requests within a grace period (e.g., 15-30 seconds).
+  4. Flush pending log buffers and distributed traces.
+  5. Close database connections and queue consumer channels.
+  6. Exit cleanly with status code `0`.
 
-## Service level objectives
+## Post-deployment smoke verification
 
-Where SLOs are defined:
+Immediately after deployment traffic shift:
+1. **Health endpoint check**: Verify `/health/live` and `/health/ready` return HTTP 200.
+2. **Critical path smoke tests**: Execute automated smoke tests exercising authentication, primary read path, and primary write path.
+3. **Telemetry inspection**:
+   - Verify log streams show no spike in `ERROR` or unhandled exceptions;
+   - Verify p95/p99 latency remains within the established Service Level Objective (SLO);
+   - Verify database connection pool metrics are healthy.
 
-- monitor SLIs (latency, error rate, availability) aligned with SLOs;
-- set alerting thresholds below the SLO to allow response time;
-- document SLOs, error budgets, and escalation procedures;
-- review SLO compliance as part of deployment verification.
+## Rollback trigger criteria
 
-## Migration safety
+Trigger an immediate rollback if within 15 minutes of release:
+- HTTP 5xx error rate increases by more than 0.5% above baseline;
+- p95 latency exceeds SLO threshold by more than 50%;
+- Unhandled critical exceptions appear in structured logs;
+- Data corruption or integrity violation is detected.
+</PROCEDURE>
 
-Prefer backwards-compatible expand/migrate/contract sequences for changes that cannot be deployed atomically.
+<VERIFICATION_POLICY>
+### Exit Criteria
+Production build and deployment verification smoke test pass with exit code 0.
+</VERIFICATION_POLICY>
 
-Never perform destructive production data changes without explicit approval and a verified backup/restore or rollback strategy.
-
-## Release
-
-For production actions requiring approval, prepare commands/checklists but pause before executing the irreversible step.
-
-## Smoke verification
-
-After release, verify the smallest set of critical paths: health, authentication where applicable, critical API route, critical page, database connectivity, and error logging.
+<DELIVERABLES>
+- Deployment configuration, environment manifests, CI/CD pipeline definitions.
+- Post-deployment health check verification evidence.
+</DELIVERABLES>

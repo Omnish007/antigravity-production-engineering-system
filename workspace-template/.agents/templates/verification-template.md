@@ -33,6 +33,7 @@ exitCode: <code>
 - Type-check:
 - Build:
 - Security:
+- Architectural ADR: (`docs/decisions/ADR-NNN-<slug>.md` or N/A)
 
 ## Files changed
 

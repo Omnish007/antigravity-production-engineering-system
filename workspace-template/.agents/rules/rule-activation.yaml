@@ -1,0 +1,115 @@
+version: "1.0.0"
+description: "Declarative matrix defining rule activation triggers, stable IDs, and domain mappings."
+rules:
+  - id: "RULE-CORE-001"
+    name: "Core Engineering Principles"
+    file: "00-core.md"
+    activation: "ALWAYS"
+    precedence: 100
+    scope: "Universal foundational constraints across all tasks."
+
+  - id: "RULE-SAFETY-001"
+    name: "Agent Safety Invariants"
+    file: "13-agent-safety.md"
+    activation: "ALWAYS"
+    precedence: 95
+    scope: "Sandboxing, action space limits, credential protection, prompt injection defense."
+
+  - id: "RULE-CODE-001"
+    name: "Coding Discipline"
+    file: "04-coding.md"
+    activation: "CODE_TOUCH"
+    precedence: 90
+    scope: "Activated whenever application source files are modified."
+
+  - id: "RULE-VERIFY-001"
+    name: "Verification Rules"
+    file: "10-verification.md"
+    activation: "GOVERNED_TASK"
+    precedence: 85
+    scope: "Mandatory empirical verification, exit codes, and test evidence for governed tasks."
+
+  - id: "RULE-ARCH-001"
+    name: "Architecture & Design"
+    file: "03-architecture.md"
+    activation: "DOMAIN_MATCH"
+    domain: "architecture"
+    precedence: 80
+    scope: "System boundaries, dependency directions, module contracts, ADR triggers."
+
+  - id: "RULE-SEC-001"
+    name: "Security Engineering"
+    file: "07-security.md"
+    activation: "DOMAIN_MATCH"
+    domain: "security"
+    precedence: 80
+    scope: "Auth, cryptography, input sanitization, least privilege, SAST scanning."
+
+  - id: "RULE-TEST-001"
+    name: "Testing Standards"
+    file: "09-testing.md"
+    activation: "DOMAIN_MATCH"
+    domain: "testing"
+    precedence: 75
+    scope: "Unit, integration, e2e test requirements, mocking discipline."
+
+  - id: "RULE-STACK-001"
+    name: "Technology Stack Conventions"
+    file: "02-tech-stack.md"
+    activation: "DOMAIN_MATCH"
+    domain: "technology"
+    precedence: 75
+    scope: "Conventions matching active detected stack in stack.json."
+
+  - id: "RULE-CTX-001"
+    name: "Project Context & Architecture"
+    file: "01-project-context.md"
+    activation: "TASK_INIT"
+    precedence: 70
+    scope: "Project background, actors, goals, business domain models."
+
+  - id: "RULE-REQ-001"
+    name: "Requirements & Acceptance Criteria"
+    file: "12-requirements.md"
+    activation: "DOMAIN_MATCH"
+    domain: "requirements"
+    precedence: 70
+    scope: "PRD analysis, acceptance criteria formulation, user story decomposition."
+
+  - id: "RULE-UI-001"
+    name: "UI/UX & Frontend Conventions"
+    file: "06-uiux.md"
+    activation: "DOMAIN_MATCH"
+    domain: "frontend"
+    precedence: 65
+    scope: "Accessibility (a11y), responsive design, component styling, design tokens."
+
+  - id: "RULE-NAMING-001"
+    name: "Naming Conventions"
+    file: "05-naming.md"
+    activation: "CODE_TOUCH"
+    precedence: 60
+    scope: "Symbol, variable, file, directory, and module naming consistency."
+
+  - id: "RULE-GIT-001"
+    name: "Git & Version Control"
+    file: "08-git.md"
+    activation: "DOMAIN_MATCH"
+    domain: "git"
+    precedence: 60
+    scope: "Commit messaging, branch naming, atomic commits, PR guidelines."
+
+  - id: "RULE-MEM-001"
+    name: "Project Memory Discipline"
+    file: "11-project-memory.md"
+    activation: "STATE_SYNC"
+    precedence: 55
+    scope: "Durable memory synchronization into docs/ upon milestone completion."
+
+  - id: "RULE-OBS-001"
+    name: "Observability & Telemetry"
+    file: "14-observability.md"
+    activation: "DOMAIN_MATCH"
+    domain: "observability"
+    precedence: 50
+    scope: "Structured logging, metrics, distributed tracing, health endpoints."

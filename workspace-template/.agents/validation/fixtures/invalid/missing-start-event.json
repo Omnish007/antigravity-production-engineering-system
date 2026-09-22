@@ -1,0 +1,57 @@
+{
+  "name": "missing-start-event",
+  "expectedErrors": [
+    "has no execution event history in events.jsonl or events directory"
+  ],
+  "governance": {
+    "schemaVersion": "1.0.0",
+    "records": [
+      {
+        "taskId": "TASK-010",
+        "classification": {
+          "type": "simple",
+          "risk": "low"
+        },
+        "requiredRules": ["RULE-CORE-001"],
+        "requiredSkills": [],
+        "requiredTechnologyProfiles": [],
+        "governanceStatus": "complete",
+        "completedAt": "2026-09-20T10:00:00Z",
+        "qualityGates": [
+          {
+            "id": "GATE-01",
+            "name": "format",
+            "status": "passed",
+            "command": "npm run format:check",
+            "exitCode": 0,
+            "evidence": "All files formatted cleanly without error",
+            "timestamp": "2026-09-20T09:59:00Z"
+          }
+        ]
+      }
+    ]
+  },
+  "tasks": {
+    "schemaVersion": "1.0.0",
+    "tasks": [
+      {
+        "id": "TASK-010",
+        "name": "Fix typo",
+        "type": "simple",
+        "status": "COMPLETED",
+        "riskLevel": "low",
+        "priority": "P3",
+        "dependencies": [],
+        "acceptanceCriteria": ["Typo fixed"],
+        "createdAt": "2026-09-20T09:50:00Z",
+        "updatedAt": "2026-09-20T10:00:00Z",
+        "completedAt": "2026-09-20T10:00:00Z"
+      }
+    ]
+  },
+  "events": [],
+  "blockers": {
+    "active": [],
+    "resolved": []
+  }
+}

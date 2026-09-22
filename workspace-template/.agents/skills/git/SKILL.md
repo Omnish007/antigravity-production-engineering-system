@@ -1,10 +1,37 @@
 ---
 name: git
+id: SKILL-GIT-001
 description: Operate Git safely with minimal history disruption, coherent commits, diff review, and controlled branching/merging.
 ---
 
 # Git Skill
 
+<MISSION>
+Operate Git safely with minimal history disruption, coherent commits, diff review, and controlled branching/merging.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring git capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] git status checked; no unexpected untracked files
+    - [ ] Commit message adheres to Conventional Commits
+    - [ ] Working tree clean after commit
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Commit messages must follow Conventional Commits format (feat, fix, refactor, test, docs).
+    - Never commit secrets, credentials, or build artifacts (.next, dist, node_modules).
+    - Each commit must represent a single coherent, working increment.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Procedure
 
 1. Inspect status and understand existing changes.
@@ -66,3 +93,14 @@ Before merging parallel work:
 - If a commit is made in error, prefer `git revert` over `git reset --hard` for shared branches.
 - If working tree changes are lost, check `git stash list` and `git reflog`.
 - Document any non-trivial recovery actions in the task record.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+Git commit created cleanly with verified working tree.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Atomic, well-described Git commits following repository conventions.
+- Clean branch or worktree management with conflict-free integration.
+</DELIVERABLES>

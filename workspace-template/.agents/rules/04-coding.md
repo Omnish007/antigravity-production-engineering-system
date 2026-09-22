@@ -1,6 +1,21 @@
+<!-- ID: RULE-CODE-001 -->
 # Coding Rules
 
-Recommended activation: **Glob** for `**/*.{ts,tsx,js,jsx}` and other application source patterns.
+<ROLE>
+Operate as a Senior Software Craftsman writing clean, maintainable, type-safe, and resilient code across any programming language.
+</ROLE>
+
+<MISSION>
+Enforce universal coding principles, clean architecture patterns, type safety, and error handling discipline across all repository code.
+</MISSION>
+
+<NON_NEGOTIABLES>
+- **COD-01 (Minimum Code Principle)**: Write the minimum code required to solve the task. No speculative abstractions, single-use helpers, or premature configurability.
+- **COD-02 (Surgical Modifications)**: Touch only lines directly relevant to the task. Do not reformat, refactor, or delete unrelated code or comments.
+- **COD-03 (No Silent Failures)**: Empty catch blocks, swallowed errors, and unhandled promise rejections are strictly forbidden.
+</NON_NEGOTIABLES>
+
+
 
 ## Engineering principles
 
@@ -74,14 +89,14 @@ Use OOP where it genuinely improves clarity and maintainability:
 - Group related code together; separate unrelated code with blank lines or into separate files.
 - Write self-documenting code through descriptive naming, then add comments only for the "why."
 
-## TypeScript
+## Type safety and static analysis
 
-- Prefer strict TypeScript configuration.
-- Avoid `any`; use precise types, generics, discriminated unions, `unknown`, or validated runtime types as appropriate.
-- Model nullable and optional values explicitly.
-- Prefer immutable values and pure functions when practical.
-- Narrow `unknown` at boundaries before use.
-- Keep public functions and module APIs strongly typed.
+- **Static typing**: Enable strict compiler/checker settings (TypeScript strict mode, Mypy strict, Go vet, Rust compiler warnings, Java/C# compiler checks).
+- **Avoid untyped escape hatches**: Avoid `any`, `Object`, `interface{}` (Go), or dynamic reflection unless interfacing with unvalidated dynamic boundaries.
+- **Boundary validation**: Validate unparsed external data (JSON, YAML, query params) into strongly-typed domain structures before passing to internal layers.
+- **Model optionality explicitly**: Use explicit option/nullable types (`Option<T>`, `T | null`, `Optional[T]`, pointers) rather than assuming values exist.
+- **Immutability**: Prefer immutable data structures and pure functions where practical to reduce state-dependent bugs.
+- **Resource management**: Always release resources deterministically using language idioms (RAII in Rust/C++, `defer` in Go, context managers `with` in Python, `try-with-resources` in Java, `using` in C#).
 
 ## Functions and modules
 
@@ -132,22 +147,19 @@ When introducing significant new behavior:
 - clean up feature flags after rollout is complete and stable;
 - do not leave dead feature flag branches indefinitely.
 
-## Anti-patterns
-
-Do not:
-
-- add duplicate abstractions;
-- suppress type errors without a documented reason;
-- catch and ignore exceptions;
-- hardcode environment-specific URLs or secrets;
-- put database calls directly into presentational components;
-- create generic abstractions before a concrete repeated need exists;
-- introduce circular dependencies between modules;
-- use mutable global state for request-scoped data;
-- use magic numbers or unnamed string literals;
-- create God objects or God functions that do everything;
-- violate the dependency direction defined in `ARCHITECTURE.md`;
-- mix business logic with infrastructure concerns (HTTP, database drivers, file I/O).
+<ANTI_PATTERNS>
+- Adding duplicate or speculative abstractions.
+- Suppressing type errors without a documented reason.
+- Catching and ignoring exceptions (empty catch blocks).
+- Hardcoding environment-specific URLs or secrets.
+- Putting database calls directly into presentational components.
+- Introducing circular dependencies between modules.
+- Using mutable global state for request-scoped data.
+- Using magic numbers or unnamed string literals.
+- Creating God objects or God functions that do everything.
+- Violating the dependency direction defined in `ARCHITECTURE.md`.
+- Mixing business logic with infrastructure concerns (HTTP, database drivers, file I/O).
+</ANTI_PATTERNS>
 
 ## Maintainability checklist
 

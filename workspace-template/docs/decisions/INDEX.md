@@ -13,6 +13,7 @@ Each significant durable decision gets its own ADR file in this directory.
 
 | ADR | Title | Status | Date | Supersedes | Superseded by |
 |---|---|---|---|---|---|
+| [ADR-001](ADR-001-initial-architecture.md) | Initial Architecture & Framework Selection | Accepted | 2026-09-01 | None | None |
 
 ## Rules
 

@@ -20,7 +20,7 @@
 ## Frontend conventions
 
 - Component organization:
-- Server/Client Component convention:
+- Rendering & component convention (SSR, client components, templates):
 - Form handling:
 - Data fetching:
 - State management:
@@ -39,7 +39,7 @@
 - Model/schema naming:
 - Timestamp policy:
 - Index naming:
-- Read-query projection/lean policy:
+- Query projection / read-optimization policy:
 - Migration/backfill policy:
 
 ## Testing conventions

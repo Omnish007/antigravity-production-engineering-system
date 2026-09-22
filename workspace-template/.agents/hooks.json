@@ -1,0 +1,99 @@
+{
+  "pretool-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "posttool-audit": {
+    "PostToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "stop-governance-guard": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 .agents/skills/quality-gates/scripts/hook-stop.py",
+        "timeout": 30
+      }
+    ]
+  }
+}

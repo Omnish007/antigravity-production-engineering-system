@@ -1,32 +1,5 @@
 {
   "schemaVersion": "1.0.0",
   "tasks": [],
-  "phases": [],
-  "validStatuses": ["PENDING", "READY", "IN_PROGRESS", "VERIFYING", "COMPLETED", "FAILED", "BLOCKED", "CANCELLED"],
-  "taskSchema": {
-    "id": "string — stable unique identifier (e.g., TASK-001)",
-    "name": "string — short human-readable name",
-    "type": "string — from task-classifier.md (feature, bugfix, refactor, etc.)",
-    "status": "string — one of validStatuses",
-    "riskLevel": "low | medium | high | critical",
-    "priority": "P0 | P1 | P2 | P3",
-    "owner": "string — logical role or agent identifier",
-    "dependencies": ["array of task IDs that must complete first"],
-    "acceptanceCriteria": ["array of testable criteria"],
-    "expectedOutputs": ["array of expected deliverables"],
-    "verification": ["array of verification commands or evidence"],
-    "risks": ["array of identified risks"],
-    "createdAt": "ISO 8601 timestamp",
-    "updatedAt": "ISO 8601 timestamp",
-    "completedAt": "ISO 8601 timestamp or null",
-    "notes": ["array of contextual notes"]
-  },
-  "phaseSchema": {
-    "id": "string — phase identifier",
-    "name": "string — phase name",
-    "status": "string — one of validStatuses",
-    "taskIds": ["array of task IDs in this phase"],
-    "order": "integer — execution order"
-  },
-  "notes": "Task state must reflect actual execution. Do not use this file as speculative documentation. Each tracked task should have a stable id and explicit dependencies. Update status transitions in real-time as work progresses."
+  "phases": []
 }

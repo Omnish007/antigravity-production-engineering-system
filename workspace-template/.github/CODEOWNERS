@@ -1,0 +1,7 @@
+# Antigravity Production Engineering System — Control-Plane Protection
+# Strict boundary protecting the framework control plane from unauthorized agent self-modification (P0-14, P0-15).
+
+/.agents/             @framework-core-maintainers
+/AGENTS.md            @framework-core-maintainers
+/.github/workflows/   @framework-core-maintainers
+/.github/CODEOWNERS   @framework-core-maintainers

@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Antigravity Native Tool Registry",
+  "description": "Authoritative registry of platform-provided native tools, categories, access modes, risk ratings, and minimum platform versions (P1-21).",
+  "tools": {
+    "view_file": {
+      "name": "view_file",
+      "category": "filesystem",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "list_dir": {
+      "name": "list_dir",
+      "category": "filesystem",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "grep_search": {
+      "name": "grep_search",
+      "category": "search",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "find_by_name": {
+      "name": "find_by_name",
+      "category": "search",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "write_to_file": {
+      "name": "write_to_file",
+      "category": "filesystem",
+      "access": "write",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator", "implementer", "architect", "database-specialist", "release-engineer", "test-engineer"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "replace_file_content": {
+      "name": "replace_file_content",
+      "category": "filesystem",
+      "access": "write",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator", "implementer", "architect", "database-specialist", "release-engineer", "test-engineer"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "multi_replace_file_content": {
+      "name": "multi_replace_file_content",
+      "category": "filesystem",
+      "access": "write",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator", "implementer", "architect", "database-specialist", "release-engineer", "test-engineer"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "run_command": {
+      "name": "run_command",
+      "category": "execution",
+      "access": "execute",
+      "risk": "high",
+      "supportedAgentTypes": ["coordinator", "implementer", "test-engineer", "release-engineer", "database-specialist", "security-reviewer"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "read_url_content": {
+      "name": "read_url_content",
+      "category": "network",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "search_web": {
+      "name": "search_web",
+      "category": "network",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "ask_question": {
+      "name": "ask_question",
+      "category": "interaction",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "1.0.0"
+    },
+    "schedule": {
+      "name": "schedule",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "low",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "manage_task": {
+      "name": "manage_task",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "low",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "call_mcp_tool": {
+      "name": "call_mcp_tool",
+      "category": "mcp",
+      "access": "execute",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator", "implementer", "architect"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "list_resources": {
+      "name": "list_resources",
+      "category": "mcp",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "read_resource": {
+      "name": "read_resource",
+      "category": "mcp",
+      "access": "read",
+      "risk": "low",
+      "supportedAgentTypes": ["all"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "generate_image": {
+      "name": "generate_image",
+      "category": "multimedia",
+      "access": "write",
+      "risk": "low",
+      "supportedAgentTypes": ["coordinator", "implementer"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "invoke_subagent": {
+      "name": "invoke_subagent",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "define_subagent": {
+      "name": "define_subagent",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "manage_subagents": {
+      "name": "manage_subagents",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "medium",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    },
+    "send_message": {
+      "name": "send_message",
+      "category": "orchestration",
+      "access": "execute",
+      "risk": "low",
+      "supportedAgentTypes": ["coordinator"],
+      "minPlatformVersion": "2.0.0"
+    }
+  }
+}

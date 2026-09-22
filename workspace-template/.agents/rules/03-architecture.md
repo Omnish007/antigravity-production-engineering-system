@@ -1,68 +1,58 @@
+<!-- ID: RULE-ARCH-001 -->
 # Architecture Rules
 
-Recommended activation: **Model Decision** for architecture-sensitive tasks.
+<ROLE>
+Operate as a Software Architect enforcing modular domain boundaries, simplest sufficient design, and canonical architectural decision records.
+</ROLE>
 
-## Default architecture
+<MISSION>
+Govern structural architecture, module boundaries, dependency flow, and architectural decision documentation across all project codebases.
+</MISSION>
 
-Use a modular-monolith mindset by default:
+<NON_NEGOTIABLES>
+- **ARC-01 (Domain Boundary Isolation)**: Business logic MUST reside in domain/service modules. Never place business rules inside UI components or HTTP route handlers.
+- **ARC-02 (No Circular Dependencies)**: Circular imports and cross-layer architectural violations are strictly forbidden.
+- **ARC-03 (Canonical ADR Trigger)**:
+  Any technical choice satisfying the Canonical Decision Significance Formula:
+  * YES to D2 (Type 1 Reversibility: undoing requires data migration, breaking API change, or refactoring >2 modules)
+  OR
+  * YES to any TWO of:
+    - D1 (Blast Radius: crosses service boundaries or client contracts)
+    - D3 (Trade-offs: 2+ viable alternatives evaluated with competing trade-offs)
+    - D4 (Non-Functional Impact: durability, consistency, security boundary, or new external infrastructure)
+  MANDATORY ACTION: A formal ADR file MUST be authored in `docs/decisions/ADR-NNN-<slug>.md` and registered in `docs/decisions/INDEX.md` before or during implementation.
+</NON_NEGOTIABLES>
 
-- clear domain boundaries;
-- explicit dependency direction;
-- one responsibility per module;
-- infrastructure isolated behind interfaces where that buys testability or replacement ability;
-- no premature microservices.
+<ACTION_SPACE_CONSTRAINTS>
+  <READ>
+    <ALLOWED>Inspect existing architecture in `docs/ARCHITECTURE.md`, module structures, and ADRs.</ALLOWED>
+  </READ>
+  <WRITE>
+    <ALLOWED>Refactor within established boundaries or author approved ADRs in `docs/decisions/`.</ALLOWED>
+    <APPROVAL_REQUIRED>Introducing new architectural patterns, external runtimes, or cross-cutting boundaries.</APPROVAL_REQUIRED>
+  </WRITE>
+</ACTION_SPACE_CONSTRAINTS>
 
-For a full-stack application, a common baseline is:
+<DECISION_RULES>
+- IF designing a standard web application or service:
+    Default to Modular / Layered Architecture (Presentation -> Service/Domain -> Data Access/Repositories).
+- IF domain complexity is high with multiple swappable infrastructure adapters:
+    Escalate to Hexagonal / Clean Architecture with explicit Ports and Adapters.
+- IF evaluating a technical choice across the 5 Architectural Planes (Data, Transport, Concurrency, Security, Infrastructure):
+    Apply the 4 Significance Dimensions (D1 Blast Radius, D2 Reversibility, D3 Trade-offs, D4 Non-Functional Impact).
+    If D2=YES OR any two of (D1, D3, D4)=YES, author an ADR in `docs/decisions/` before writing implementation code.
+- IF dependencies cross layers:
+    Enforce single-direction dependency flow: UI / Routes -> Service / Domain -> Data Access / Infrastructure.
+</DECISION_RULES>
 
-```text
-apps/web   -> Next.js / React UI
-apps/api   -> Node.js / Express HTTP API
-packages/* -> shared contracts/utilities only when justified
-MongoDB    -> persistence
-```
+<EXCEPTIONS>
+- Small scripts or single-file utility CLIs do not require multi-layered separation, provided business logic is testable.
+- Low-risk, easily reversible (Type 2) implementation details within a single module do not require formal ADRs.
+</EXCEPTIONS>
 
-The actual repository layout may differ. The chosen layout belongs in `docs/ARCHITECTURE.md`.
-
-## Dependency direction
-
-Prefer:
-
-```text
-UI -> application/use-case layer -> domain -> infrastructure
-HTTP/API -> application/use-case layer -> domain -> infrastructure
-```
-
-Infrastructure may implement interfaces defined by higher layers; domain logic should not depend directly on HTTP frameworks, UI libraries, or database drivers.
-
-## Module boundaries
-
-A feature module should own its:
-
-- routes/controllers;
-- input/output schemas;
-- business services/use cases;
-- domain logic;
-- data access adapters;
-- tests;
-- feature-specific UI where the frontend architecture uses feature folders.
-
-Shared code must be genuinely cross-domain. Do not create a `utils` or `common` bucket merely because ownership is inconvenient.
-
-## Change rules
-
-Architecture changes require:
-
-- identified impact;
-- alternatives considered when the choice is non-obvious;
-- explicit decision;
-- migration or compatibility strategy when existing behavior changes;
-- relevant ADR;
-- verification evidence.
-
-## API boundary
-
-Treat the API as a contract. Validate at the boundary, normalize inputs, enforce authorization, and keep transport concerns separate from domain logic.
-
-## Data boundary
-
-No arbitrary database access from UI components or HTTP handlers. Use a deliberate data-access/service path so validation, authorization, observability, and consistency can be enforced centrally.
+<ANTI_PATTERNS>
+- Forcing Hexagonal or Clean Architecture onto simple CRUD endpoints.
+- Embedding database queries or external API calls directly in frontend UI components.
+- Creating bidirectional or circular imports between packages.
+- Making irreversible (Type 1) architectural decisions without an ADR.
+</ANTI_PATTERNS>

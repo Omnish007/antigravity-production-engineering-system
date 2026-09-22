@@ -1,65 +1,60 @@
+<!-- ID: RULE-CONTEXT-001 -->
 # Project Context Rules
 
-Recommended activation: **Always On**
+<ROLE>
+Operate as a Context-Aware Engineer who reconstructs project intent, architectural state, and historical decisions from repository evidence before executing changes.
+</ROLE>
 
-## Purpose
+<MISSION>
+Ensure every new agent session reconstructs the project's intent, constraints, and present state from durable repository files rather than transient assumptions.
+</MISSION>
 
-Ensure every new chat can reconstruct the project's intent and present state from repository files.
-
-## Required context
-
-At the start of meaningful work, consult:
-
-- `docs/INDEX.md`
-- `docs/PROJECT_CONTEXT.md`
-- `docs/CURRENT_STATE.md`
-- `docs/ARCHITECTURE.md` when structural behavior is relevant
-- `docs/CONVENTIONS.md` when implementation conventions are relevant
-- `docs/REFERENCES.md` when version-sensitive behavior matters
-- `docs/requirements/` when requirements, acceptance criteria, or PRD affect the task
-- relevant files under `docs/decisions/`
-
-Use `.agents/orchestration/context-router.md` to load only what the task requires.
-Use `.agents/orchestration/context-budget-policy.md` to manage context window capacity.
-
-## Context priority
-
-Treat as authoritative in this order:
-
-1. Current safety/platform requirements.
+<SOURCE_OF_TRUTH>
+1. Current safety and platform requirements.
 2. Current explicit user request.
-3. Accepted/superseding ADRs.
-4. Project architecture and conventions.
-5. Existing code pattern when not contradicted.
-6. Installed-version vendor documentation.
-7. General best practice.
+3. Accepted/superseding ADRs (`docs/decisions/`).
+4. Project architecture (`docs/ARCHITECTURE.md`) and conventions (`docs/CONVENTIONS.md`).
+5. Verified source code and configuration files.
+6. Installed-version official documentation (`docs/REFERENCES.md`).
+</SOURCE_OF_TRUTH>
 
-## Stale or conflicting context
+<INSTRUCTION_HIERARCHY>
+1. Platform safety constraints override all other guidance.
+2. The user's current explicit requirement overrides default assumptions (subject to ADR conflict rules in `AGENTS.md` and `decision-policy.md`).
+3. Accepted ADRs override generic conventions.
+4. Verified source code reality overrides stale prose documentation.
+</INSTRUCTION_HIERARCHY>
 
-If documentation contradicts code:
+<NON_NEGOTIABLES>
+- **CTX-01 (Mandatory Context Discovery)**: Before implementing any task, inspect `docs/PROJECT_CONTEXT.md` and `docs/CURRENT_STATE.md` to establish architectural reality.
+- **CTX-02 (Evidence Over Assumption)**: Inferences about project behavior must be validated against actual repository code and configuration files. Never invent missing facts.
+</NON_NEGOTIABLES>
 
-1. Determine whether code is intentionally ahead of documentation.
-2. Inspect recent history when available.
-3. Prefer the latest accepted decision and current source of truth.
-4. Repair stale documentation as part of the task if the change is meaningful.
-5. Never silently choose a new architecture solely to resolve a documentation mismatch.
+<CONTEXT_POLICY>
+At the start of meaningful work, consult in this sequence:
+1. `docs/INDEX.md` (knowledge map).
+2. `docs/PROJECT_CONTEXT.md` (purpose and scope).
+3. `docs/CURRENT_STATE.md` (active status and blockers).
+4. `docs/ARCHITECTURE.md` (when structural behavior is relevant).
+5. `docs/CONVENTIONS.md` (when implementation patterns are relevant).
+6. Relevant ADRs under `docs/decisions/`.
+7. Mapped technology profiles and domain rules via `.agents/orchestration/context-router.md`.
+</CONTEXT_POLICY>
 
-## Missing context
+<DECISION_RULES>
+- IF documentation and source code diverge:
+    Source code reality and accepted ADRs outrank stale prose. Update the stale documentation as part of the current task.
+- IF a required project fact is unknown:
+    1. Research it in repository source, config, and manifests.
+    2. If patterns converge strongly on a low-risk detail, infer and document the assumption.
+    3. If it is a business decision or high-impact ambiguity, escalate to the user.
+- IF an accepted ADR conflicts with requested implementation:
+    Do not silently bypass it; resolve through the project's decision process or create a superseding ADR.
+</DECISION_RULES>
 
-If a required project fact is unknown:
-
-1. **Can it be researched from the repository?** → Research it (check source, config, history).
-2. **Can it be inferred from existing patterns with high confidence?** → Infer it and document the inference.
-3. **Is it a business decision, high-impact ambiguity, or architectural choice?** → Request the missing decision rather than inventing it.
-4. **Is it a technical implementation detail with low risk?** → Choose the option most consistent with existing conventions and document the choice.
-
-When context is missing and the decision matters, always prefer asking over guessing.
-
-## Context freshness
-
-Project memory can become stale. When documentation and code diverge:
-
-- verify the actual state by reading source code and configuration;
-- treat recent Git history as evidence of intent;
-- update stale documentation as part of the current task when the fix is straightforward;
-- create a separate task for large documentation repairs.
+<ANTI_PATTERNS>
+- Starting implementation without checking existing project memory.
+- Guessing framework versions or API contracts without inspecting installed manifests.
+- Silently inventing new architecture to bypass documentation mismatches.
+- Leaving newly established decisions or conventions in chat without recording them in `docs/`.
+</ANTI_PATTERNS>

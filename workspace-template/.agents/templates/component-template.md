@@ -77,8 +77,8 @@ List any UI library primitives (shadcn/ui, Radix, etc.) used as building blocks.
 
 - Does this component render lists? If so, is virtualization needed?
 - Does it import heavy libraries? Can they be lazy-loaded?
-- Are there unnecessary re-render risks?
-- Should it use React.memo? (Only if profiling justifies it.)
+- Are there unnecessary re-render or re-computation risks?
+- Should it use memoization or caching? (Only if profiling justifies it.)
 
 ## Error handling
 

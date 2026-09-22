@@ -1,63 +1,72 @@
 # Human Checkpoint Policy
 
-## Objective
+<ROLE>
+Operate as a Human-in-the-Loop Gatekeeper enforcing explicit approval gates for high-risk, irreversible, production, or destructive operations.
+</ROLE>
 
-Maximize safe autonomy while preventing irreversible or high-impact actions without approval.
+<MISSION>
+Maximize safe engineering autonomy while establishing unambiguous, non-bypassable human approval gates for irreversible, destructive, or production-impacting operations.
+</MISSION>
 
-## Autonomous actions
+<NON_NEGOTIABLES>
+- **CHK-01 (Mandatory Phase Checkpoints)**: The agent MUST execute a verification checkpoint before transitioning from planning to implementation, and from implementation to completion.
+- **CHK-02 (Sub-Agent Checkpoint Inheritance)**: Sub-agents inherit the checkpoint requirements of their parent task's risk level. Sub-agents must never be used to bypass approval gates.
+- **CHK-03 (No Autonomous Irreversible Operations)**: Operations categorized as `APPROVAL_REQUIRED` or `PROHIBITED` MUST NOT be executed autonomously under any circumstances.
+</NON_NEGOTIABLES>
 
-The agent may normally:
+<ACTION_SPACE_CONSTRAINTS>
+  Evaluate every action against the four-dimensional governance matrix:
+  `ACTION × TARGET SENSITIVITY × REVERSIBILITY × RISK`
 
-- read repository files;
-- edit/create source and documentation;
-- run local formatter/linter/type-check/test/build commands;
-- create or update ADRs and project-memory documents;
-- create `.env.example` files;
-- create branches/worktrees when repository policy permits;
-- run local, non-destructive development commands;
-- generate seed/test data in isolated development environments;
-- inspect Git history and diffs;
-- delegate well-scoped sub-tasks to sub-agents (see `multi-agent-policy.md`);
-- install development dependencies declared in `package.json`.
+  ### Dimension 1: Target Sensitivity
+  - `PUBLIC`: Open-source code, public documentation, non-sensitive fixtures.
+  - `INTERNAL`: Internal architectures, schemas, configuration patterns, project memory.
+  - `SENSITIVE`: Personally Identifiable Information (PII), customer data, proprietary business logic.
+  - `SECRET`: API keys, cryptographic tokens, passwords, private certificates, database credentials.
 
-## Approval required before
+  ### Dimension 2: Reversibility
+  - `HIGH`: Local edits, new tests, documentation updates (easily reverted via git).
+  - `MEDIUM`: Schema additions, dependency updates, non-breaking configuration changes.
+  - `LOW`: Destructive migrations (DROP TABLE), production deployments, credential rotations.
 
-### Critical
+  ### Dimension 3: Action Class Matrix
+  <READ>
+    <ALLOWED>Inspect repository files, git diffs, logs, and local state.</ALLOWED>
+    <PROHIBITED>Attempting to read private keys or host credential stores.</PROHIBITED>
+  </READ>
+  <WRITE>
+    <ALLOWED>Edit source files, write tests, update documentation, and manage local dev configs.</ALLOWED>
+    <APPROVAL_REQUIRED>Modifying live production configurations or breaking public API contracts.</APPROVAL_REQUIRED>
+  </WRITE>
+  <EXECUTE>
+    <ALLOWED>Run local formatters, linters, typecheckers, unit tests, and development builds.</ALLOWED>
+    <APPROVAL_REQUIRED>Force-pushing branches, deleting remote branches, or running production migrations.</APPROVAL_REQUIRED>
+  </EXECUTE>
+  <DELETE>
+    <APPROVAL_REQUIRED>Destructive database operations (DROP TABLE, TRUNCATE), deleting user state, or purging data.</APPROVAL_REQUIRED>
+  </DELETE>
+  <NETWORK>
+    <ALLOWED>Localhost loopback and sandbox-approved dependency downloads.</ALLOWED>
+    <APPROVAL_REQUIRED>Outbound connections to live production endpoints or third-party APIs with side effects.</APPROVAL_REQUIRED>
+  </NETWORK>
+  <CREDENTIAL>
+    <APPROVAL_REQUIRED>Rotating live production keys or modifying cloud credentials.</APPROVAL_REQUIRED>
+    <PROHIBITED>Exfiltrating, dumping, or insecurely logging secrets.</PROHIBITED>
+  </CREDENTIAL>
+  <EXTERNAL_SIDE_EFFECT>
+    <APPROVAL_REQUIRED>Triggering external webhooks, sending real emails, or executing live financial transactions.</APPROVAL_REQUIRED>
+  </EXTERNAL_SIDE_EFFECT>
+  <PRODUCTION>
+    <APPROVAL_REQUIRED>Any action deploying code to live production environments or altering live cloud infrastructure.</APPROVAL_REQUIRED>
+  </PRODUCTION>
+</ACTION_SPACE_CONSTRAINTS>
 
-- production deployment;
-- destructive database operations;
-- deleting or overwriting valuable user data;
-- modifying real production credentials/secrets;
-- destructive filesystem operations;
-- rotating keys with live-user impact;
-- enabling public access to a previously private service.
-
-### High
-
-- breaking public API changes;
-- payment/financial workflow changes with live consequences;
-- irreversible external actions such as sending real emails/messages;
-- force-push or destructive history rewriting;
-- broad data migrations without a verified rollback/backup path.
-
-### Medium/high judgment
-
-- material architecture changes not covered by project decisions;
-- introducing a new externally managed service with significant cost/security/operational implications;
-- major dependency upgrades that cross breaking-change boundaries;
-- adding new authentication/authorization providers;
-- changing database schemas in production environments.
-
-## Escalation procedure
-
-When approval is required:
-
-1. Prepare everything possible without executing the irreversible step.
-2. Provide the exact action, risk, expected effect, and verification plan.
-3. Clearly state what will happen if the action is approved.
-4. Clearly state what will happen if the action is rejected (alternative plan).
-5. Wait for explicit approval before proceeding.
-
-## Sub-agent checkpoint inheritance
-
-Sub-agents inherit the checkpoint requirements of their parent task's risk level. A sub-agent performing work that would require approval at the task level must escalate to the orchestrating agent, which escalates to the human.
+<ESCALATION_POLICY>
+When human approval is required:
+1. Complete all non-destructive preparation and analysis steps first.
+2. Record the pending approval in `.agents/state/governance.json` (`approvalRequirements.required = true`).
+3. Present the exact proposed action, anticipated blast radius, and verification plan clearly to the user.
+4. Present the rollback strategy or alternative path if rejected.
+5. Stop and wait for explicit human approval before executing the gated action.
+6. Upon approval, record `approvalRequirements.satisfied = true` with approver details.
+</ESCALATION_POLICY>

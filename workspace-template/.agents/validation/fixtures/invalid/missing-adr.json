@@ -1,0 +1,75 @@
+{
+  "name": "missing-adr",
+  "expectedErrors": [
+    "silent architectural change"
+  ],
+  "governance": {
+    "schemaVersion": "1.0.0",
+    "records": [
+      {
+        "taskId": "TASK-015",
+        "classification": {
+          "type": "architecture",
+          "risk": "high"
+        },
+        "requiredRules": ["RULE-CORE-001", "RULE-ARCH-001"],
+        "requiredSkills": ["SKILL-ARCH-001", "SKILL-PLAN-001"],
+        "requiredTechnologyProfiles": [],
+        "relevantAdrs": [],
+        "governanceStatus": "complete",
+        "completedAt": "2026-09-20T12:00:00Z",
+        "qualityGates": [
+          {
+            "id": "GATE-01",
+            "name": "architecture-review",
+            "status": "passed",
+            "command": "python3 scripts/check-arch.py",
+            "exitCode": 0,
+            "evidence": "Architecture review completed and verified against system boundaries",
+            "timestamp": "2026-09-20T11:50:00Z"
+          }
+        ],
+        "approvalRequirements": {
+          "required": true,
+          "satisfied": true,
+          "approver": "chief-architect",
+          "notes": "Approved"
+        }
+      }
+    ]
+  },
+  "tasks": {
+    "schemaVersion": "1.0.0",
+    "tasks": [
+      {
+        "id": "TASK-015",
+        "name": "Redesign communication bus",
+        "type": "architecture",
+        "status": "COMPLETED",
+        "riskLevel": "high",
+        "priority": "P0",
+        "dependencies": [],
+        "acceptanceCriteria": ["Bus design completed"],
+        "createdAt": "2026-09-20T10:50:00Z",
+        "updatedAt": "2026-09-20T12:00:00Z",
+        "completedAt": "2026-09-20T12:00:00Z"
+      }
+    ]
+  },
+  "events": [
+    {
+      "taskId": "TASK-015",
+      "event": "TASK_STARTED",
+      "timestamp": "2026-09-20T11:00:00Z"
+    },
+    {
+      "taskId": "TASK-015",
+      "event": "TASK_COMPLETED",
+      "timestamp": "2026-09-20T12:00:00Z"
+    }
+  ],
+  "blockers": {
+    "active": [],
+    "resolved": []
+  }
+}

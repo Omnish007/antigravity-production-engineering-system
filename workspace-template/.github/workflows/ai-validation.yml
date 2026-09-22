@@ -1,6 +1,7 @@
 # AI-Generated Change Validation
-
 # This workflow validates AI-generated changes with the same rigor as human-authored code.
+# It automatically detects the project's primary ecosystem (Node/TS, Python, Go, Rust, Java)
+# and runs the appropriate quality gates, security scans, and test suites with fail-closed enforcement.
 
 name: AI Change Validation
 
@@ -15,70 +16,478 @@ permissions:
   contents: read
 
 jobs:
+  framework-integrity:
+    name: Framework Integrity & Governance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c4228965943b17469a47346124594c97970d4 # v7.0.1
+
+      - name: Setup Python
+        uses: actions/setup-python@a269eb65774a382e81146816a94f6f87459eb070 # v5.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Validate Agent Definitions
+        run: python3 .agents/skills/quality-gates/scripts/validate-agents.py
+
+      - name: Validate Instruction Tags
+        run: python3 .agents/skills/quality-gates/scripts/validate-instruction-tags.py
+
+      - name: Validate Technology Profiles
+        run: python3 .agents/skills/quality-gates/scripts/validate-technology-profiles.py
+
+      - name: Validate State Parity & Drift Check
+        run: python3 .agents/skills/quality-gates/scripts/reconcile-state.py --check
+
+      - name: Lint State Instructions
+        run: python3 .agents/skills/quality-gates/scripts/lint-state-instructions.py --check
+
+      - name: Run Validator Test Suite
+        run: python3 .agents/validation/tests/test-validators.py
+
+      - name: Run Lifecycle Simulation Test Suite
+        run: python3 .agents/validation/tests/test-lifecycle-simulation.py
+
+      - name: Check Manifest Integrity
+        run: python3 .agents/skills/quality-gates/scripts/generate-manifest.py --check
+
   quality-gates:
     name: Quality Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
-    # Uncomment if your project requires MongoDB for integration tests:
+    # Uncomment and configure if your integration tests require database or cache services:
     # services:
+    #   postgres:
+    #     image: postgres:16-alpine
+    #     env:
+    #       POSTGRES_DB: test_db
+    #       POSTGRES_USER: test_user
+    #       POSTGRES_PASSWORD: test_password
+    #     ports:
+    #       - 5432:5432
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #
     #   mongodb:
     #     image: mongo:7
     #     ports:
     #       - 27017:27017
+    #
+    #   redis:
+    #     image: redis:7-alpine
+    #     ports:
+    #       - 6379:6379
 
     steps:
-      # Pin actions to full SHA for supply-chain security.
-      # Update SHAs when upgrading; use Dependabot to automate.
       - name: Checkout
         uses: actions/checkout@3d3c4228965943b17469a47346124594c97970d4 # v7.0.1
 
-      - name: Resolve Node.js version
-        id: node-version
+      - name: Detect project ecosystem
+        id: detect
         run: |
-          if [ -f .nvmrc ]; then
-            echo "source=.nvmrc" >> "$GITHUB_OUTPUT"
-            echo "Using Node.js version from .nvmrc: $(cat .nvmrc)"
-          elif node -e "const p=require('./package.json'); if(p.engines && p.engines.node) { console.log(p.engines.node); process.exit(0); } process.exit(1);" 2>/dev/null; then
-            # Extract version from package.json engines and write .nvmrc for setup-node
-            node -e "const p=require('./package.json'); process.stdout.write(p.engines.node.replace(/[^0-9.]/g,''));" > .nvmrc
-            echo "source=package.json engines.node" >> "$GITHUB_OUTPUT"
-            echo "Using Node.js version from package.json engines: $(cat .nvmrc)"
-          else
-            echo "::error::No .nvmrc file or package.json engines.node found."
-            echo "Create a .nvmrc file with your desired Node version (e.g., '24')."
-            echo "The workspace template ships with a .nvmrc containing the current LTS — if you removed it, recreate it."
-            exit 1
+          # Node.js / TypeScript
+          if [ -f "package.json" ]; then
+            echo "has_node=true" >> "$GITHUB_OUTPUT"
+
+            # Detect Monorepo
+            if [ -f "pnpm-workspace.yaml" ]; then
+              echo "is_monorepo=true" >> "$GITHUB_OUTPUT"
+              echo "monorepo_tool=pnpm" >> "$GITHUB_OUTPUT"
+              echo "Detected pnpm workspace monorepo"
+            elif [ -f "turbo.json" ]; then
+              echo "is_monorepo=true" >> "$GITHUB_OUTPUT"
+              echo "monorepo_tool=turbo" >> "$GITHUB_OUTPUT"
+              echo "Detected Turborepo monorepo"
+            elif [ -f "nx.json" ]; then
+              echo "is_monorepo=true" >> "$GITHUB_OUTPUT"
+              echo "monorepo_tool=nx" >> "$GITHUB_OUTPUT"
+              echo "Detected Nx monorepo"
+            elif [ -f "lerna.json" ]; then
+              echo "is_monorepo=true" >> "$GITHUB_OUTPUT"
+              echo "monorepo_tool=lerna" >> "$GITHUB_OUTPUT"
+              echo "Detected Lerna monorepo"
+            else
+              echo "is_monorepo=false" >> "$GITHUB_OUTPUT"
+            fi
+
+            # Node version detection hierarchy:
+            # 1. mise.toml
+            # 2. .tool-versions
+            # 3. package.json engines.node
+            # 4. .nvmrc
+            # 5. .node-version
+            # 6. Active Node LTS fallback: Node 24 LTS (24.x)
+            if [ -f "mise.toml" ] && grep -q 'node' mise.toml; then
+              NV=$(grep 'node' mise.toml | head -n1 | sed -E 's/.*=[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' | tr -d 'v')
+              echo "node_version=$NV" >> "$GITHUB_OUTPUT"
+            elif [ -f ".tool-versions" ] && grep -q 'nodejs' .tool-versions; then
+              NV=$(grep 'nodejs' .tool-versions | head -n1 | awk '{print $2}' | tr -d 'v')
+              echo "node_version=$NV" >> "$GITHUB_OUTPUT"
+            elif node -e "const p=require('./package.json'); process.exit(p.engines && p.engines.node ? 0 : 1)" 2>/dev/null; then
+              NV=$(node -e "console.log(require('./package.json').engines.node.replace(/[\^~>=<]/g, '').trim())")
+              echo "node_version=$NV" >> "$GITHUB_OUTPUT"
+            elif [ -f ".nvmrc" ]; then
+              echo "node_version=$(cat .nvmrc | tr -d 'v' | tr -d '\r' | xargs)" >> "$GITHUB_OUTPUT"
+            elif [ -f ".node-version" ]; then
+              echo "node_version=$(cat .node-version | tr -d 'v' | tr -d '\r' | xargs)" >> "$GITHUB_OUTPUT"
+            else
+              # Active Node LTS fallback: Node 24 LTS
+              echo "node_version=24.x" >> "$GITHUB_OUTPUT"
+            fi
+
+            # Package Manager and version detection:
+            # Check package.json "packageManager" (e.g., "pnpm@9.15.4")
+            if [ -f "pnpm-lock.yaml" ]; then
+              echo "node_pm=pnpm" >> "$GITHUB_OUTPUT"
+              PNPM_V=$(node -e "const pm=require('./package.json').packageManager||''; if(pm.startsWith('pnpm@')) console.log(pm.split('@')[1]); else console.log('9.15.4');" 2>/dev/null || echo "9.15.4")
+              echo "pnpm_version=$PNPM_V" >> "$GITHUB_OUTPUT"
+            elif [ -f "yarn.lock" ]; then
+              echo "node_pm=yarn" >> "$GITHUB_OUTPUT"
+            elif [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
+              echo "node_pm=bun" >> "$GITHUB_OUTPUT"
+            else
+              echo "node_pm=npm" >> "$GITHUB_OUTPUT"
+            fi
+            echo "Detected Node.js / JavaScript / TypeScript project"
           fi
 
+          # Python
+          if [ -f "pyproject.toml" ] || [ -f "requirements.txt" ] || [ -f "setup.py" ]; then
+            echo "has_python=true" >> "$GITHUB_OUTPUT"
+            if [ -f ".python-version" ]; then
+              echo "python_version=$(cat .python-version | tr -d '\r' | xargs)" >> "$GITHUB_OUTPUT"
+            else
+              echo "python_version=3.12" >> "$GITHUB_OUTPUT"
+            fi
+            if [ -f "uv.lock" ]; then
+              echo "python_pm=uv" >> "$GITHUB_OUTPUT"
+            elif [ -f "poetry.lock" ]; then
+              echo "python_pm=poetry" >> "$GITHUB_OUTPUT"
+            else
+              echo "python_pm=pip" >> "$GITHUB_OUTPUT"
+            fi
+            echo "Detected Python project"
+          fi
+
+          # Go
+          if [ -f "go.mod" ]; then
+            echo "has_go=true" >> "$GITHUB_OUTPUT"
+            echo "Detected Go project"
+          fi
+
+          # Rust
+          if [ -f "Cargo.toml" ]; then
+            echo "has_rust=true" >> "$GITHUB_OUTPUT"
+            echo "Detected Rust project"
+          fi
+
+          # JVM (Java / Kotlin)
+          if [ -f "pom.xml" ] || [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+            echo "has_jvm=true" >> "$GITHUB_OUTPUT"
+            if [ -f ".java-version" ]; then
+              echo "java_version=$(cat .java-version | tr -d '\r' | xargs)" >> "$GITHUB_OUTPUT"
+            else
+              echo "java_version=21" >> "$GITHUB_OUTPUT"
+            fi
+            echo "Detected JVM (Java / Kotlin) project"
+          fi
+
+      # -------------------------------------------------------------
+      # Node.js / TypeScript Toolchain
+      # -------------------------------------------------------------
+      - name: Setup pnpm
+        if: steps.detect.outputs.has_node == 'true' && steps.detect.outputs.node_pm == 'pnpm'
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          version: ${{ steps.detect.outputs.pnpm_version || '9.15.4' }}
+
+      - name: Setup Bun
+        if: steps.detect.outputs.has_node == 'true' && steps.detect.outputs.node_pm == 'bun'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+
       - name: Setup Node.js
+        if: steps.detect.outputs.has_node == 'true'
         uses: actions/setup-node@8207627f1c9d2f23b2c286e10747864f1d7d0611 # v7.0.0
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version: ${{ steps.detect.outputs.node_version }}
+          cache: ${{ steps.detect.outputs.node_pm == 'pnpm' && 'pnpm' || (steps.detect.outputs.node_pm == 'yarn' && 'yarn' || (steps.detect.outputs.node_pm == 'npm' && 'npm' || '')) }}
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Node - Install dependencies
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          if [ "${{ steps.detect.outputs.node_pm }}" = "pnpm" ]; then
+            pnpm install --frozen-lockfile
+          elif [ "${{ steps.detect.outputs.node_pm }}" = "yarn" ]; then
+            yarn install --immutable || yarn install --frozen-lockfile
+          elif [ "${{ steps.detect.outputs.node_pm }}" = "bun" ]; then
+            bun install --frozen-lockfile
+          else
+            npm ci
+          fi
 
-      - name: Format check
-        run: npm run format:check --if-present
+      - name: Node - Format check
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          PM="${{ steps.detect.outputs.node_pm }}"
+          IS_MONO="${{ steps.detect.outputs.is_monorepo }}"
+          TOOL="${{ steps.detect.outputs.monorepo_tool }}"
+          if [ "$IS_MONO" = "true" ] && [ "$TOOL" = "turbo" ]; then
+            if [ "$PM" = "pnpm" ]; then
+              pnpm exec turbo run format:check || pnpm exec turbo run format -- --check
+            elif [ "$PM" = "yarn" ]; then
+              yarn turbo run format:check || yarn turbo run format -- --check
+            else
+              npx --no-install turbo run format:check || npx turbo run format:check || npx turbo run format -- --check
+            fi
+          elif [ "$IS_MONO" = "true" ] && [ "$TOOL" = "pnpm" ]; then
+            pnpm -r --if-present run format:check || pnpm -r --if-present run format -- --check
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['format:check'] ? 0 : 1)"; then
+            $PM run format:check
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['format'] ? 0 : 1)"; then
+            $PM run format -- --check
+          else
+            echo "No format script configured in package.json; skipping."
+          fi
 
-      - name: Lint
-        run: npm run lint --if-present
+      - name: Node - Lint
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          PM="${{ steps.detect.outputs.node_pm }}"
+          IS_MONO="${{ steps.detect.outputs.is_monorepo }}"
+          TOOL="${{ steps.detect.outputs.monorepo_tool }}"
+          if [ "$IS_MONO" = "true" ] && [ "$TOOL" = "turbo" ]; then
+            if [ "$PM" = "pnpm" ]; then
+              pnpm exec turbo run lint
+            elif [ "$PM" = "yarn" ]; then
+              yarn turbo run lint
+            else
+              npx --no-install turbo run lint || npx turbo run lint
+            fi
+          elif [ "$IS_MONO" = "true" ] && [ "$TOOL" = "pnpm" ]; then
+            pnpm -r --if-present run lint
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['lint'] ? 0 : 1)"; then
+            $PM run lint
+          else
+            echo "No lint script configured in package.json; skipping."
+          fi
 
-      - name: Type check
-        run: npm run typecheck --if-present
+      - name: Node - Type check
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          PM="${{ steps.detect.outputs.node_pm }}"
+          IS_MONO="${{ steps.detect.outputs.is_monorepo }}"
+          TOOL="${{ steps.detect.outputs.monorepo_tool }}"
+          if [ "$IS_MONO" = "true" ] && [ "$TOOL" = "turbo" ]; then
+            if [ "$PM" = "pnpm" ]; then
+              pnpm exec turbo run typecheck
+            elif [ "$PM" = "yarn" ]; then
+              yarn turbo run typecheck
+            else
+              npx --no-install turbo run typecheck || npx turbo run typecheck
+            fi
+          elif [ "$IS_MONO" = "true" ] && [ "$TOOL" = "pnpm" ]; then
+            pnpm -r --if-present run typecheck
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['typecheck'] ? 0 : 1)"; then
+            $PM run typecheck
+          elif [ -f "tsconfig.json" ]; then
+            npx tsc --noEmit
+          else
+            echo "No typecheck script or tsconfig.json found; skipping."
+          fi
 
-      - name: Unit and integration tests
-        run: npm test --if-present
+      - name: Node - Tests
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          PM="${{ steps.detect.outputs.node_pm }}"
+          IS_MONO="${{ steps.detect.outputs.is_monorepo }}"
+          TOOL="${{ steps.detect.outputs.monorepo_tool }}"
+          if [ "$IS_MONO" = "true" ] && [ "$TOOL" = "turbo" ]; then
+            if [ "$PM" = "pnpm" ]; then
+              pnpm exec turbo run test
+            elif [ "$PM" = "yarn" ]; then
+              yarn turbo run test
+            else
+              npx --no-install turbo run test || npx turbo run test
+            fi
+          elif [ "$IS_MONO" = "true" ] && [ "$TOOL" = "pnpm" ]; then
+            pnpm -r --if-present run test
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['test'] ? 0 : 1)"; then
+            $PM test
+          else
+            echo "No test script configured in package.json; skipping."
+          fi
 
-      - name: Build
-        run: npm run build --if-present
+      - name: Node - Build
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          PM="${{ steps.detect.outputs.node_pm }}"
+          IS_MONO="${{ steps.detect.outputs.is_monorepo }}"
+          TOOL="${{ steps.detect.outputs.monorepo_tool }}"
+          if [ "$IS_MONO" = "true" ] && [ "$TOOL" = "turbo" ]; then
+            if [ "$PM" = "pnpm" ]; then
+              pnpm exec turbo run build
+            elif [ "$PM" = "yarn" ]; then
+              yarn turbo run build
+            else
+              npx --no-install turbo run build || npx turbo run build
+            fi
+          elif [ "$IS_MONO" = "true" ] && [ "$TOOL" = "pnpm" ]; then
+            pnpm -r --if-present run build
+          elif node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts['build'] ? 0 : 1)"; then
+            $PM run build
+          else
+            echo "No build script configured in package.json; skipping."
+          fi
+
+      # -------------------------------------------------------------
+      # Python Toolchain
+      # -------------------------------------------------------------
+      - name: Setup uv
+        if: steps.detect.outputs.has_python == 'true' && steps.detect.outputs.python_pm == 'uv'
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        with:
+          enable-cache: true
+
+      - name: Setup Python
+        if: steps.detect.outputs.has_python == 'true'
+        uses: actions/setup-python@a269eb65774a382e81146816a94f6f87459eb070 # v5.3.0
+        with:
+          python-version: ${{ steps.detect.outputs.python_version }}
+          cache: ${{ steps.detect.outputs.python_pm == 'pip' && 'pip' || '' }}
+
+      - name: Python - Install dependencies
+        if: steps.detect.outputs.has_python == 'true'
+        run: |
+          if [ "${{ steps.detect.outputs.python_pm }}" = "uv" ]; then
+            uv sync --all-extras --dev
+          elif [ "${{ steps.detect.outputs.python_pm }}" = "poetry" ]; then
+            python -m pip install --upgrade pip poetry
+            poetry install --no-interaction
+          else
+            python -m pip install --upgrade pip
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            if [ -f pyproject.toml ]; then pip install -e ".[dev,test]"; fi
+            pip install ruff==0.9.10 mypy==1.15.0 pytest==8.3.5
+          fi
+
+      - name: Python - Format & Lint
+        if: steps.detect.outputs.has_python == 'true'
+        run: |
+          if [ "${{ steps.detect.outputs.python_pm }}" = "uv" ]; then
+            uv run ruff format --check .
+            uv run ruff check .
+          elif [ "${{ steps.detect.outputs.python_pm }}" = "poetry" ]; then
+            poetry run ruff format --check .
+            poetry run ruff check .
+          else
+            ruff format --check .
+            ruff check .
+          fi
+
+      - name: Python - Type check
+        if: steps.detect.outputs.has_python == 'true'
+        run: |
+          if [ "${{ steps.detect.outputs.python_pm }}" = "uv" ]; then
+            uv run mypy .
+          elif [ "${{ steps.detect.outputs.python_pm }}" = "poetry" ]; then
+            poetry run mypy .
+          else
+            mypy .
+          fi
+
+      - name: Python - Tests
+        if: steps.detect.outputs.has_python == 'true'
+        run: |
+          if [ "${{ steps.detect.outputs.python_pm }}" = "uv" ]; then
+            uv run pytest
+          elif [ "${{ steps.detect.outputs.python_pm }}" = "poetry" ]; then
+            poetry run pytest
+          else
+            pytest
+          fi
+
+      # -------------------------------------------------------------
+      # Go Toolchain
+      # -------------------------------------------------------------
+      - name: Setup Go
+        if: steps.detect.outputs.has_go == 'true'
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Go - Download dependencies
+        if: steps.detect.outputs.has_go == 'true'
+        run: go mod download
+
+      - name: Go - Vet & Lint
+        if: steps.detect.outputs.has_go == 'true'
+        run: go vet ./...
+
+      - name: Go - Tests
+        if: steps.detect.outputs.has_go == 'true'
+        run: go test -v -race ./...
+
+      - name: Go - Build
+        if: steps.detect.outputs.has_go == 'true'
+        run: go build ./...
+
+      # -------------------------------------------------------------
+      # Rust Toolchain
+      # -------------------------------------------------------------
+      - name: Setup Rust
+        if: steps.detect.outputs.has_rust == 'true'
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03ecf4f7718663b60f14b8b10 # v1.10.1
+
+      - name: Rust - Format check
+        if: steps.detect.outputs.has_rust == 'true'
+        run: cargo fmt --check
+
+      - name: Rust - Clippy lint
+        if: steps.detect.outputs.has_rust == 'true'
+        run: cargo clippy -- -D warnings
+
+      - name: Rust - Tests
+        if: steps.detect.outputs.has_rust == 'true'
+        run: cargo test
+
+      - name: Rust - Build
+        if: steps.detect.outputs.has_rust == 'true'
+        run: cargo build --release
+
+      # -------------------------------------------------------------
+      # JVM Toolchain (Java / Kotlin)
+      # -------------------------------------------------------------
+      - name: Setup Java
+        if: steps.detect.outputs.has_jvm == 'true'
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: 'temurin'
+          java-version: ${{ steps.detect.outputs.java_version }}
+          cache: ${{ hashFiles('pom.xml') != '' && 'maven' || (hashFiles('build.gradle*') != '' && 'gradle' || '') }}
+
+      - name: JVM - Quality Gates & Tests
+        if: steps.detect.outputs.has_jvm == 'true'
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew check
+          elif [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+            gradle check
+          elif [ -f "pom.xml" ]; then
+            mvn -B verify
+          fi
 
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -86,77 +495,197 @@ jobs:
         with:
           fetch-depth: 0  # Full history for effective secret scanning
 
-      - name: Resolve Node.js version
-        run: |
-          if [ -f .nvmrc ]; then
-            echo "Using Node.js version from .nvmrc: $(cat .nvmrc)"
-          elif node -e "const p=require('./package.json'); if(p.engines && p.engines.node) { console.log(p.engines.node); process.exit(0); } process.exit(1);" 2>/dev/null; then
-            node -e "const p=require('./package.json'); process.stdout.write(p.engines.node.replace(/[^0-9.]/g,''));" > .nvmrc
-          else
-            echo "::error::No .nvmrc or package.json engines.node found."
-            exit 1
-          fi
-
-      - name: Setup Node.js
-        uses: actions/setup-node@8207627f1c9d2f23b2c286e10747864f1d7d0611 # v7.0.0
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Dependency audit
-        run: npm audit --audit-level=high
-
       # Pin TruffleHog to a specific SHA for supply-chain safety.
-      # Find the latest release SHA at: https://github.com/trufflesecurity/trufflehog/releases
-      # Update this SHA periodically via Dependabot or manual audit.
       - name: Secret detection
         uses: trufflesecurity/trufflehog@f714bf4083a30c00d603a110a28f8f1082c611ba # v3.97.5
         with:
           extra_args: --only-verified
 
-      # Uncomment for CodeQL static analysis:
-      # - name: Initialize CodeQL
-      #   uses: github/codeql-action/init@v3
-      #   with:
-      #     languages: javascript-typescript
-      #
-      # - name: Perform CodeQL Analysis
-      #   uses: github/codeql-action/analyze@v3
+      # Setup toolchains independently for isolated runner execution
+      - name: Setup pnpm (if pnpm lockfile present)
+        if: hashFiles('pnpm-lock.yaml') != ''
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          version: 9.15.4
 
-  # Uncomment and configure for E2E tests.
-  # This job runs after quality-gates to avoid wasting E2E resources on code that fails basic checks.
-  # e2e:
-  #   name: E2E Tests
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   needs: [quality-gates]
-  #
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@3d3c4228965943b17469a47346124594c97970d4 # v7.0.1
-  #
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@8207627f1c9d2f23b2c286e10747864f1d7d0611 # v7.0.0
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #         cache: 'npm'
-  #
-  #     - name: Install dependencies
-  #       run: npm ci
-  #
-  #     - name: Install Playwright browsers
-  #       run: npx playwright install --with-deps
-  #
-  #     - name: Run E2E tests
-  #       run: npx playwright test
-  #
-  #     - name: Upload test results
-  #       if: always()
-  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-  #       with:
-  #         name: playwright-report
-  #         path: playwright-report/
-  #         retention-days: 14
+      - name: Setup Yarn (if yarn lockfile present)
+        if: hashFiles('yarn.lock') != ''
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate || npm install -g yarn
+
+      - name: Setup Bun (if bun lockfile present)
+        if: hashFiles('bun.lockb', 'bun.lock') != ''
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+
+      - name: Setup Node.js (if package.json present)
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@8207627f1c9d2f23b2c286e10747864f1d7d0611 # v7.0.0
+        with:
+          node-version: 24.x
+
+      - name: Setup Python (if Python manifests present)
+        if: hashFiles('requirements.txt', 'pyproject.toml', 'setup.py') != ''
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Setup Go (if Go manifests present)
+        if: hashFiles('go.mod') != ''
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Setup Rust (if Cargo manifests present)
+        if: hashFiles('Cargo.toml', 'Cargo.lock') != ''
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03ecf4f7718663b60f14b8b10 # v1.10.1
+
+      - name: Setup Java (if JVM manifests present)
+        if: hashFiles('pom.xml', 'build.gradle', 'build.gradle.kts') != ''
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Dependency audit (Node / JS / TS)
+        run: |
+          if [ ! -f "package.json" ]; then
+            echo "[SECURITY] Node audit: NOT_APPLICABLE (no package.json detected)."
+            exit 0
+          fi
+
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "[SECURITY] Running pnpm audit..."
+            if ! command -v pnpm >/dev/null 2>&1; then
+              echo "[SECURITY] BLOCKED: pnpm runtime missing on runner."
+              exit 1
+            fi
+            pnpm audit --audit-level=high
+          elif [ -f "yarn.lock" ]; then
+            echo "[SECURITY] Running yarn audit..."
+            if ! command -v yarn >/dev/null 2>&1; then
+              echo "[SECURITY] BLOCKED: yarn runtime missing on runner."
+              exit 1
+            fi
+            yarn audit --level high
+          elif [ -f "package-lock.json" ]; then
+            echo "[SECURITY] Running npm audit..."
+            npm audit --audit-level=high
+          elif [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
+            echo "[SECURITY] Bun lockfile detected. Running dependency audit..."
+            if ! command -v bun >/dev/null 2>&1; then
+              echo "[SECURITY] BLOCKED: bun runtime missing on runner."
+              exit 1
+            fi
+            # Bun native dependency audit evaluation (fail-closed if unavailable)
+            if bun pm audit >/dev/null 2>&1; then
+              bun pm audit || {
+                echo "[SECURITY] FAIL: Bun dependency audit found vulnerabilities."
+                exit 1
+              }
+            else
+              echo "[SECURITY] BLOCKED: Native Bun dependency audit unavailable or unsupported for this lockfile format."
+              exit 1
+            fi
+          else
+            echo "[SECURITY] BLOCKED: package.json present without lockfile (package-lock.json, pnpm-lock.yaml, or yarn.lock required for deterministic audit)."
+            exit 1
+          fi
+
+      - name: Dependency audit (Rust)
+        run: |
+          if [ ! -f "Cargo.lock" ]; then
+            if [ -f "Cargo.toml" ]; then
+              echo "[SECURITY] BLOCKED: Cargo.toml present without Cargo.lock."
+              exit 1
+            fi
+            echo "[SECURITY] Rust audit: NOT_APPLICABLE (no Cargo.lock detected)."
+            exit 0
+          fi
+          if ! command -v cargo >/dev/null 2>&1; then
+            echo "[SECURITY] BLOCKED: cargo runtime missing on runner."
+            exit 1
+          fi
+          if ! command -v cargo-audit >/dev/null 2>&1; then
+            cargo install cargo-audit --version 0.20.0 --locked || {
+              echo "[SECURITY] BLOCKED: Failed to install cargo-audit."
+              exit 1
+            }
+          fi
+          cargo audit
+
+      - name: Dependency audit (Python)
+        run: |
+          if [ ! -f "requirements.txt" ] && [ ! -f "pyproject.toml" ] && [ ! -f "setup.py" ]; then
+            echo "[SECURITY] Python audit: NOT_APPLICABLE (no Python manifests detected)."
+            exit 0
+          fi
+          if ! command -v python3 >/dev/null 2>&1; then
+            echo "[SECURITY] BLOCKED: python3 runtime missing on runner."
+            exit 1
+          fi
+          python3 -m pip install pip-audit==2.7.3 || {
+            echo "[SECURITY] BLOCKED: Failed to install pip-audit."
+            exit 1
+          }
+          if [ -f "requirements.txt" ]; then
+            pip-audit -r requirements.txt
+          else
+            pip-audit
+          fi
+
+      - name: Dependency audit (Go)
+        run: |
+          if [ ! -f "go.mod" ]; then
+            echo "[SECURITY] Go audit: NOT_APPLICABLE (no go.mod detected)."
+            exit 0
+          fi
+          if ! command -v go >/dev/null 2>&1; then
+            echo "[SECURITY] BLOCKED: go runtime missing on runner."
+            exit 1
+          fi
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4 || {
+            echo "[SECURITY] BLOCKED: Failed to install govulncheck."
+            exit 1
+          }
+          govulncheck ./...
+
+      - name: Dependency audit (JVM)
+        run: |
+          if [ ! -f "pom.xml" ] && [ ! -f "build.gradle" ] && [ ! -f "build.gradle.kts" ]; then
+            echo "[SECURITY] JVM audit: NOT_APPLICABLE (no JVM manifests detected)."
+            exit 0
+          fi
+          if ! command -v java >/dev/null 2>&1; then
+            echo "[SECURITY] BLOCKED: java runtime missing on runner."
+            exit 1
+          fi
+          if [ -f "pom.xml" ]; then
+            echo "[SECURITY] Running Maven dependency audit..."
+            if command -v mvn >/dev/null 2>&1; then
+              mvn org.owasp:dependency-check-maven:check || {
+                echo "[SECURITY] BLOCKED: Maven dependency-check plugin not configured or audit failed."
+                exit 1
+              }
+            else
+              echo "[SECURITY] BLOCKED: mvn tool missing on runner."
+              exit 1
+            fi
+          elif [ -f "./gradlew" ]; then
+            echo "[SECURITY] Running Gradle dependency audit..."
+            ./gradlew dependencyCheckAnalyze || {
+              echo "[SECURITY] BLOCKED: Gradle dependency-check plugin not configured or audit failed."
+              exit 1
+            }
+          elif [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+            echo "[SECURITY] Running Gradle dependency audit..."
+            if command -v gradle >/dev/null 2>&1; then
+              gradle dependencyCheckAnalyze || {
+                echo "[SECURITY] BLOCKED: Gradle dependency-check plugin not configured or audit failed."
+                exit 1
+              }
+            else
+              echo "[SECURITY] BLOCKED: gradle tool missing on runner."
+              exit 1
+            fi
+          fi

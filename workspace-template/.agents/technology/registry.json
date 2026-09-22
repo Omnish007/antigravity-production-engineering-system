@@ -1,0 +1,368 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "Machine-readable technology registry for stack detection, profile selection, and context routing. Detects dependencies across dependencies, devDependencies, peerDependencies, and optionalDependencies.",
+  "technologies": [
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "family": "react-framework",
+      "category": "frontend-framework",
+      "detect": {
+        "files": ["next.config.js", "next.config.mjs", "next.config.ts"],
+        "packageJsonDependencies": ["next"]
+      },
+      "profile": ".agents/technology/profiles/frontend/nextjs.md",
+      "localDocsPath": "node_modules/next/dist/docs/",
+      "docsUrl": "https://nextjs.org/docs",
+      "versionDetection": "packageJson.dependencies['next']"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "family": "javascript-ui",
+      "category": "frontend-library",
+      "detect": {
+        "packageJsonDependencies": ["react", "react-dom"]
+      },
+      "profile": ".agents/technology/profiles/frontend/react.md",
+      "docsUrl": "https://react.dev",
+      "versionDetection": "packageJson.dependencies['react']"
+    },
+    {
+      "id": "vue",
+      "name": "Vue.js",
+      "family": "vue-ecosystem",
+      "category": "frontend-framework",
+      "detect": {
+        "files": ["vite.config.js", "vite.config.ts"],
+        "packageJsonDependencies": ["vue"]
+      },
+      "profile": ".agents/technology/profiles/frontend/vue.md",
+      "docsUrl": "https://vuejs.org",
+      "versionDetection": "packageJson.dependencies['vue']"
+    },
+    {
+      "id": "nuxt",
+      "name": "Nuxt",
+      "family": "vue-framework",
+      "category": "frontend-framework",
+      "detect": {
+        "files": ["nuxt.config.js", "nuxt.config.ts"],
+        "packageJsonDependencies": ["nuxt"]
+      },
+      "profile": ".agents/technology/profiles/frontend/nuxt.md",
+      "docsUrl": "https://nuxt.com",
+      "versionDetection": "packageJson.dependencies['nuxt']"
+    },
+    {
+      "id": "angular",
+      "name": "Angular",
+      "family": "angular-ecosystem",
+      "category": "frontend-framework",
+      "detect": {
+        "files": ["angular.json"],
+        "packageJsonDependencies": ["@angular/core"]
+      },
+      "profile": ".agents/technology/profiles/frontend/angular.md",
+      "docsUrl": "https://angular.dev",
+      "versionDetection": "packageJson.dependencies['@angular/core']"
+    },
+    {
+      "id": "sveltekit",
+      "name": "SvelteKit",
+      "family": "svelte-ecosystem",
+      "category": "frontend-framework",
+      "detect": {
+        "files": ["svelte.config.js"],
+        "packageJsonDependencies": ["@sveltejs/kit", "svelte"]
+      },
+      "profile": ".agents/technology/profiles/frontend/sveltekit.md",
+      "docsUrl": "https://kit.svelte.dev",
+      "versionDetection": "packageJson.dependencies['@sveltejs/kit']"
+    },
+    {
+      "id": "node",
+      "name": "Node.js",
+      "family": "javascript-runtime",
+      "category": "runtime",
+      "detect": {
+        "files": ["package.json", ".nvmrc", ".node-version"]
+      },
+      "profile": ".agents/technology/profiles/backend/node.md",
+      "docsUrl": "https://nodejs.org/docs"
+    },
+    {
+      "id": "express",
+      "name": "Express.js",
+      "family": "node-backend",
+      "category": "backend-framework",
+      "detect": {
+        "packageJsonDependencies": ["express"]
+      },
+      "profile": ".agents/technology/profiles/backend/express.md",
+      "docsUrl": "https://expressjs.com",
+      "versionDetection": "packageJson.dependencies['express']"
+    },
+    {
+      "id": "fastify",
+      "name": "Fastify",
+      "family": "node-backend",
+      "category": "backend-framework",
+      "detect": {
+        "packageJsonDependencies": ["fastify"]
+      },
+      "profile": ".agents/technology/profiles/backend/fastify.md",
+      "docsUrl": "https://fastify.dev",
+      "versionDetection": "packageJson.dependencies['fastify']"
+    },
+    {
+      "id": "nestjs",
+      "name": "NestJS",
+      "family": "node-backend",
+      "category": "backend-framework",
+      "detect": {
+        "files": ["nest-cli.json"],
+        "packageJsonDependencies": ["@nestjs/core"]
+      },
+      "profile": ".agents/technology/profiles/backend/nestjs.md",
+      "docsUrl": "https://docs.nestjs.com",
+      "versionDetection": "packageJson.dependencies['@nestjs/core']"
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "family": "python-backend",
+      "category": "backend-framework",
+      "detect": {
+        "pythonDependencies": ["fastapi"]
+      },
+      "profile": ".agents/technology/profiles/backend/fastapi.md",
+      "docsUrl": "https://fastapi.tiangolo.com"
+    },
+    {
+      "id": "django",
+      "name": "Django",
+      "family": "python-backend",
+      "category": "backend-framework",
+      "detect": {
+        "files": ["manage.py"],
+        "pythonDependencies": ["django"]
+      },
+      "profile": ".agents/technology/profiles/backend/django.md",
+      "docsUrl": "https://docs.djangoproject.com"
+    },
+    {
+      "id": "spring-boot",
+      "name": "Spring Boot",
+      "family": "jvm-backend",
+      "category": "backend-framework",
+      "detect": {
+        "files": ["pom.xml", "build.gradle", "build.gradle.kts"],
+        "textPatterns": ["org.springframework.boot"]
+      },
+      "profile": ".agents/technology/profiles/backend/spring-boot.md",
+      "docsUrl": "https://spring.io/projects/spring-boot"
+    },
+    {
+      "id": "go-backend",
+      "name": "Go Backend",
+      "family": "go-backend",
+      "category": "backend-framework",
+      "detect": {
+        "files": ["go.mod"],
+        "textPatterns": ["github.com/gin-gonic/gin", "github.com/labstack/echo", "github.com/go-chi/chi"]
+      },
+      "profile": ".agents/technology/profiles/backend/go.md",
+      "docsUrl": "https://go.dev/doc/"
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "family": "compiled-language",
+      "category": "language-and-runtime",
+      "detect": {
+        "files": ["go.mod", "go.sum"]
+      },
+      "profile": ".agents/technology/profiles/language/go.md",
+      "docsUrl": "https://go.dev/doc/"
+    },
+    {
+      "id": "rust",
+      "name": "Rust",
+      "family": "compiled-language",
+      "category": "language-and-runtime",
+      "detect": {
+        "files": ["Cargo.toml", "Cargo.lock"]
+      },
+      "profile": ".agents/technology/profiles/language/rust.md",
+      "docsUrl": "https://doc.rust-lang.org"
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "family": "typed-javascript",
+      "category": "language",
+      "detect": {
+        "files": ["tsconfig.json"],
+        "packageJsonDependencies": ["typescript"]
+      },
+      "profile": ".agents/technology/profiles/language/typescript.md",
+      "docsUrl": "https://www.typescriptlang.org/docs"
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "family": "ecmascript",
+      "category": "language",
+      "detect": {
+        "files": ["package.json"]
+      },
+      "profile": ".agents/technology/profiles/language/javascript.md",
+      "docsUrl": "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "family": "interpreted-language",
+      "category": "language",
+      "detect": {
+        "files": ["pyproject.toml", "requirements.txt", "setup.py", "Pipfile"]
+      },
+      "profile": ".agents/technology/profiles/language/python.md",
+      "docsUrl": "https://docs.python.org/3/"
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "family": "jvm-language",
+      "category": "language",
+      "detect": {
+        "files": ["pom.xml", "build.gradle", "build.gradle.kts"]
+      },
+      "profile": ".agents/technology/profiles/language/java.md",
+      "docsUrl": "https://docs.oracle.com/en/java/"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "family": "document-database",
+      "category": "database",
+      "detect": {
+        "packageJsonDependencies": ["mongodb", "mongoose"],
+        "pythonDependencies": ["pymongo", "motor"],
+        "dockerComposeServices": ["mongo"]
+      },
+      "profile": ".agents/technology/profiles/database/mongodb.md",
+      "docsUrl": "https://www.mongodb.com/docs"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "family": "relational-database",
+      "category": "database",
+      "detect": {
+        "packageJsonDependencies": ["pg", "@prisma/client", "drizzle-orm", "typeorm"],
+        "pythonDependencies": ["psycopg2", "psycopg", "asyncpg", "sqlalchemy"],
+        "dockerComposeServices": ["postgres", "postgresql"]
+      },
+      "profile": ".agents/technology/profiles/database/postgresql.md",
+      "docsUrl": "https://www.postgresql.org/docs/"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "family": "relational-database",
+      "category": "database",
+      "detect": {
+        "packageJsonDependencies": ["mysql2", "mysql"],
+        "pythonDependencies": ["mysqlclient", "pymysql"],
+        "dockerComposeServices": ["mysql"]
+      },
+      "profile": ".agents/technology/profiles/database/mysql.md",
+      "docsUrl": "https://dev.mysql.com/doc/"
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "family": "embedded-relational",
+      "category": "database",
+      "detect": {
+        "packageJsonDependencies": ["better-sqlite3", "sqlite3", "sql.js"],
+        "files": ["*.db", "*.sqlite", "*.sqlite3"]
+      },
+      "profile": ".agents/technology/profiles/database/sqlite.md",
+      "docsUrl": "https://www.sqlite.org/docs.html"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "family": "key-value-cache",
+      "category": "cache-and-store",
+      "detect": {
+        "packageJsonDependencies": ["ioredis", "redis"],
+        "pythonDependencies": ["redis"],
+        "dockerComposeServices": ["redis"]
+      },
+      "profile": ".agents/technology/profiles/database/redis.md",
+      "docsUrl": "https://redis.io/docs/"
+    },
+    {
+      "id": "dynamodb",
+      "name": "Amazon DynamoDB",
+      "family": "cloud-nosql",
+      "category": "database",
+      "detect": {
+        "packageJsonDependencies": ["@aws-sdk/client-dynamodb", "@aws-sdk/lib-dynamodb"],
+        "pythonDependencies": ["boto3"]
+      },
+      "profile": ".agents/technology/profiles/database/dynamodb.md",
+      "docsUrl": "https://docs.aws.amazon.com/dynamodb/"
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "family": "containerization",
+      "category": "deployment",
+      "detect": {
+        "files": ["Dockerfile", "docker-compose.yml", "docker-compose.yaml", "compose.yaml"]
+      },
+      "profile": ".agents/technology/profiles/deployment/docker.md",
+      "docsUrl": "https://docs.docker.com"
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "family": "cloud-platform",
+      "category": "deployment",
+      "detect": {
+        "files": ["vercel.json", ".vercel"]
+      },
+      "profile": ".agents/technology/profiles/deployment/vercel.md",
+      "docsUrl": "https://vercel.com/docs"
+    },
+    {
+      "id": "aws",
+      "name": "Amazon Web Services",
+      "family": "cloud-platform",
+      "category": "deployment",
+      "detect": {
+        "files": ["serverless.yml", "cdk.json", "template.yaml"],
+        "packageJsonDependencies": ["aws-cdk", "@aws-sdk"]
+      },
+      "profile": ".agents/technology/profiles/deployment/aws.md",
+      "docsUrl": "https://docs.aws.amazon.com"
+    },
+    {
+      "id": "k8s",
+      "name": "Kubernetes",
+      "family": "container-orchestration",
+      "category": "deployment",
+      "detect": {
+        "files": ["k8s/", "kubernetes/", "helm/", "Chart.yaml"]
+      },
+      "profile": ".agents/technology/profiles/deployment/k8s.md",
+      "docsUrl": "https://kubernetes.io/docs/"
+    }
+  ]
+}

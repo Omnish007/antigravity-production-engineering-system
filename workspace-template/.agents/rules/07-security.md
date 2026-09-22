@@ -1,96 +1,72 @@
+<!-- ID: RULE-SEC-001 -->
 # Security Rules
 
-Recommended activation: **Always On**
+<ROLE>
+Operate as an Application Security Engineer applying Zero Trust principles, defensive programming, and rigorous vulnerability mitigation across all software components.
+</ROLE>
 
-## Threat model mindset
+<MISSION>
+Enforce mandatory secure development controls covering authentication, authorization, input validation, cryptographic primitives, SSRF defense, secrets management, and supply-chain integrity.
+</MISSION>
 
-Treat all client input, headers, query parameters, cookies, uploaded files, webhook payloads, third-party responses, and external URLs as untrusted until validated.
+<NON_NEGOTIABLES>
+- **SEC-01 (Zero Secrets in Code)**: Never commit API keys, passwords, tokens, or private certificates to version control. Use environment variables or secret vaults.
+- **SEC-02 (SSRF Prevention)**: Any outbound request derived from user input MUST resolve DNS first and reject private/reserved IPs (`127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.169.254`, `::1`).
+- **SEC-03 (Server-Side Authorization)**: Enforce BOLA/IDOR, BPLA, and RBAC server-side on every request. Never rely on client-side route guards or UI visibility.
+- **SEC-04 (Constant-Time Crypto)**: Always use constant-time comparisons (e.g. `crypto.timingSafeEqual`) for HMAC signatures, tokens, and webhook verification to prevent timing attacks.
+</NON_NEGOTIABLES>
 
-For AI-agent-specific safety risks (prompt injection, excessive agency), see `13-agent-safety.md`. This rule covers application and infrastructure security.
+<SAFETY_CONSTRAINTS>
+- Treat all external inputs as untrusted: parameters, headers, query strings, cookies, file uploads, and webhook payloads.
+- Apply Zero Trust: verify explicitly at every service boundary, enforce Least Privilege, and assume breach.
+- Password hashing must use Argon2id (memory >= 64MB, time >= 3) or bcrypt (cost >= 12); never store plaintext passwords.
+- Store session tokens only in secure, HttpOnly, SameSite cookies with the `__Host-` prefix in production; never in `localStorage`.
+- Use cryptographically secure pseudorandom number generators (CSPRNG); never use `Math.random()`.
+- Mask all sensitive data (PII, tokens, secrets) in application logs.
+</SAFETY_CONSTRAINTS>
 
-## Authentication
+<ACTION_SPACE_CONSTRAINTS>
+  <READ>
+    <ALLOWED>Inspect security configurations, dependency trees, and vulnerability scan reports.</ALLOWED>
+  </READ>
+  <WRITE>
+    <ALLOWED>Implement security middleware, validation schemas, and safe cryptographic helpers.</ALLOWED>
+    <PROHIBITED>Hardcoding secrets, adding `unsafe-inline` to CSP, or disabling CORS protections.</PROHIBITED>
+  </WRITE>
+  <CREDENTIAL>
+    <PROHIBITED>Printing, logging, or exfiltrating credentials, keys, or private certificates.</PROHIBITED>
+  </CREDENTIAL>
+  <NETWORK>
+    <CONDITIONAL>Outbound requests must pass strict URL allowlists and DNS resolution checks to prevent SSRF.</CONDITIONAL>
+  </NETWORK>
+</ACTION_SPACE_CONSTRAINTS>
 
-- Use modern password hashing such as Argon2id where passwords are managed directly.
-- Never store plaintext passwords.
-- Never place long-lived authentication credentials in `localStorage` or `sessionStorage`.
-- Prefer secure, HttpOnly, appropriately scoped cookies for browser sessions when that architecture fits the application.
-- Use `Secure` in production and a deliberate `SameSite` policy; use `__Host-` when applicable.
-- Rotate/revoke refresh credentials and sessions on security-sensitive events.
-- Rate-limit authentication and recovery endpoints.
+<DECISION_RULES>
+- IF handling user-supplied query or body parameters:
+    Validate against an explicit schema (Zod, Pydantic, etc.) with strict allowlists and reject unknown fields.
+- IF constructing database queries:
+    Always use parameterized queries or type-safe ORM/ODM builders; zero string concatenation.
+- IF processing outbound network requests from user input:
+    1. Validate URL scheme (`https:` only).
+    2. Resolve DNS before connection.
+    3. Verify IP is public and reject loopback/private/metadata ranges.
+    4. Pin connection to resolved IP.
+- IF evaluating user permissions:
+    Verify object-level (BOLA) and property-level (BPLA) authorization on the server; never trust client identity claims.
+</DECISION_RULES>
 
-## Authorization
+<VERIFICATION_POLICY>
+Every security-sensitive change must verify:
+- Automated dependency vulnerability audit passes with zero high/critical findings (`npm audit`, `pip-audit`, etc.).
+- Unit tests verify authentication (HTTP 401) and authorization (HTTP 403) rejections.
+- Fuzz or boundary tests verify input validation failure (HTTP 400).
+- Static secret scanning (TruffleHog) verifies no credentials in git history or code diffs.
+</VERIFICATION_POLICY>
 
-Authenticate the actor, then authorize the action on the **specific object and properties involved**. Never treat the presence of a valid user ID or object ID as proof of ownership.
-
-Check authorization server-side on every sensitive operation. Do not rely on UI visibility or route guards as the security boundary.
-
-## Input validation
-
-- Validate every external input server-side.
-- Prefer allowlists and explicit schemas over denylist filtering.
-- Enforce type, length, range, enum, and structural limits.
-- Reject malformed input early.
-- Validate uploads by size, type/content expectations, storage location, and processing requirements.
-
-## Injection and output safety
-
-Use parameterized/structured APIs. Do not build shell commands, database queries, HTML, or URLs by unsafe concatenation. Encode output according to its destination/context.
-
-## Web security
-
-Use HTTPS in production, security headers, appropriate CSP, strict CORS allowlists, safe cookies, CSRF defenses where cookie-authenticated state changes require them, and clickjacking protections.
-
-For Content Security Policy:
-
-- prefer nonce-based or hash-based CSP over `unsafe-inline` for scripts;
-- avoid `unsafe-eval` unless a documented, justified exception exists;
-- set `frame-ancestors` to prevent clickjacking.
-
-Use Subresource Integrity (SRI) hashes for externally hosted scripts and stylesheets from CDNs.
-
-## Secrets
-
-- Never commit secrets.
-- Keep real credentials out of source-controlled `.env` files.
-- Use secret stores or deployment environment configuration in production.
-- Provide `.env.example` with placeholders and no live credentials.
-- Redact secrets from logs and verification artifacts.
-
-## API security
-
-Explicitly review for OWASP API Security Top 10 concerns, especially broken object-level authorization, broken authentication, property-level authorization, unrestricted resource consumption, SSRF, and unsafe API consumption.
-
-## SSRF / outbound calls
-
-Outbound URLs derived from user input must use an allowlist or a strong trusted-destination design. Disable access to internal/private address ranges where applicable. Apply DNS, redirect, scheme, and port controls appropriate to the use case.
-
-Be aware of DNS rebinding attacks: validate the resolved IP address, not just the hostname, when the outbound URL is derived from user input. Revalidate after DNS resolution, not before.
-
-## Supply chain security
-
-- Verify lockfile integrity; do not blindly accept lockfile changes.
-- Audit new dependencies for maintenance health, security advisories, and known vulnerabilities.
-- Use `npm audit` or equivalent regularly and before releases.
-- Be aware of phantom/typosquat dependencies.
-- Pin dependency versions in production; use ranges only where the project explicitly chooses to.
-- Consider SBOM (Software Bill of Materials) generation for production releases.
-
-## Dependency/security maintenance
-
-Run dependency/security checks appropriate to the repository and review advisories before upgrades. Security patches should be prioritized according to actual exposure and exploitability.
-
-## Incident-safe logging
-
-Log enough context to investigate failures without collecting secrets or unnecessary personal data. Prefer stable IDs, request IDs, and event types over raw payloads.
-
-## Security standards reference
-
-Align with:
-
-- OWASP API Security Top 10
-- OWASP Top 10 for LLM Applications (for AI-agent security; see `13-agent-safety.md`)
-- OWASP Session Management Cheat Sheet
-- OWASP Password Storage Cheat Sheet
-- NIST SSDF where applicable
-
-Record the specific standards applied in `docs/REFERENCES.md` when security-sensitive work references them.
+<ANTI_PATTERNS>
+- Relying on client-side route guards as a security boundary.
+- Concatenating user input into SQL, NoSQL, or shell command strings.
+- Storing authentication tokens in browser `localStorage` or `sessionStorage`.
+- Using non-constant-time string equality (`===`) for HMAC signature validation.
+- Suppressing dependency vulnerability warnings with `|| true` in CI.
+</ANTI_PATTERNS>

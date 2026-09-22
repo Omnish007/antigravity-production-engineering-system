@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RetriesTracking",
+  "description": "Schema for the circuit breaker retry tracker in retries.json.",
+  "type": "object",
+  "required": ["schemaVersion", "policy", "records"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "policy": {
+      "type": "object",
+      "required": ["maxRetriesPerFailure", "maxAlternativeApproaches", "maxTotalRecoveryAttempts", "escalationLadder"],
+      "properties": {
+        "maxRetriesPerFailure": { "type": "integer" },
+        "maxAlternativeApproaches": { "type": "integer" },
+        "maxTotalRecoveryAttempts": { "type": "integer" },
+        "scope": { "type": "string" },
+        "preserveSuccessfulWork": { "type": "boolean" },
+        "onExhaustion": { "type": "string" },
+        "escalationLadder": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "taskId", "failureClass", "errorMessage", "approach", "attempt", "escalationLevel", "outcome", "timestamp"],
+        "properties": {
+          "id": { "type": "string" },
+          "taskId": { "type": "string" },
+          "failureClass": {
+            "type": "string",
+            "enum": ["client", "domain", "infrastructure", "unexpected", "agent"]
+          },
+          "errorMessage": { "type": "string" },
+          "approach": { "type": "string" },
+          "attempt": { "type": "integer" },
+          "escalationLevel": {
+            "type": "string",
+            "enum": ["retry-same-approach", "change-approach", "research-problem", "reduce-scope", "request-human-input"]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": ["pending", "success", "failed", "escalated"]
+          },
+          "timestamp": { "type": "string" },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProjectStackSnapshot",
+  "description": "Schema for stack.json recording detected technology stack evidence.",
+  "type": "object",
+  "required": ["schemaVersion", "status", "languages", "frontend", "backend", "database"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["NOT_DETECTED", "DETECTED", "MANUALLY_CONFIGURED"]
+    },
+    "detectedAt": {
+      "type": ["string", "null"]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": ["string", "null"] },
+          "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "frontend": {
+      "type": ["object", "null"],
+      "properties": {
+        "framework": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "uiLibrary": { "type": ["string", "null"] },
+        "styling": { "type": ["string", "null"] },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "source": { "type": "string" }
+      }
+    },
+    "backend": {
+      "type": ["object", "null"],
+      "properties": {
+        "runtime": { "type": ["string", "null"] },
+        "framework": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "source": { "type": "string" }
+      }
+    },
+    "database": {
+      "type": ["object", "null"],
+      "properties": {
+        "primary": { "type": ["string", "null"] },
+        "orm": { "type": ["string", "null"] },
+        "cache": { "type": ["string", "null"] },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "source": { "type": "string" }
+      }
+    },
+    "tooling": {
+      "type": "object",
+      "properties": {
+        "packageManager": { "type": ["string", "null"] },
+        "buildTool": { "type": ["string", "null"] },
+        "testFramework": { "type": ["string", "null"] },
+        "linter": { "type": ["string", "null"] }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "target": { "type": ["string", "null"] },
+        "containerized": { "type": "boolean" }
+      }
+    },
+    "activeProfiles": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

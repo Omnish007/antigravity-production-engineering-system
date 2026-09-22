@@ -1,0 +1,107 @@
+{
+  "name": "migration-task",
+  "governance": {
+    "schemaVersion": "1.0.0",
+    "records": [
+      {
+        "taskId": "TASK-004",
+        "classification": {
+          "type": "migration",
+          "risk": "high"
+        },
+        "requiredRules": ["RULE-CORE-001", "RULE-CODE-001", "RULE-SEC-001"],
+        "requiredSkills": ["SKILL-DB-001", "SKILL-DEPLOY-001", "SKILL-SEC-001"],
+        "requiredTechnologyProfiles": ["database/postgresql"],
+        "relevantAdrs": ["ADR-001"],
+        "governanceStatus": "complete",
+        "completedAt": "2026-09-20T13:00:00Z",
+        "qualityGates": [
+          {
+            "id": "GATE-01",
+            "name": "migration-test",
+            "status": "passed",
+            "command": "npm run db:migrate:test",
+            "exitCode": 0,
+            "evidence": "Expand/contract migration applied and rolled back cleanly against ephemeral PG container",
+            "timestamp": "2026-09-20T12:55:00Z"
+          }
+        ],
+        "securityChecks": [
+          {
+            "id": "SEC-01",
+            "name": "permission-check",
+            "status": "passed",
+            "tool": "sql-lint",
+            "toolVersion": "2.1.0",
+            "command": "sql-lint check migrations/",
+            "exitCode": 0,
+            "scope": "migrations/",
+            "timestamp": "2026-09-20T12:56:00Z",
+            "evidence": "Verified zero unparameterized SQL statements or dropped columns without expand/contract"
+          }
+        ],
+        "diffReview": {
+          "status": "reviewed",
+          "unrelatedChangesDetected": false,
+          "filesReviewed": ["migrations/002_add_field.sql"],
+          "reviewId": "REV-002",
+          "reviewerAgent": "code-reviewer",
+          "evidence": "Additive schema change verified: adds phone_verified column without lock."
+        },
+        "approvalRequirements": {
+          "required": true,
+          "satisfied": true,
+          "approver": "dba-lead",
+          "approvalSource": "antigravity-artifact-review",
+          "approvalId": "APP-20260920-02",
+          "approvedAt": "2026-09-20T12:58:00Z",
+          "approvalEvidence": "DBA lead approved migration plan and verified dry-run rollback on staging.",
+          "notes": "Approved by DBA"
+        },
+        "memorySyncRequired": true,
+        "memorySyncCompleted": true,
+        "acceptanceCriteriaEvidence": [
+          {
+            "criterion": "phone_verified column added without locking table",
+            "status": "satisfied",
+            "evidence": "Applied migration script verified with pg_stat_activity showing 0 locks"
+          }
+        ]
+      }
+    ]
+  },
+  "tasks": {
+    "schemaVersion": "1.0.0",
+    "tasks": [
+      {
+        "id": "TASK-004",
+        "name": "Expand user table with phone_verified column",
+        "type": "migration",
+        "status": "COMPLETED",
+        "riskLevel": "high",
+        "priority": "P1",
+        "dependencies": [],
+        "acceptanceCriteria": ["phone_verified column added without locking table"],
+        "createdAt": "2026-09-20T11:50:00Z",
+        "updatedAt": "2026-09-20T13:00:00Z",
+        "completedAt": "2026-09-20T13:00:00Z"
+      }
+    ]
+  },
+  "events": [
+    {
+      "taskId": "TASK-004",
+      "event": "TASK_STARTED",
+      "timestamp": "2026-09-20T12:00:00Z"
+    },
+    {
+      "taskId": "TASK-004",
+      "event": "TASK_COMPLETED",
+      "timestamp": "2026-09-20T13:00:00Z"
+    }
+  ],
+  "blockers": {
+    "active": [],
+    "resolved": []
+  }
+}

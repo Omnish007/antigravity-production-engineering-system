@@ -1,10 +1,38 @@
 ---
 name: quality-gates
+id: SKILL-QUALITY-001
 description: Evaluate agent output quality through self-assessment, trajectory analysis, regression detection, and CI/CD gating before declaring work complete.
 ---
 
 # Quality Gates Skill
 
+<MISSION>
+Evaluate agent output quality through self-assessment, trajectory analysis, regression detection, and CI/CD gating before declaring work complete.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring quality-gates capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in `.agents/state/tasks.json` must be `IN_PROGRESS`.
+- `TASK_STARTED` event must be recorded in `.agents/state/events.jsonl`.
+
+### Pre-flight Checklist
+- [ ] Determine applicable quality gates based on project type and scope of change
+- [ ] Applicable checks (format, lint, typecheck, tests, build) execute with exit code 0
+- [ ] ADR in `docs/decisions/ADR-NNN-<slug>.md` verified if architectural trigger is met
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Every applicable quality gate configured for the project (e.g. format, lint, typecheck, test, build) must pass with exit code 0; gates irrelevant to the project type or task scope (e.g. accessibility audits on CLI scripts or browser E2E on pure libraries) are not required.
+- Provide exact command output and exit codes as evidence for every executed gate.
+- No applicable gate may be suppressed with `|| true` or ignored to force clearance.
+- If the task met the Canonical ADR Trigger, an ADR in `docs/decisions/ADR-NNN-<slug>.md` is a mandatory prerequisite for gate clearance.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Purpose
 
 Ensure that AI-generated changes meet production quality standards before they are declared complete or merged. This skill provides a structured evaluation framework for the agent's own output.
@@ -22,6 +50,7 @@ Before declaring any task complete, verify:
 7. **Accessibility**: UI changes maintain accessibility standards.
 8. **Documentation**: Relevant docs and memory updated.
 9. **Diff review**: Final diff contains only intended changes.
+10. **Architecture & ADRs**: If the task made a Type 1 decision or evaluated architectural trade-offs, verify that a formal ADR exists in `docs/decisions/` and is registered in `docs/decisions/INDEX.md`.
 
 ## Trajectory evaluation
 
@@ -81,8 +110,8 @@ Type-check           | PASSED  | tsc exit 0
 Lint                 | PASSED  | eslint exit 0
 Tests (focused)      | PASSED  | 12/12
 Tests (broad)        | PASSED  | 147/147
-Build                | PASSED  | next build exit 0
-Security scan        | PASSED  | npm audit, 0 high/critical
+Build                | PASSED  | production build exit 0
+Security scan        | PASSED  | dependency audit & secret scan: 0 vulnerabilities, 0 secrets
 Diff review          | PASSED  | 6 files, no unintended changes
 Regression           | PASSED  | No previously passing tests failed
 Memory sync          | DONE    | CURRENT_STATE.md updated
@@ -95,3 +124,14 @@ After completing the quality assessment:
 - Identify recurring quality issues that could be prevented by better rules or conventions.
 - Suggest process improvements when patterns emerge.
 - Record prevention strategies in project memory when they are durable.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+All policy-mandated quality gates verified with exit code 0 and substantive evidence.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Quality gate evaluation report.
+- Passing lint, typecheck, test, and build verifications recorded in verification evidence.
+</DELIVERABLES>

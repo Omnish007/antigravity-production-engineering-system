@@ -1,84 +1,128 @@
 ---
 name: refactoring
-description: Perform behavior-preserving code transformations with characterization testing, incremental migration, scope control, and full regression safety.
+id: SKILL-REFACTOR-001
+description: Perform behavior-preserving code transformations with characterization testing, incremental maneuvers, Martin Fowler's refactoring patterns, and full regression safety.
 ---
 
 # Refactoring Skill
 
-## Core principle
+<MISSION>
+Perform behavior-preserving code transformations with characterization testing, incremental maneuvers, Martin Fowler's refactoring patterns, and full regression safety.
+</MISSION>
 
-Refactoring changes internal structure without changing external behavior. Every refactoring step must be verifiable as behavior-preserving.
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring refactoring capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
 
-## Procedure
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
 
-1. **Identify the goal**: What structural improvement is needed and why.
-2. **Characterize existing behavior**: Ensure adequate test coverage of current behavior before changing structure.
-3. **Plan incremental steps**: Break the refactoring into small, independently verifiable transformations.
-4. **Execute one step at a time**: Make one structural change, verify tests still pass, then proceed.
-5. **Verify continuously**: Run relevant tests after every meaningful change.
-6. **Review the result**: Confirm the structural goal was achieved without behavior regression.
-7. **Clean up**: Remove dead code, update imports, fix documentation.
+### Pre-flight Checklist
+- [ ] Tests pass before change
+    - [ ] Structural refactor applied
+    - [ ] Tests pass after change
+    - [ ] No behavior altered
+</PRECONDITIONS>
 
-## Characterization testing
+<NON_NEGOTIABLES>
+- Automated tests must pass BEFORE and AFTER refactoring.
+    - Zero change in observable external behavior.
+    - Refactoring must be surgical and focused on a single structural improvement.
+</NON_NEGOTIABLES>
 
-Before refactoring code with insufficient test coverage:
+<PROCEDURE>
+## Core principle (Martin Fowler's Refactoring)
 
-- Write characterization tests that capture current behavior, including edge cases and error paths.
-- These tests define "correct" as "what the code currently does," not "what we wish it did."
-- Run characterization tests after each refactoring step to verify behavior preservation.
-- Bug fixes discovered during refactoring should be separated into distinct commits/tasks.
+> **Refactoring is a disciplined technique for restructuring an existing body of code, altering its internal structure without changing its external behavior.**
 
-## Strategies
+Key principles:
+- **Two hats**: When programming, switch between two distinct activities: adding functionality (no refactoring) and refactoring (no new features). Never mix both in the same commit.
+- **Micro-steps**: Refactor through tiny, behavior-preserving transformations backed by automated tests.
+- **Leave it cleaner (The Boy Scout Rule)**: Leave the code in a slightly better state than you found it.
 
-### Extract/inline
-
-Use for reorganizing responsibilities between functions, classes, or modules. Maintain the same public API surface while improving internal organization.
-
-### Strangler fig
-
-For large-scale refactoring or migration:
+## The Refactoring lifecycle
 
 ```text
-1. Create the new structure alongside the old.
-2. Route new functionality to the new structure.
-3. Incrementally migrate existing functionality.
-4. Remove the old structure when fully migrated.
-5. Verify at each stage.
+Assess Coverage -> Characterize Behavior -> Plan Maneuvers -> Execute Micro-Steps -> Verify -> Clean Up
 ```
 
-### Contract preservation
+### 1. Characterization testing
+Before refactoring code with inadequate or uncertain test coverage:
+- Write **characterization tests** to capture the actual current behavior, including edge cases, boundary values, and error paths.
+- Define "correct" as "what the system currently does in production," not "what we think it should do."
+- Ensure tests run fast and deterministically.
 
-When refactoring code with external consumers (APIs, shared modules):
+### 2. Standard refactoring catalog
 
-- maintain backward compatibility throughout the migration;
-- use deprecation annotations when replacing public interfaces;
-- provide the new API alongside the old during transition;
-- document the migration path for consumers;
-- create a superseding ADR when the refactoring changes architecture.
+Apply established refactoring maneuvers:
 
-## Scope control
+#### Composing functions
+- **Extract Function**: Break long functions (>25 lines) into smaller, well-named functions that express intent.
+- **Replace Temp with Query**: Replace temporary variables storing calculations with dedicated pure functions.
+- **Introduce Explaining Variable**: Break down complex expressions into named intermediate variables.
 
-- Refactor only what the task requires. Do not improve adjacent code opportunistically.
-- Do not mix behavior changes with structural changes in the same commit.
-- If the refactoring reveals bugs, log them separately and fix them in distinct tasks unless they are trivially small.
-- If the refactoring reveals a better architecture, propose it as a separate task rather than expanding scope.
+#### Simplifying conditionals
+- **Replace Nested Conditionals with Guard Clauses**: Use early returns to eliminate deep indentation and improve readability.
+- **Decompose Conditional**: Extract complex boolean conditions into clearly named helper predicates.
+- **Replace Conditional with Polymorphism / Strategy**: Replace `switch` or `if/else` chains dispatching on type codes with polymorphic classes or strategy objects.
 
-## Verification
+#### Organizing data & parameters
+- **Introduce Parameter Object**: Replace parameter lists with 4+ arguments with a typed configuration or DTO object.
+- **Preserve Whole Object**: Pass the entire domain object instead of extracting multiple individual properties.
+- **Separate Query from Modifier (CQS)**: Ensure functions either return a value (query) or modify state (command), never both.
 
-Before and after every refactoring:
+#### Moving features between objects
+- **Move Function / Field**: Move responsibilities to the class or module that holds the data it operates on (improving cohesion).
+- **Hide Delegate (Law of Demeter)**: Provide direct helper methods on immediate collaborators rather than reaching through objects (`a.getB().getC().doSomething()`).
 
-- run the full test suite relevant to the changed modules;
-- compare test results before and after;
-- verify no previously passing tests now fail;
-- for API refactoring, verify contract compatibility;
-- for data model refactoring, verify migration safety;
-- review the final diff to confirm only structural changes were made.
+## Large-scale architectural refactoring
 
-## Memory sync
+For major structural transitions across services, databases, or frameworks:
 
-After meaningful refactoring:
+### 1. Strangler Fig pattern
+- Build the new service or module alongside the legacy system.
+- Route new functionality directly to the new implementation.
+- Incrementally migrate existing endpoints or capabilities one by one.
+- Decommission the legacy system only after 100% traffic migration and parity verification.
 
-- update `docs/ARCHITECTURE.md` if module boundaries or dependency direction changed;
-- update `docs/CONVENTIONS.md` if new patterns were established;
-- create an ADR if the refactoring represents a deliberate architectural choice;
-- update `docs/CURRENT_STATE.md` with the refactoring status.
+### 2. Branch by Abstraction
+- Introduce an abstraction (interface/port) in front of the code to be replaced.
+- Point existing callers to the abstraction.
+- Create the new implementation behind the abstraction.
+- Switch the implementation via configuration or dependency injection.
+- Remove the old implementation and inline the abstraction if no longer needed.
+
+### 3. The Mikado Method
+For complex refactorings with cascading dependencies:
+1. Set the ultimate refactoring goal.
+2. Attempt the change directly and observe what breaks (compiler errors, failing tests).
+3. Revert the change (`git reset`).
+4. Record the prerequisite sub-goals on a dependency graph (Mikado graph).
+5. Solve leaf prerequisites first, committing each step cleanly, until the primary goal succeeds.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+## Verification & regression prevention
+
+After every micro-step:
+- Run the focused test suite for the modified module.
+- Confirm all tests pass with zero regression.
+- Review `git diff` to ensure only structural changes were made—no accidental feature changes or bug fixes mixed in.
+
+## Memory synchronization
+
+After completing meaningful refactoring:
+- Update `docs/ARCHITECTURE.md` if module boundaries, interfaces, or dependency direction changed.
+- Update `docs/CONVENTIONS.md` if new design patterns or coding conventions were adopted.
+- Record an ADR in `docs/decisions/` if the refactoring represented an architectural pivot.
+
+### Exit Criteria
+Refactored code verified with 100% test pass rate and clean diff.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Refactored code with improved structure and maintainability.
+- Preserved behavior verified by passing tests before and after the refactor.
+</DELIVERABLES>

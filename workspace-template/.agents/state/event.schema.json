@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CanonicalEventRecord",
+  "description": "Strict schema for canonical individual events recorded in .agents/state/events/TASK-xxx.jsonl and events.jsonl.",
+  "type": "object",
+  "required": ["event", "timestamp"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^EVT-[0-9]{4,}$",
+      "description": "Unique identifier for the event, e.g. EVT-000019."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing event sequence number."
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "SYSTEM_INITIALIZED",
+        "TASK_STARTED",
+        "TASK_COMPLETED",
+        "TASK_FAILED",
+        "TASK_BLOCKED",
+        "TASK_RECOVERED_RESET",
+        "TASK_RESUMED",
+        "TASK_RECOVERED_FAILED",
+        "PHASE_CHANGED",
+        "DECISION_MADE",
+        "MEMORY_SYNCED",
+        "ERROR_OCCURRED",
+        "RECOVERY_ATTEMPTED",
+        "RETRY_RECORDED",
+        "RETRY_RESOLVED",
+        "BLOCKER_RECORDED",
+        "BLOCKER_RESOLVED",
+        "VERIFICATION_PASSED",
+        "VERIFICATION_FAILED",
+        "CHECKPOINT_REACHED",
+        "WORKTREE_CREATED",
+        "WORKTREE_REMOVED",
+        "DEPLOYMENT_STARTED",
+        "DEPLOYMENT_COMPLETED",
+        "TOOL_EXECUTION",
+        "OVERRIDE_REQUESTED",
+        "OVERRIDE_GRANTED"
+      ],
+      "description": "The type of event that occurred."
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO 8601 timestamp when the event occurred."
+    },
+    "source": {
+      "type": "string",
+      "description": "The agent, role, or system component that produced the event."
+    },
+    "taskId": {
+      "type": ["string", "null"],
+      "description": "The task this event relates to, if any."
+    },
+    "phase": {
+      "type": ["string", "null"],
+      "description": "The execution phase when the event occurred."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warn", "error"],
+      "description": "Severity level of the event."
+    },
+    "details": {
+      "type": ["string", "object", "null"],
+      "description": "Human-readable description or structured details of the event."
+    },
+    "recoveryAction": {
+      "type": ["string", "null"],
+      "description": "Specific recovery action taken if this is a recovery event."
+    },
+    "previousStatus": {
+      "type": ["string", "null"],
+      "description": "Previous task status before recovery or transition."
+    },
+    "filesMutated": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files created, modified, or deleted during this event."
+    },
+    "commandExitCode": {
+      "type": ["integer", "null"],
+      "description": "Exit code of a command that triggered or relates to this event."
+    },
+    "errorClass": {
+      "type": ["string", "null"],
+      "enum": [null, "client", "domain", "infrastructure", "unexpected", "agent"],
+      "description": "Classification of the error, if this is an error event."
+    },
+    "duration": {
+      "type": ["string", "null"],
+      "description": "How long the associated operation took (e.g., '12.3s')."
+    },
+    "stepIdx": {
+      "type": ["integer", "null"],
+      "description": "Antigravity conversation step index where the tool was invoked."
+    },
+    "tool": {
+      "type": ["string", "null"],
+      "description": "The name of the tool executed."
+    },
+    "command": {
+      "type": ["string", "null"],
+      "description": "The command line or invocation arguments executed."
+    },
+    "hasError": {
+      "type": "boolean",
+      "description": "Whether the tool execution returned an error."
+    },
+    "commandRedacted": {
+      "type": "boolean",
+      "description": "Whether sensitive tokens or credentials were redacted from the command."
+    },
+    "error": {
+      "type": ["string", "null"],
+      "description": "Error details if tool execution failed."
+    }
+  },
+  "additionalProperties": false
+}

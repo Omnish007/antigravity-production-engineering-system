@@ -1,0 +1,119 @@
+version: "1.0.0"
+description: "Authoritative machine-readable registry of policy domains, canonical owners, supporting artifacts, and schemas."
+policies:
+  - domain: "Agent Execution Lifecycle"
+    canonicalOwner: "agent-operating-contract.md"
+    supportingArtifacts:
+      - "task-lifecycle.md"
+      - "../../AGENTS.md"
+    authority: "Sole authority for the 15-stage High-Assurance Lifecycle sequence (RECEIVE through COMPLETE), phase boundaries, and operational modes."
+
+  - domain: "Task State Machine"
+    canonicalOwner: "task-lifecycle.md"
+    schema: "../state/tasks.schema.json"
+    supportingArtifacts:
+      - "../state/tasks.json"
+      - "../state/events.jsonl"
+      - "../skills/quality-gates/scripts/validate-task-dag.py"
+    authority: "Sole authority for task state definitions (DRAFT through COMPLETED), legal transitions, and execution event logging."
+
+  - domain: "Architectural Decisions & ADR Triggers"
+    canonicalOwner: "decision-policy.md"
+    supportingArtifacts:
+      - "../../docs/decisions/INDEX.md"
+    authority: "Sole authority for the Canonical Significance Formula (ADR trigger), autonomous vs escalation boundaries, and ADR conflict resolution."
+
+  - domain: "Context Loading & Routing"
+    canonicalOwner: "context-router.md"
+    supportingArtifacts:
+      - "context-budget-policy.md"
+    authority: "Sole authority for mapping task types and risk levels to four-tier context bundles (REQUIRED, RECOMMENDED, OPTIONAL, EXCLUDED)."
+
+  - domain: "Context Budget & Window Optimization"
+    canonicalOwner: "context-budget-policy.md"
+    supportingArtifacts:
+      - "context-router.md"
+    authority: "Sole authority for context window limits, token optimization strategies, and eviction priorities."
+
+  - domain: "Durable Memory Synchronization"
+    canonicalOwner: "memory-sync-policy.md"
+    supportingArtifacts:
+      - "../../docs/INDEX.md"
+      - "../../docs/CURRENT_STATE.md"
+      - "../../docs/CONVENTIONS.md"
+    authority: "Sole authority for when, where, and how durable project memory (docs/) must be updated following code changes."
+
+  - domain: "Verification Gates & Evidence"
+    canonicalOwner: "../rules/10-verification.md"
+    schema: "verification-schema.json"
+    supportingArtifacts:
+      - "verification-policy.yaml"
+      - "../skills/verification/SKILL.md"
+    authority: "Sole authority for objective completion criteria, required exit codes, and verification evidence standards."
+
+  - domain: "Failure Recovery & Retries"
+    canonicalOwner: "error-recovery-policy.md"
+    schema: "../state/retries.schema.json"
+    supportingArtifacts:
+      - "../state/retries.json"
+    authority: "Sole authority for graduated failure recovery, retry logging (retries.json), and anti-doom-loop escalation ladders."
+
+  - domain: "Action Permissions & Checkpoints"
+    canonicalOwner: "checkpoint-policy.md"
+    supportingArtifacts:
+      - "../rules/13-agent-safety.md"
+    authority: "Sole authority for autonomous vs approval-required actions, blast radius thresholds, and human checkpoint protocols."
+
+  - domain: "Agent Safety Guardrails"
+    canonicalOwner: "../rules/13-agent-safety.md"
+    supportingArtifacts:
+      - "../rules/00-core.md"
+      - "../rules/07-security.md"
+    authority: "Sole authority for prompt injection defenses, credential sanitization, untrusted content handling, and sandbox constraints."
+
+  - domain: "Technology Stack Detection"
+    canonicalOwner: "../skills/stack-detection/SKILL.md"
+    schema: "../state/stack.schema.json"
+    supportingArtifacts:
+      - "../state/stack.json"
+    authority: "Sole authority for detecting languages, frameworks, runtimes, and databases from repository evidence into stack.json."
+
+  - domain: "Technology Profiles & Metadata"
+    canonicalOwner: "../technology/registry.json"
+    supportingArtifacts:
+      - "../technology/README.md"
+    authority: "Sole authority for registered technology IDs, version policies, and the 8-section profile standard."
+
+  - domain: "Instruction Tag Standard"
+    canonicalOwner: "instruction-tag-standard.md"
+    supportingArtifacts:
+      - "../skills/quality-gates/scripts/validate-instruction-tags.py"
+    authority: "Sole authority for approved XML tag vocabulary, hierarchy, syntax rules, and validator enforcement."
+
+  - domain: "Parallel Work & Concurrency"
+    canonicalOwner: "parallel-work-policy.md"
+    supportingArtifacts:
+      - "worktree-policy.md"
+    authority: "Sole authority for concurrent task execution, conflict domains, and resource locking."
+
+  - domain: "Worktree Isolation"
+    canonicalOwner: "worktree-policy.md"
+    supportingArtifacts:
+      - "parallel-work-policy.md"
+    authority: "Sole authority for git worktree creation, directory isolation, lifecycle cleanup, and branch merging."
+
+  - domain: "Multi-Agent Delegation"
+    canonicalOwner: "multi-agent-policy.md"
+    schema: "../state/agents.schema.json"
+    supportingArtifacts:
+      - "../state/agents.json"
+    authority: "Sole authority for sub-agent spawning, context passing, task partitioning, and handoff protocols."
+
+  - domain: "Governance Enforcement"
+    canonicalOwner: "governance-enforcement-policy.md"
+    schema: "../state/governance.schema.json"
+    supportingArtifacts:
+      - "../state/governance.json"
+      - "../skills/quality-gates/scripts/validate-governance.py"
+      - "../skills/governance-enforcement/SKILL.md"
+    authority: "Sole authority for task-scoped governance resolution, Grouped Completion Invariants (Groups A–J), and compliance validation."

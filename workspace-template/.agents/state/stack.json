@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "NOT_DETECTED",
+  "detectedAt": null,
+  "languages": [],
+  "frontend": null,
+  "backend": null,
+  "database": null,
+  "tooling": {
+    "packageManager": null,
+    "buildTool": null,
+    "testFramework": null,
+    "linter": null
+  },
+  "deployment": {
+    "target": null,
+    "containerized": false
+  },
+  "activeProfiles": []
+}

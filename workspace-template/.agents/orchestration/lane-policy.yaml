@@ -1,0 +1,135 @@
+schemaVersion: "1.0.0"
+title: "Antigravity Execution Lane Policy"
+description: "Authoritative machine-readable lane policy governing ceremony, risk limits, gate requirements, and side-effects across execution tiers."
+
+lanes:
+  fast:
+    lane: "fast"
+    tier: "Lane A"
+    name: "Fast Low-Risk Governed Mutation"
+    description: "Lightweight ceremony for localized edits, single-file doc fixes, syntax fixes, and trivial corrections. Fast does not mean unguided; it means lower ceremony."
+    trigger:
+      description: "Low-risk localized edits (typos, small isolated bugfixes, single-file doc fixes, renames)"
+      taskTypes:
+        - "simple"
+        - "documentation"
+        - "investigation"
+      riskLevelMax: "low"
+    riskLimits:
+      maxFilesChanged: 3
+      maxLinesChanged: 100
+      destructiveOperations: false
+      sensitiveFilesAllowed: false
+    taskRegistration:
+      required: true
+      canonicalTaskFile: true
+      mode: "lightweight"
+    requiredContext:
+      mode: "targeted"
+      maxBudgetTokens: 4000
+      domainScope: "local_module"
+    requiredGates:
+      - "lint"
+    approvalRequirements:
+      externalApproval: false
+      diffReview: false
+      humanSignoff: false
+    allowedSideEffects:
+      filesystem: "scoped_workspace_mutation"
+      network: "none"
+      subagents: "none"
+      destructiveCommands: "forbidden"
+      controlPlaneMutation: "forbidden"
+
+  standard:
+    lane: "standard"
+    tier: "Lane B"
+    name: "Standard Governed Lifecycle"
+    description: "Standard engineering workflow covering feature development, non-trivial bugs, refactoring, and test suite additions."
+    trigger:
+      description: "Standard features, bug fixes, refactoring, and test additions"
+      taskTypes:
+        - "feature"
+        - "bug"
+        - "refactor"
+        - "testing"
+        - "requirements"
+      riskLevelMax: "medium"
+    riskLimits:
+      maxFilesChanged: 25
+      maxLinesChanged: 1500
+      destructiveOperations: false
+      sensitiveFilesAllowed: false
+    taskRegistration:
+      required: true
+      canonicalTaskFile: true
+      mode: "standard"
+    requiredContext:
+      mode: "domain_specific"
+      maxBudgetTokens: 16000
+      domainScope: "subsystem"
+    requiredGates:
+      - "lint"
+      - "typecheck"
+      - "test"
+      - "build"
+    approvalRequirements:
+      externalApproval: false
+      diffReview: false
+      humanSignoff: false
+    allowedSideEffects:
+      filesystem: "workspace_mutation"
+      network: "sandboxed"
+      subagents: "specialized_workers"
+      destructiveCommands: "forbidden"
+      controlPlaneMutation: "forbidden"
+
+  high_assurance:
+    lane: "high_assurance"
+    tier: "Lane C"
+    name: "High Assurance Governed Lifecycle"
+    description: "Full governance ceremony for critical architectural changes, migrations, security surfaces, databases, and deployment boundaries."
+    trigger:
+      description: "Architectural migrations, security-sensitive changes, database schemas, and critical infrastructure"
+      taskTypes:
+        - "complex-feature"
+        - "architecture"
+        - "security"
+        - "database"
+        - "migration"
+        - "performance"
+        - "deployment"
+        - "infrastructure"
+      riskLevelMax: "critical"
+    riskLimits:
+      maxFilesChanged: unlimited
+      maxLinesChanged: unlimited
+      destructiveOperations: false
+      sensitiveFilesAllowed: true
+    taskRegistration:
+      required: true
+      canonicalTaskFile: true
+      mode: "full_governance"
+    requiredContext:
+      mode: "exhaustive"
+      maxBudgetTokens: 32000
+      domainScope: "cross_system"
+    requiredGates:
+      - "lint"
+      - "typecheck"
+      - "test"
+      - "build"
+      - "security"
+      - "memorySync"
+      - "adrReview"
+      - "diffReview"
+    approvalRequirements:
+      externalApproval: true
+      diffReview: true
+      humanSignoff: true
+    allowedSideEffects:
+      filesystem: "governed_workspace_mutation"
+      network: "isolated"
+      subagents: "strictly_isolated"
+      destructiveCommands: "forbidden"
+      controlPlaneMutation: "forbidden"

@@ -1,58 +1,97 @@
 ---
 name: testing
-description: Run impact-aware unit, integration, API, and E2E testing and select the smallest test set that provides sufficient behavioral confidence.
+id: SKILL-TEST-001
+description: Plan, design, and execute impact-aware unit, integration, API, contract, and E2E tests across any language and framework.
 ---
 
 # Testing Skill
 
-## Test selection
+<MISSION>
+Plan, design, and execute impact-aware unit, integration, API, contract, and E2E tests across any language and framework.
+</MISSION>
 
-Determine:
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring testing capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
 
-- what files/modules changed;
-- which consumers depend on them;
-- whether API contracts changed;
-- whether data state changes;
-- whether auth/security boundaries changed;
-- which critical user journeys are affected.
+<PRECONDITIONS>
+### Prerequisites
+- Active task in `.agents/state/tasks.json` must be `IN_PROGRESS`.
+- `TASK_STARTED` event must be recorded in `.agents/state/events.jsonl`.
 
-## Default tool choices
+### Pre-flight Checklist
+- [ ] Test surface and affected code paths identified
+- [ ] Test tooling and test runner detected from repository evidence
+- [ ] Existing test conventions and strategy understood
+</PRECONDITIONS>
 
-Use the repository's configured tools. A modern default may be:
+<NON_NEGOTIABLES>
+- Every behavior change requires proportionate verification: automated tests are required for domain logic, APIs, and data integrity; manual or visual verification is acceptable for pure documentation, visual styling, or configuration changes where automated testing is impractical.
+- Tests must be deterministic, hermetic, and independent (zero arbitrary sleep calls; use explicit polling or event listeners).
+- All applicable tests must pass with exit code 0 before task completion.
+</NON_NEGOTIABLES>
 
-- Vitest for TypeScript unit/integration tests;
-- React Testing Library for React behavior;
-- Supertest for Express HTTP integration;
-- Playwright for browser E2E.
+<PROCEDURE>
+## Test selection and impact analysis
 
-## Test levels
+Before running tests, determine the exact scope of affected behavior:
 
-### Unit
+- Which files and modules were modified?
+- Which downstream components or services depend on them?
+- Did API request/response contracts change?
+- Did database schemas, queries, or data state change?
+- Were authentication or authorization boundaries touched?
+- Which critical user journeys or business workflows are impacted?
 
-Use for pure functions, domain rules, mappers, validators, and isolated service behavior.
+## Ecosystem test toolchains
 
-### Integration
+Always use the test runner and assertion libraries configured in the repository:
 
-Use for service/repository interactions, database invariants, and cross-module behavior.
+| Ecosystem | Unit & Integration | HTTP / API Integration | Browser / E2E |
+|---|---|---|---|
+| **TypeScript / JS** | Vitest, Jest | Supertest, node-mocks-http | Playwright, Cypress |
+| **Python** | `pytest`, `unittest` | `httpx`, FastAPI `TestClient` | Playwright Python |
+| **Go** | `go test`, `testify` | `httptest` | Playwright Go |
+| **Rust** | `cargo test`, `tokio::test` | `reqwest`, `wiremock` | Playwright |
+| **Java / Kotlin** | JUnit 5, AssertJ, Mockito | MockMvc, TestRestTemplate, Testcontainers | Playwright Java, Selenium |
+| **C# / .NET** | xUnit, NUnit, FluentAssertions | WebApplicationFactory, WireMock.Net | Playwright .NET |
 
-### API
+## Test levels and responsibilities
 
-Verify request/response contracts, authentication, authorization, validation, error semantics, idempotency, and persistence effects.
+### Unit tests
+- Test individual functions, pure domain logic, value objects, calculations, and data mappers in isolation.
+- Keep unit tests fast, in-memory, and free of external network or database calls.
 
-### E2E
+### Integration tests
+- Verify interactions between collaborators: service to repository, database transactions, cache operations, and message queue publishing.
+- Use lightweight local instances or containerized dependencies (e.g., Testcontainers) rather than mocking database drivers.
 
-Verify the smallest set of high-value user journeys across the real browser boundary.
+### API & Contract tests
+- Verify request validation, HTTP status codes, response schemas, authentication, authorization, and error envelopes.
+- Verify contract compatibility between services (e.g., consumer-driven contracts or OpenAPI validation).
 
-## Test design
+### End-to-End (E2E) tests
+- Exercise critical user journeys across real system boundaries.
+- Use user-facing locators (roles, text, accessible names) and web-first assertions; avoid brittle implementation selectors (CSS paths, auto-generated class names).
 
-- Prefer deterministic fixtures/factories.
-- Avoid shared mutable state.
-- Mock external systems at a stable boundary when a real dependency is not the subject under test.
-- Use realistic integration tests where the integration itself is the risk.
-- Test failure and boundary conditions, not only the happy path.
+## Test design best practices
 
-For Playwright, prefer user-facing locators and web-first assertions.
+- **Deterministic test data**: Use explicit fixtures, object factories, or builders. Avoid random test data unless property-based or fuzz testing.
+- **Test isolation**: Every test must run independently. Clean up created data (transactions rolled back, test databases wiped) after runs.
+- **Mock at stable boundaries**: Mock third-party external services (payment gateways, external SMS/email APIs) at stable interface boundaries; avoid mocking internal domain logic.
+- **Test negative & boundary conditions**: Test invalid inputs, unauthorized actors, timeouts, empty collections, and race conditions, not just the happy path.
 
 ## Completion
 
-Report exact commands run and the resulting pass/fail state. Do not claim "all tests passed" when only a focused subset was executed.
+Report the exact test commands executed, number of passed/failed tests, and diagnostic output for any failures. Never claim "all tests passed" without running the test suite and producing concrete evidence.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+Test suite passes with 100% exit code 0 and coverage for changed code.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Comprehensive test suites (unit, integration, E2E) with high coverage of critical paths and edge cases.
+- Verification test reports and coverage evidence.
+</DELIVERABLES>

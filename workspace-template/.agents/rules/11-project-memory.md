@@ -1,82 +1,61 @@
+<!-- ID: RULE-MEM-001 -->
 # Project Memory Rules
 
-Recommended activation: **Always On**
+<MISSION>
+Ensure durable repository memory is systematically consulted before work and synchronized after work, preserving decisions, conventions, and architectural state across independent AI sessions.
+</MISSION>
 
-## Purpose
+<SOURCE_OF_TRUTH>
+1. Project Knowledge Index: `docs/INDEX.md`
+2. Durable Decisions: `docs/decisions/` and `docs/decisions/INDEX.md`
+3. System Architecture: `docs/ARCHITECTURE.md`
+4. Project Conventions: `docs/CONVENTIONS.md`
+5. Active Status & Risks: `docs/CURRENT_STATE.md`
+</SOURCE_OF_TRUTH>
 
-Make the repository remember important decisions and project knowledge across independent AI chats.
+<CONTEXT_POLICY>
+Before beginning meaningful implementation, load memory in this sequence:
+1. `docs/INDEX.md` (navigation map).
+2. `docs/PROJECT_CONTEXT.md` (project goals and constraints).
+3. `docs/CURRENT_STATE.md` (active status, blockers, and recent changes).
+4. `docs/ARCHITECTURE.md` and `docs/CONVENTIONS.md` (when structural or implementation patterns apply).
+5. Only specific relevant ADRs from `docs/decisions/`.
+</CONTEXT_POLICY>
 
-## Read before meaningful work
+<MEMORY_POLICY>
+Repository memory is durable; chat history is transient:
+- Before work: Consult existing decisions so previous trade-offs are honored.
+- After work: Evaluate what changed permanently and synchronize the appropriate documents:
+  * Store reusable patterns in `docs/CONVENTIONS.md`.
+  * Store boundary or structural changes in `docs/ARCHITECTURE.md`.
+  * Store durable choices meeting the Canonical ADR Trigger as numbered ADRs in `docs/decisions/`.
+  * Store phase and milestone progress in `docs/CURRENT_STATE.md`.
+- Never store temporary debugging scratchpad notes or trivial styling adjustments in durable memory.
+- Never overwrite historical ADRs; mark old ADRs as `superseded` and author a new ADR.
+</MEMORY_POLICY>
 
-Start with:
+<ACTION_SPACE_CONSTRAINTS>
+  <READ>
+    <ALLOWED>Read any project memory file under `docs/` and `.agents/state/`.</ALLOWED>
+  </READ>
+  <WRITE>
+    <ALLOWED>Update `docs/CURRENT_STATE.md`, `docs/CONVENTIONS.md`, `docs/ARCHITECTURE.md`, and author new ADRs in `docs/decisions/`.</ALLOWED>
+    <PROHIBITED>Silently modifying or deleting accepted historical ADRs without superseding them.</PROHIBITED>
+  </WRITE>
+</ACTION_SPACE_CONSTRAINTS>
 
-- `docs/INDEX.md`
-- `docs/PROJECT_CONTEXT.md`
-- `docs/CURRENT_STATE.md`
+<EXECUTION_POLICY>
+At the conclusion of every meaningful task, execute the memory synchronization loop:
+1. **Assess Impact**: Ask what changed permanently (architecture, conventions, status, requirements).
+2. **Author Decisions**: If an architectural choice was made, write an ADR and update `docs/decisions/INDEX.md`.
+3. **Update Documentation**: Synchronize affected documents in `docs/`.
+4. **Update Execution State**: Ensure `.agents/state/tasks.json` reflects the task status.
+5. **Verify Accuracy**: Confirm that documentation matches the actual code in the repository.
+</EXECUTION_POLICY>
 
-Then load:
-
-- `docs/ARCHITECTURE.md` for structural changes;
-- `docs/CONVENTIONS.md` for reusable implementation patterns;
-- only the relevant ADRs from `docs/decisions/`.
-
-## Classify new knowledge after work
-
-### Do not store
-
-- one-off debugging observations that are no longer relevant;
-- trivial formatting changes;
-- temporary implementation details;
-- facts already represented accurately by source code and unlikely to help future reasoning.
-
-### Store in `CONVENTIONS.md`
-
-When a project adopts a repeatable implementation practice used by multiple features or expected for future work.
-
-### Store in `ARCHITECTURE.md`
-
-When the system structure, boundaries, data flow, runtime topology, or integration pattern changes.
-
-### Store as an ADR
-
-When a deliberate choice has meaningful trade-offs or durable consequences. Examples include:
-
-- authentication/session architecture;
-- API versioning;
-- endpoint-definition strategy;
-- database modeling strategy;
-- state management architecture;
-- caching approach;
-- background-job system;
-- storage provider;
-- major dependency choice;
-- security control with architectural consequences.
-
-### Store in `CURRENT_STATE.md`
-
-When completion, current work, blockers, next steps, or known risks change.
-
-## ADR discipline
-
-Never overwrite an accepted ADR to hide history. If the decision changes:
-
-1. mark the previous ADR `Superseded`;
-2. create a new ADR with the new decision;
-3. link the two records;
-4. update `docs/decisions/INDEX.md`;
-5. update architecture/conventions if needed.
-
-## End-of-task memory sync
-
-Every meaningful feature, bug fix, refactor, architectural change, planning milestone, or release task must perform a memory review before completion.
-
-The review asks:
-
-- What changed permanently?
-- Did we make a reusable convention?
-- Did we make a deliberate decision?
-- Did architecture change?
-- Did current project state change?
-- Are any old docs now inaccurate?
-
-Never leave a significant project decision only in chat history.
+<VERIFICATION_POLICY>
+A task cannot be marked complete if:
+- Architectural changes were committed without updating `docs/ARCHITECTURE.md` or creating an ADR.
+- `docs/CURRENT_STATE.md` does not reflect the current phase or known blockers.
+- Discovered project conventions remain only in chat history.
+</VERIFICATION_POLICY>

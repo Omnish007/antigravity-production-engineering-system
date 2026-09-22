@@ -1,47 +1,127 @@
 ---
 name: api
-description: Design and implement predictable HTTP APIs with validated contracts, resource-level authorization, centralized endpoints, error semantics, and documentation.
+id: SKILL-API-001
+description: Design and implement predictable, secure, versioned APIs across REST, GraphQL, gRPC, and event-driven protocols with contract-first schemas and strict authorization.
 ---
 
 # API Development Skill
 
-## Contract first
+<MISSION>
+Design and implement predictable, secure, versioned APIs across REST, GraphQL, gRPC, and event-driven protocols with contract-first schemas and strict authorization.
+</MISSION>
 
-For meaningful API changes, define:
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring api capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
 
-- method and path;
-- purpose;
-- auth requirement;
-- request schema;
-- response schema;
-- status codes;
-- validation failures;
-- authorization failure behavior;
-- pagination/filter/sort semantics;
-- idempotency/retry behavior;
-- rate/resource limits;
-- observability expectations.
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+    - Must be loaded as part of the Atomic Backend Bundle alongside `.agents/skills/backend/SKILL.md`, `.agents/skills/security/SKILL.md`, and `.agents/rules/07-security.md`.
 
-## Paths
+### Pre-flight Checklist
+- [ ] Input schema validation active on all routes
+    - [ ] Standard error envelope returned on failure
+    - [ ] Auth & authorization checks enforced server-side
+    - [ ] API documentation/contracts updated
+</PRECONDITIONS>
 
-Use consistent resource-oriented naming. For public/external contracts, establish an explicit versioning strategy and record it in an ADR when the API is expected to evolve over time.
+<NON_NEGOTIABLES>
+- Enforce server-side schema validation (Zod, Pydantic, JSON Schema, etc.) on all endpoints.
+- Use standard HTTP status codes (200, 201, 400, 401, 403, 404, 409, 422, 500).
+- Enforce constant-time comparison (e.g. `timingSafeEqual`, `hmac.compare_digest`) for webhook and token signatures.
+- Every mutating endpoint must have an explicit trust model and abuse-control model: user-authenticated (session/token), cryptographically verified (webhook signature), or intentionally public with documented abuse controls (rate limiting, CAPTCHA, or proof-of-work).
+</NON_NEGOTIABLES>
 
-## Endpoint registry
+<PROCEDURE>
+## Protocol selection
 
-Frontend clients should use the project's centralized endpoint registry/module. The server route definitions remain close to the backend resource module. The two responsibilities are related but should not be conflated.
+Choose the appropriate API protocol based on client requirements and architectural patterns:
 
-## Response shape
+- **RESTful HTTP**: Default choice for public-facing, resource-oriented APIs, third-party integrations, and web/mobile clients.
+- **GraphQL**: Best for complex, interconnected frontend applications requiring flexible data fetching, client-specified queries, and minimal over-fetching.
+- **gRPC / Protocol Buffers**: Best for internal microservice-to-microservice communication, low-latency RPCs, and high-throughput streaming.
+- **WebSockets / SSE (Server-Sent Events)**: Best for real-time bidirectional messaging (WebSockets) or server-to-client event streaming (SSE).
+- **Webhooks**: Best for asynchronous outbound event delivery to external consumer systems.
 
-Use a stable project-defined envelope only if it materially improves consistency. Do not create wrappers merely for aesthetic uniformity. Errors should expose stable machine-readable codes and safe human-readable messages where practical.
+## Contract-first design
+
+Define explicit machine-readable contracts before implementation:
+
+- **REST**: OpenAPI 3.1 / Swagger specification defining paths, query parameters, request bodies, responses, status codes, and security schemes.
+- **GraphQL**: Schema Definition Language (SDL) defining types, queries, mutations, subscriptions, and custom scalars.
+- **gRPC**: Protocol Buffers (`.proto`) files defining services, RPC methods, and strongly-typed request/response messages.
+- **Webhooks**: JSON Schema defining the event payload envelope and HMAC signature verification header.
+
+## API versioning and evolution
+
+- **REST versioning**:
+  - Use URI path versioning (`/api/v1/resources`) for major breaking architectural changes.
+  - Prefer additive, non-breaking schema evolution (adding optional fields) over introducing new version numbers.
+  - Deprecate endpoints gracefully using `Sunset` and `Deprecation` HTTP headers before decommissioning.
+- **GraphQL / gRPC evolution**:
+  - Add new fields with defaults; never remove or rename existing fields without a formal deprecation period.
+  - In Protobuf, maintain tag number stability; never renumber or repurpose existing field numbers.
+
+## Endpoint and client registry
+
+- Maintain an explicit API client/registry module for frontend and consuming services.
+- Centralize endpoint URL definitions, base configuration, and auth header injection.
+- Generate client SDKs or types directly from OpenAPI/GraphQL/Protobuf schemas where supported.
+
+## Request and response envelopes
+
+- **Predictable error envelope**: Expose consistent machine-readable error structures:
+  ```json
+  {
+    "error": {
+      "code": "RESOURCE_NOT_FOUND",
+      "message": "The requested user does not exist.",
+      "details": [{ "field": "userId", "issue": "Must be a valid UUID" }],
+      "requestId": "req_01h8x4k2..."
+    }
+  }
+  ```
+- **Success payloads**: Avoid arbitrary nesting; return the resource or resource collection directly, with pagination metadata when applicable.
 
 ## Validation and authorization
 
-Validate all external input on the server. Authorize every sensitive object/action combination server-side. Avoid mass-assignment patterns that allow clients to set protected fields.
+- **Boundary validation**: Reject malformed inputs before reaching domain logic. Validate type, length, range, format, and enum values.
+- **Authorization boundaries**: Enforce object-level (Broken Object Level Authorization - BOLA) and property-level (BPLA) authorization on every request.
+- **Mass assignment defense**: Bind only explicitly allowed fields from request bodies to domain models.
 
-## Pagination
+## Pagination, filtering, and sorting
 
-Prefer cursor-based pagination for large/churn-heavy datasets where stable ordering matters. Offset pagination is acceptable for small, stable datasets when its trade-offs are understood and documented.
+- **Cursor-based pagination**: Default to cursor/keyset pagination for large or rapidly changing datasets:
+  ```text
+  GET /api/v1/orders?limit=25&after=cursor_xyz
+  ```
+- **Offset pagination**: Use offset pagination (`limit` & `offset`) only for small, stable datasets with total count requirements.
+- **Filtering & Sorting**: Use explicit, sanitized query parameters (e.g., `status=active&sort=-created_at`). Validate sort fields against an allowlist.
 
-## Testing
+## Idempotency and resilience
 
-Every non-trivial endpoint should have tests covering validation, auth, primary success, common client failure, and relevant persistence behavior. Add idempotency/concurrency tests when the endpoint triggers side effects.
+- **Idempotency keys**: Require `Idempotency-Key` headers for critical mutating operations (e.g., payment, checkout, order placement) to prevent duplicate side effects upon retries.
+- **Rate limiting**: Apply rate limits based on client IP, authenticated user, or API key. Include `RateLimit-*` and `Retry-After` headers in responses.
+- **HTTP caching**: Use `ETag` and `Cache-Control` headers for read-heavy resources to enable 304 Not Modified responses.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+## Verification
+
+Verify every API with:
+- Contract conformance tests (verifying actual payloads match OpenAPI/GraphQL/Protobuf schemas);
+- Schema validation tests for invalid types, missing required fields, and boundary limits;
+- Authentication (401) and authorization (403) boundary tests;
+- Idempotency tests verifying that duplicate requests with the same key produce identical results without duplicate side effects;
+- Rate limit enforcement tests.
+
+### Exit Criteria
+API contract verified via automated integration tests with exit code 0.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Verified API endpoints with input validation schemas, error handling, and automated integration tests.
+- Updated API documentation and contract specifications.
+</DELIVERABLES>

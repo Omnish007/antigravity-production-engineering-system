@@ -39,7 +39,7 @@ What actually happens, including any error messages.
 
 - Browser/runtime:
 - Operating system:
-- Node.js version:
+- Language runtime version (Node, Python, Go, Rust, Java, etc.):
 - Relevant dependency versions:
 
 ## Evidence

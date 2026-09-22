@@ -1,10 +1,38 @@
 ---
 name: bug-fix
+id: SKILL-BUG-001
 description: Resolve defects systematically by reproducing the issue, isolating root cause, applying the smallest coherent fix, and proving regression safety.
 ---
 
 # Bug Fix Skill
 
+<MISSION>
+Resolve defects systematically by reproducing the issue, isolating root cause, applying the smallest coherent fix, and proving regression safety.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring bug-fix capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] Reproducing test reproduces failure
+    - [ ] Surgical fix applied to root cause
+    - [ ] Reproducing test now passes with exit code 0
+    - [ ] Full test suite passes with zero regressions
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Must write an automated reproducing test BEFORE applying any fix.
+    - Fix must be surgical: touch only code directly causing the bug.
+    - Never introduce unrelated refactoring or formatting changes in a bug fix.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Workflow
 
 1. Capture symptom and expected behavior.
@@ -76,3 +104,15 @@ After the fix is verified:
 - record any new convention or defensive pattern in `CONVENTIONS.md` if the bug class could recur;
 - create an ADR if the fix revealed an architectural weakness;
 - update `CURRENT_STATE.md` if the fix affects project health.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+Bug demonstrated by test, fixed, and verified without regressions.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Root-cause diagnosis documented in task record.
+- Minimal targeted bug fix resolving the defect.
+- Automated regression test reproducing the failure and verifying the fix.
+</DELIVERABLES>

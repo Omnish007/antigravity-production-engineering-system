@@ -3,6 +3,8 @@
   "projectStatus": "NOT_INITIALIZED",
   "validStatuses": ["NOT_INITIALIZED", "INITIALIZING", "ACTIVE", "PAUSED", "MAINTENANCE", "ARCHIVED"],
   "projectId": null,
+  "governanceMode": "managed",
+  "governanceRoot": null,
   "name": null,
   "description": null,
   "repository": null,

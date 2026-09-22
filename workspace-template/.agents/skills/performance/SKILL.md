@@ -1,10 +1,38 @@
 ---
 name: performance
+id: SKILL-PERF-001
 description: Measure, analyze, and optimize application performance across frontend, backend, database, and infrastructure using evidence-driven profiling.
 ---
 
 # Performance Engineering Skill
 
+<MISSION>
+Measure, analyze, and optimize application performance across frontend, backend, database, and infrastructure using evidence-driven profiling.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring performance capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] Baseline performance captured
+    - [ ] Optimization applied to bottleneck
+    - [ ] Post-change metrics prove improvement
+    - [ ] All tests still pass
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Always measure baseline metrics before introducing performance optimizations.
+    - Measure p50, p95, and p99 latency distributions under realistic concurrency.
+    - Verify that optimizations do not degrade code readability or correctness.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Core principle
 
 Measure before optimizing. Every performance change must be backed by profiling data, not assumptions. Premature optimization is a source of complexity; evidence-driven optimization is a source of value.
@@ -37,11 +65,11 @@ Target at the 75th percentile:
 
 ### Rendering optimization
 
-- Minimize client-side JavaScript; prefer Server Components for non-interactive UI.
-- Avoid unnecessary re-renders; use `React.memo`, `useMemo`, and `useCallback` only where profiling justifies it.
+- Minimize client-side execution overhead; prefer server-rendered or static content for non-interactive UI.
+- Avoid unnecessary re-renders or DOM updates; use memoization utilities only where profiling justifies it.
 - Prevent layout shifts with explicit dimensions and font display strategies.
-- Use streaming SSR where supported and beneficial.
-- Lazy-load below-the-fold content.
+- Use streaming SSR and concurrent rendering where supported and beneficial.
+- Lazy-load below-the-fold content and off-screen views.
 
 ## Backend performance
 
@@ -61,8 +89,8 @@ Target at the 75th percentile:
 
 ### Resource management
 
-- Detect and fix memory leaks using heap analysis.
-- Monitor event loop lag for Node.js applications.
+- Detect and fix memory leaks using heap dumps and memory profilers.
+- Monitor runtime concurrency health (event loop lag, thread pool exhaustion, goroutine leaks, GC pause times).
 - Set appropriate timeouts for all outbound dependencies.
 - Implement graceful degradation when dependencies are slow.
 
@@ -110,7 +138,9 @@ Apply caching at the appropriate layer:
 | Database | query cache, materialized views | expensive aggregations, reporting queries |
 
 Every cache must have an explicit invalidation strategy. Document cache TTLs and invalidation triggers.
+</PROCEDURE>
 
+<VERIFICATION_POLICY>
 ## Verification
 
 Performance improvements require evidence:
@@ -128,6 +158,14 @@ Do not:
 - optimize without profiling data;
 - add caching without an invalidation plan;
 - sacrifice readability for marginal gains;
-- add indexes speculatively;
-- use `React.memo` / `useMemo` / `useCallback` without measured re-render problems;
+- introduce caching or memoization without measured performance bottlenecks;
 - introduce complexity for theoretical future scale without current evidence.
+
+### Exit Criteria
+Documented benchmark evidence showing measurable improvement.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Performance baseline measurements, profiled bottlenecks, and targeted optimizations.
+- Before/after benchmark evidence demonstrating measurable improvement.
+</DELIVERABLES>

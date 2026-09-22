@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BlockersTracking",
+  "description": "Schema for tracking active and resolved blockers in blockers.json (aggregate) and per-task / per-blocker files in blockers/*.json.",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["schemaVersion", "active", "resolved"],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "active": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/blockerRecord" }
+        },
+        "resolved": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/blockerRecord" }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "$ref": "#/$defs/blockerRecord"
+    }
+  ],
+  "$defs": {
+    "blockerRecord": {
+      "type": "object",
+      "required": ["id", "status", "what", "why", "owner", "decisionNeeded", "unblockCondition", "severity", "createdAt"],
+      "properties": {
+        "schemaVersion": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(?:BLK|BLOCKER)-[0-9]{3,}$"
+        },
+        "taskId": {
+          "type": ["string", "null"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "resolved"]
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["task", "project", "global", "resource"],
+          "default": "task"
+        },
+        "what": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "decisionNeeded": {
+          "type": "string"
+        },
+        "unblockCondition": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "resolvedAt": {
+          "type": ["string", "null"]
+        },
+        "resolution": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "resolved" } }
+          },
+          "then": {
+            "required": ["resolvedAt", "resolution"],
+            "properties": {
+              "resolvedAt": { "type": "string", "minLength": 5 },
+              "resolution": { "type": "string", "minLength": 3 }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

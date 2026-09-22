@@ -1,70 +1,46 @@
 # Context Budget Policy
 
-## Purpose
+<MISSION>
+Manage the agent's context window as a finite, high-value resource, preventing context rot, optimizing signal density, and mitigating lost-in-the-middle degradation.
+</MISSION>
 
-Manage the agent's context window as a finite, high-value resource. Prevent context rot, optimize signal density, and ensure the most critical information is always available for reasoning.
+<NON_NEGOTIABLES>
+- **BUDGET-01 (Mandatory Skill Activation)**: Activated required Skills must be loaded when applicable; unrelated Skills should not be loaded. Antigravity uses progressive disclosure to expose metadata first and load relevant Skill content when needed.
+- **BUDGET-02 (Prohibition of Bulk Loading)**: Bulk-loading entire directories (`docs/`, `.agents/`, `src/`) or massive lockfiles into context is strictly forbidden.
+</NON_NEGOTIABLES>
 
-## Hierarchical loading order
+<CONTEXT_POLICY>
+### Hierarchical Loading Order
+Load context in this priority order to maximize cache efficiency and prevent displacement of critical constraints:
+1. Safety and platform constraints.
+2. Core rules (`00-core.md`, `13-agent-safety.md`).
+3. Active technology profiles (`.agents/technology/profiles/*`) & stack state (`stack.json`).
+4. Mandatory domain skills for active task (`.agents/skills/<skill>/SKILL.md`) — loaded when performing domain tasks.
+5. Task-specific rules (`03-architecture.md`, `07-security.md`, `09-testing.md`).
+6. Project memory indexes (`docs/INDEX.md`, `docs/CURRENT_STATE.md`).
+7. Relevant architecture/conventions/ADRs (only when required).
+8. Task-specific source files (strictly affected scope).
+9. Volatile task data (errors, logs, test outputs).
 
-Load context in this priority order. Place invariant, high-priority material first to maximize cache efficiency and ensure it is never displaced:
+### Lost-in-the-Middle Mitigation
+Arrange loaded content strategically:
+- Safety rules and critical invariants appear first.
+- Reference documentation and conventions occupy the middle.
+- Specific task instructions, acceptance criteria, and verification commands appear last, adjacent to the working area.
+</CONTEXT_POLICY>
 
-```text
-1. Safety and platform constraints
-2. Core rules (00-core, 13-agent-safety)
-3. Task-specific rules (activated by classifier)
-4. Project memory indexes (docs/INDEX.md, docs/CURRENT_STATE.md)
-5. Relevant architecture/conventions/ADRs (only if task requires)
-6. Task-specific source files (only affected files)
-7. Volatile task data (errors, logs, test output)
-```
+<DECISION_RULES>
+- IF reading project memory:
+    Follow an index-first strategy: read `docs/INDEX.md` and `docs/CURRENT_STATE.md` before opening full documents.
+- IF inspecting a large file (>500 lines):
+    Inspect file structure or outline first; load specific sections on demand.
+- IF context window reaches heavy saturation (>50% capacity):
+    Decompose remaining work into focused sub-tasks with clean context rather than continuing with degraded reasoning.
+</DECISION_RULES>
 
-## Progressive disclosure
-
-Follow an index-first strategy:
-
-1. Read `docs/INDEX.md` to understand the knowledge map.
-2. Read `docs/CURRENT_STATE.md` for present context.
-3. Open `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`, or specific ADRs only when the task touches those domains.
-4. Load source files only when implementation requires them.
-5. Never bulk-load the entire `docs/` or `.agents/` directory.
-
-## Signal density
-
-Maximize the information value per token:
-
-- prefer summaries and indexes over full documents when exploring;
-- load only the relevant sections of large files;
-- avoid loading files that are clearly irrelevant to the current task;
-- when a file exceeds reasonable size, read the structure/interface first and specific sections on demand;
-- do not load test fixtures, generated files, or lockfiles unless specifically investigating them.
-
-## Lost-in-the-middle mitigation
-
-Models process information at the beginning and end of context more reliably than the middle. Arrange loaded content so that:
-
-- safety rules and critical constraints appear first;
-- the specific task instructions and acceptance criteria appear near the working area;
-- reference material occupies the middle;
-- commands to execute and verification checklists appear last.
-
-## Context saturation
-
-When a session becomes heavily loaded:
-
-- evaluate whether remaining work can be completed effectively;
-- consider decomposing into focused sub-tasks with clean context;
-- if handover is needed, produce a structured state summary covering: what was done, what remains, key decisions made, and blockers found;
-- prefer starting a fresh session over continuing with degraded reasoning.
-
-## File size awareness
-
-Apply judgment to large files:
-
-- lockfiles (`package-lock.json`, `yarn.lock`): do not load unless investigating a specific dependency;
-- generated code, bundles, and build artifacts: do not load;
-- large data files: read only the schema/first records;
-- images, binaries, and media: inspect metadata only when relevant.
-
-## Context router integration
-
-The `context-router.md` defines which context groups to load per task type. This policy governs **how** that loading should be performed for efficiency. Both policies work together.
+<ANTI_PATTERNS>
+- Loading lockfiles (`package-lock.json`, `yarn.lock`) unless diagnosing dependency conflicts.
+- Loading minified bundles, build outputs, or compiled artifacts.
+- Loading full test fixture datasets or large binary media.
+- Omitting required domain skill files during execution of governed tasks.
+</ANTI_PATTERNS>

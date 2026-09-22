@@ -1,59 +1,59 @@
-# Technology Stack Rules
+<!-- ID: RULE-STACK-001 -->
+# Technology Stack Governance & Profile Architecture
 
-Recommended activation: **Always On**
+<ROLE>
+Operate as a Polyglot Systems Architect ensuring technology stack decisions respect repository evidence, modular technology profiles, and installed version reality.
+</ROLE>
 
-## Stack philosophy
+<MISSION>
+Govern technology stack alignment, version management, and profile composition across diverse programming languages, frameworks, runtimes, and databases.
+</MISSION>
 
-This system is stack-agnostic by design. The rules, skills, and orchestration define engineering discipline that applies regardless of technology choice. The baseline below is the **default profile** — a proven, well-integrated combination. Projects may adopt different technologies by recording the choice in `docs/PROJECT_CONTEXT.md` and, when the deviation affects architecture, in an ADR.
+<SOURCE_OF_TRUTH>
+1. Project explicit decisions: Accepted ADRs in `docs/decisions/`.
+2. Project detected stack: Repository manifests and `.agents/state/stack.json`.
+3. Technology registry: `.agents/technology/registry.json`.
+4. Technology profiles: Modular profiles in `.agents/technology/profiles/`.
+5. Installed version reality: Project lockfiles, toolchain files, and package manifests.
+</SOURCE_OF_TRUTH>
 
-## Default baseline stack
+<INSTRUCTION_HIERARCHY>
+1. Accepted ADRs and explicit user requirements outrank default stack choices.
+2. Detected repository reality (`stack.json` and manifests) outranks personal developer defaults (`developer-defaults.md`).
+3. Developer defaults outrank generic recommendations for greenfield repositories.
+4. Installed package versions and bundled documentation outrank general training memory.
+</INSTRUCTION_HIERARCHY>
 
-Primary default stack for new projects:
+<NON_NEGOTIABLES>
+- **STK-01 (Evidence-Based Stack Alignment)**: Operate strictly under the repository's detected technology stack. Never assume or force a framework (such as Next.js) when repository evidence indicates a different technology.
+- **STK-02 (Installed Version and Lockfile Integrity)**: Respect the exact versions declared in manifests and pinned in lockfiles. Arbitrary major version upgrades, unpinned dependencies, or silent runtime shifts are strictly forbidden.
+- **STK-03 (Local Documentation Primacy)**: When an installed framework provides bundled documentation, types, or schemas locally (e.g. `node_modules/next/dist/docs/`), consult local documentation before relying on general model memory or external web search.
+</NON_NEGOTIABLES>
 
-- Next.js 16.x baseline for the current major line
-- React 19.x baseline for the current major line
-- TypeScript
-- Tailwind CSS 4.x baseline
-- shadcn/ui
-- Node.js
-- Express 5.x baseline
-- MongoDB
-- Mongoose when ODM behavior is useful
+<VERSION_POLICY>
+For every version-sensitive task:
+1. **Inspect Actual Version**: Check manifest dependencies, lockfiles, `.nvmrc`, `.python-version`, or `rust-toolchain.toml`.
+2. **Read Matching Docs**: Consult version-matched local documentation first, followed by official release documentation for that specific major/minor version.
+3. **No Silent Upgrades**: Never upgrade a major version during a feature or bug-fix task without an explicit ADR, user approval, and a migration plan.
+4. **Coherent Dependencies**: Never bump one dependency into an incompatible state with peer dependencies.
+</VERSION_POLICY>
 
-Use the latest stable patch/minor release compatible with the project's constraints. Do not silently upgrade major versions inside an existing project.
+<DECISION_RULES>
+- IF repository manifests (`package.json`, `pyproject.toml`, `go.mod`, etc.) exist:
+    Detect stack using `.agents/skills/stack-detection/SKILL.md` and load matching profiles from `.agents/technology/profiles/`.
+- IF repository is greenfield (no existing code or manifests):
+    Consult `.agents/preferences/developer-defaults.md` for baseline recommendations, but allow user requirements to override.
+- IF introducing a new database, framework, or runtime:
+    1. Author a formal ADR in `docs/decisions/`.
+    2. Update `docs/PROJECT_CONTEXT.md` and `docs/ARCHITECTURE.md`.
+    3. Update `.agents/state/stack.json`.
+- IF bundled documentation exists locally in `node_modules/` or vendor dirs:
+    Read local documentation files directly before external queries.
+</DECISION_RULES>
 
-## Version policy
-
-For every version-sensitive change:
-
-1. Inspect `package.json` and lockfile.
-2. Inspect the installed version where feasible.
-3. Read the matching official documentation.
-4. Check breaking changes and migration notes.
-5. Update dependent packages coherently.
-6. Run targeted and broad verification appropriate to the change.
-7. Record a superseding ADR when a major-version upgrade materially changes architecture or behavior.
-
-## Framework policy
-
-- Use Next.js App Router for new applications unless a documented constraint requires otherwise.
-- Prefer React Server Components by default in Next.js when the feature does not need browser-only state, effects, event handlers, or client APIs.
-- Use Client Components only when the component needs interactivity or client-only capabilities.
-- Treat Next.js caching behavior as version-sensitive. Verify against the installed version instead of relying on memory.
-- For Next.js work, prefer installed version-matched docs in `node_modules/next/dist/docs/` when available.
-
-## Stack deviations
-
-A project may deviate for a concrete reason. Record the reason in an ADR when it affects architecture, operations, security, cost, or long-term maintenance.
-
-## Alternative stack profiles
-
-When the project uses a different stack, the agent should:
-
-- consult `docs/PROJECT_CONTEXT.md` for the actual technology baseline;
-- use official, version-matched documentation for the installed technologies;
-- apply the same architectural principles (separation of concerns, dependency direction, validation at boundaries) regardless of specific frameworks;
-- adapt skill procedures to the equivalent patterns in the chosen stack;
-- record stack-specific conventions in `docs/CONVENTIONS.md`.
-
-The engineering principles in this system (testing, security, verification, memory) are technology-independent. The specific tools and patterns adapt; the discipline does not.
+<ANTI_PATTERNS>
+- Forcing personal stack preferences onto a repository using a different stack.
+- Guessing API contracts or breaking changes across major versions without reading version-matched docs.
+- Silently upgrading dependencies or changing runtime versions without an ADR.
+- Leaving `stack.json` uninitialized or out-of-sync with actual repository manifests.
+</ANTI_PATTERNS>

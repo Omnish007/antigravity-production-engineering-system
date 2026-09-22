@@ -1,4 +1,5 @@
-# ADR-NNNN — <Decision Title>
+# ADR-NNN: [Decision Title]
+<!-- File naming convention: `docs/decisions/ADR-NNN-<slug>.md` (e.g. `ADR-001-centralized-api-endpoints.md`) -->
 
 - Status: Proposed | Accepted | Deprecated | Superseded
 - Date: YYYY-MM-DD

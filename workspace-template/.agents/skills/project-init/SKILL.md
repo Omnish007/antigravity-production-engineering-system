@@ -1,46 +1,98 @@
 ---
 name: project-init
-description: Initialize a repository with the agent system, project memory, baseline conventions, and safe execution state.
+id: SKILL-INIT-001
+description: Inspect and initialize any repository with the agent system, persistent project memory, detected tech stack conventions, and verified execution state.
 ---
 
 # Project Initialization Skill
 
+<MISSION>
+Inspect and initialize any repository with the agent system, persistent project memory, detected tech stack conventions, and verified execution state.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring project-init capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Repository root is accessible.
+- No prior active task or event log is required for initial bootstrap.
+- If execution state already exists, preserve and merge it safely.
+
+### Pre-flight Checklist
+- [ ] Repository root inspected
+- [ ] Tech stack detected and recorded in `.agents/state/stack.json`
+- [ ] State files (`.agents/state/`) initialized
+- [ ] `SYSTEM_INITIALIZED` execution event logged to `events.jsonl`
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Execute stack detection from repository evidence; never make unverified assumptions about frameworks or runtimes.
+- Initialize `.agents/state/project.json` and `tasks.json` with valid starter schemas.
+- Record the `SYSTEM_INITIALIZED` execution event in `.agents/state/events.jsonl`.
+- Maintain a clean boundary between repository bootstrap (this skill) and subsequent per-task execution.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Outcome
 
-Produce a repository that a fresh AI chat can understand and continue safely.
+Produce a fully documented repository that any fresh AI chat or new engineer can immediately understand, plan, implement, and verify safely.
 
 ## Procedure
 
-1. Inspect the repository before changing anything.
-2. Identify whether the project is greenfield, existing, monorepo, single app, or multi-app.
-3. Inspect `package.json`, lockfile, source tree, build scripts, test scripts, deployment config, and environment examples.
-4. Install only missing project dependencies required by the explicit project requirements; never rewrite package versions merely for uniformity.
-5. Establish or merge `.agents/` without destroying existing project rules.
-6. Establish `docs/` and populate project-specific context from verified repository facts.
-7. Decide and document the actual architecture.
-8. Identify durable technical decisions already present in the codebase and record them as ADRs where rationale is important and recoverable.
-9. Populate `docs/CURRENT_STATE.md` from actual code/repo state.
-10. Populate `.agents/state/project.json` and create initial task state only for real tracked work.
-11. Run baseline formatter/lint/typecheck/test/build commands that already exist in the repository.
-12. Record limitations and unresolved decisions.
+1. **Inspect before modifying**: Inspect the repository structure, configuration files, and recent commit history before making any changes.
+2. **Detect project type & architecture**: Determine whether the project is greenfield or existing, single-service, monorepo, client-server, or microservices.
+3. **Detect technology stack**:
+   - **Node.js / TypeScript**: Look for `package.json`, lockfiles (`pnpm-lock.yaml`, `package-lock.json`, `bun.lockb`), `tsconfig.json`.
+   - **Python**: Look for `pyproject.toml`, `requirements.txt`, `Pipfile`, `setup.py`, `.python-version`.
+   - **Go**: Look for `go.mod`, `go.sum`.
+   - **Rust**: Look for `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`.
+   - **JVM / Java / Kotlin**: Look for `pom.xml`, `build.gradle`, `build.gradle.kts`.
+   - **C# / .NET**: Look for `*.csproj`, `*.sln`, `global.json`.
+   - **Containers / Cloud**: Look for `Dockerfile`, `docker-compose.yml`, Kubernetes manifests, Terraform/OpenTofu files.
+4. **Establish or merge `.agents/`**: Copy or update `.agents/` rules, skills, orchestration, and templates without destroying existing custom rules.
+5. **Establish project memory (`docs/`)**:
+   - Populate `docs/PROJECT_CONTEXT.md` with actual project identity, goals, users, and the detected technology baseline.
+   - Document the real architectural boundaries in `docs/ARCHITECTURE.md`.
+   - Record established conventions in `docs/CONVENTIONS.md`.
+   - Record known existing technical decisions as ADRs in `docs/decisions/`.
+   - Initialize `docs/CURRENT_STATE.md` with current milestone, active tasks, and known blockers.
+6. **Initialize execution state**: Populate `.agents/state/project.json` and initialize task state for tracked work.
+7. **Verify baseline commands**: Execute the repository's existing format, lint, typecheck, test, and build commands to establish the baseline health.
+8. **Document open questions**: Record any ambiguities or missing project facts in `docs/CURRENT_STATE.md`.
 
 ## Greenfield projects
 
-For a new Next.js application, prefer the current official project generator and verify the generated package versions. Use the App Router by default unless a requirement says otherwise.
-
-For a full-stack repository, keep web and API boundaries explicit. Do not add a shared package until a real cross-boundary need exists.
+- When creating a new project from scratch, use the official, community-standard generator for the chosen ecosystem:
+  - TypeScript/Web: Official framework generator (e.g., `create-next-app`, `create-vite`)
+  - Python: `uv init`, `poetry new`, or framework-specific scaffolding (`django-admin startproject`)
+  - Go: `go mod init <module-path>`
+  - Rust: `cargo new <crate-name> --bin` (or `--lib`)
+  - Java: Spring Initializr (`start.spring.io`), Quarkus CLI
+  - .NET: `dotnet new webapi` / `dotnet new sln`
+- Keep initial boundaries simple and explicit. Avoid adding speculative abstractions or premature microservices.
 
 ## Existing projects
 
-Do not impose the template's directory structure mechanically. Preserve the repository's architecture when it is sound. Use the system to document and improve it, not to perform a cosmetic rewrite.
+- Never rebuild or restructure an application just to fit a template. Preserve the existing working architecture.
+- Document what actually exists rather than an idealized design.
+- Capture established project patterns in `docs/CONVENTIONS.md` so future agent actions match existing style.
 
-## Completion
+## Completion standard
 
-Initialization is complete only when a brand-new agent can locate:
+Initialization is complete only when:
+- Project context, architecture, conventions, and current state are documented from verified repository facts;
+- The technology stack, build commands, and test runners are verified and documented in `AGENTS.md` and `docs/PROJECT_CONTEXT.md`;
+- Baseline verification commands execute successfully or known failures are documented as active issues.
+</PROCEDURE>
 
-- what the project is;
-- how it is structured;
-- what conventions it follows;
-- what important decisions exist;
-- what is currently incomplete;
-- how to verify changes.
+<VERIFICATION_POLICY>
+### Exit Criteria
+Repository initialized with verified state files and declared stack profile.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Initialized repository structure, base configurations, and toolchain setup.
+- Validated initial build, lint, and test runs.
+</DELIVERABLES>

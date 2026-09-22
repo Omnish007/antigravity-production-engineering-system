@@ -1,0 +1,81 @@
+{
+  "name": "missing-test",
+  "expectedErrors": [
+    "has no passing test execution gate"
+  ],
+  "governance": {
+    "schemaVersion": "1.0.0",
+    "records": [
+      {
+        "taskId": "TASK-012",
+        "classification": {
+          "type": "feature",
+          "risk": "medium"
+        },
+        "requiredRules": ["RULE-CORE-001", "RULE-CODE-001"],
+        "requiredSkills": ["SKILL-FEATURE-001", "SKILL-TEST-001"],
+        "requiredTechnologyProfiles": ["frontend/react"],
+        "governanceStatus": "complete",
+        "completedAt": "2026-09-20T11:00:00Z",
+        "qualityGates": [
+          {
+            "id": "GATE-01",
+            "name": "format",
+            "status": "passed",
+            "command": "npm run format:check",
+            "exitCode": 0,
+            "evidence": "Format check passed cleanly",
+            "timestamp": "2026-09-20T10:55:00Z"
+          }
+        ],
+        "diffReview": {
+          "status": "reviewed",
+          "unrelatedChangesDetected": false,
+          "filesReviewed": ["src/Component.tsx"],
+          "evidence": "Feature diff reviewed"
+        },
+        "acceptanceCriteriaEvidence": [
+          {
+            "criterion": "Widget component renders properly",
+            "status": "satisfied",
+            "evidence": "Verified visually"
+          }
+        ]
+      }
+    ]
+  },
+  "tasks": {
+    "schemaVersion": "1.0.0",
+    "tasks": [
+      {
+        "id": "TASK-012",
+        "name": "Add widget component",
+        "type": "feature",
+        "status": "COMPLETED",
+        "riskLevel": "medium",
+        "priority": "P2",
+        "dependencies": [],
+        "acceptanceCriteria": ["Widget component renders properly"],
+        "createdAt": "2026-09-20T10:10:00Z",
+        "updatedAt": "2026-09-20T11:00:00Z",
+        "completedAt": "2026-09-20T11:00:00Z"
+      }
+    ]
+  },
+  "events": [
+    {
+      "taskId": "TASK-012",
+      "event": "TASK_STARTED",
+      "timestamp": "2026-09-20T10:15:00Z"
+    },
+    {
+      "taskId": "TASK-012",
+      "event": "TASK_COMPLETED",
+      "timestamp": "2026-09-20T11:00:00Z"
+    }
+  ],
+  "blockers": {
+    "active": [],
+    "resolved": []
+  }
+}

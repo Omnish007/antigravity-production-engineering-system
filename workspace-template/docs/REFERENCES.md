@@ -4,16 +4,14 @@ Use this document for project-specific external references that materially influ
 
 ## Current dependencies
 
-| Technology | Installed version | Official docs | Bundled docs path | Last verified | Notes |
+> Populate with the project's primary frameworks, runtimes, database drivers, and libraries.
+
+| Technology | Installed version | Official docs | Bundled / local docs path | Last verified | Notes |
 |---|---|---|---|---|---|
-| Next.js | | | `node_modules/next/` | | |
-| React | | | | | |
-| Tailwind CSS | | | | | |
-| shadcn/ui | | | | | |
-| Node.js | | | | | |
-| Express | | | | | |
-| MongoDB | | | | | |
-| Mongoose | | | | | |
+| *(e.g. Runtime)* | | | | | |
+| *(e.g. Web / API Framework)* | | | | | |
+| *(e.g. Database / ORM)* | | | | | |
+| *(e.g. Test Runner)* | | | | | |
 
 ## Security standards
 
@@ -35,12 +33,12 @@ Use this document for project-specific external references that materially influ
 | Core Web Vitals | current | Performance measurement | https://web.dev/vitals/ | |
 
 ## Infrastructure and operations
-
+ 
 | Reference | Applicability | URL | Last reviewed |
 |---|---|---|---|
 | GitHub Actions security hardening | CI/CD workflow safety | https://docs.github.com/en/actions/security-for-github-actions | |
-| Node.js release schedule | Runtime version planning | https://nodejs.org/en/about/previous-releases | |
-| MongoDB best practices | Database operations | https://www.mongodb.com/docs/manual/ | |
+| OpenTelemetry documentation | Distributed tracing & observability | https://opentelemetry.io/docs/ | |
+| 12-Factor App methodology | Cloud-native application design | https://12factor.net/ | |
 
 ## Version sensitivity rule
 

@@ -1,91 +1,93 @@
-# Project Agent Entry Point
+# Project Agent Entry Point & Repository Governance Contract
 
-This repository uses `.agents/` for agent rules, skills, orchestration, state, and templates, and `docs/` for durable project memory.
+<MISSION>
+Provide the universal bootstrap contract and entry point for AI agents interacting with this repository, establishing the multi-stack architecture, execution lifecycle, source of truth, governance enforcement, and memory synchronization rules.
+</MISSION>
 
-## Critical commands
+<SOURCE_OF_TRUTH>
+1. Project requirements: `docs/requirements/PRD.md` and explicit user instructions.
+2. Architecture and decisions: `docs/ARCHITECTURE.md` and accepted ADRs in `docs/decisions/`.
+3. Project state: `docs/CURRENT_STATE.md`, `.agents/state/tasks.json`, and `.agents/state/governance.json`.
+4. Technology stack: `.agents/state/stack.json` and active profiles in `.agents/technology/profiles/`.
+5. Canonical rules: `.agents/rules/` (`RULE-CORE-001` through `RULE-OBS-001`).
+6. Skills catalog: `.agents/skills/` (`SKILL-AC-001` through `SKILL-VERIFY-001`).
+7. Governance enforcement: `.agents/orchestration/governance-enforcement-policy.md`.
+8. Conventions: `docs/CONVENTIONS.md` and repository manifest files.
+</SOURCE_OF_TRUTH>
 
-```bash
-# Install dependencies
-npm ci
+<INSTRUCTION_HIERARCHY>
+1. Platform safety constraints and security invariants.
+2. Explicit, current user instructions (subject to the ADR Conflict Rule below).
+3. Accepted ADRs (`docs/decisions/`) and project memory (`docs/`).
+4. Universal rules (`.agents/rules/`) and active technology profiles (`.agents/technology/profiles/`).
+5. Developer defaults (`.agents/preferences/developer-defaults.md`) — overridden whenever project reality differs.
 
-# Format check
-npm run format:check
+**ADR Conflict Rule**: Current user requests may propose a change to an accepted project decision, but the agent must not silently bypass that decision. When a request intentionally contradicts or modifies an accepted ADR:
+1. Identify and state the conflict explicitly to the user.
+2. Evaluate the proposed change and its trade-offs.
+3. If confirmed or requested, author a superseding ADR (`docs/decisions/ADR-NNN-<slug>.md`) before implementation.
+4. Implement under the new decision.
+</INSTRUCTION_HIERARCHY>
 
-# Lint
-npm run lint
+## System Architecture Separation
+1. **Portable Contract** (cross-tool interoperability): `AGENTS.md`, `docs/CONVENTIONS.md`, `docs/ARCHITECTURE.md`, `docs/decisions/`.
+2. **Antigravity Control Plane** (native runtime + governance):
+   - Execution Authority: Antigravity Native Runtime (Planning Mode, Task Groups, Artifacts, Permissions, Terminal Sandbox).
+   - Governance Metadata Layer: `.agents/rules/`, `.agents/skills/`, `.agents/agents/`, `.agents/technology/`, `.agents/state/`.
 
-# Type check
-npm run typecheck
+<EXECUTION_POLICY>
+The system executes tasks through three adaptive lanes to maximize developer velocity while preserving rigorous safety:
 
-# Run tests
-npm test
+### Lane A — Fast (Native Fast Mode)
+- **Scope**: Typo fixes, variable/symbol renames, formatting, tiny local refactors, documentation corrections, obvious 1-file fixes.
+- **Flow**: `CLASSIFY -> TARGETED CONTEXT -> IMPLEMENT -> VERIFY -> COMPLETE`
+- **Overhead**: Zero bureaucratic ceremony. No mandatory ADR, no multi-file preflight reading. Focus on surgical change and fast verification (e.g., format/typecheck).
 
-# Build
-npm run build
-```
+### Lane B — Standard (Native Planning / Task Groups)
+- **Scope**: New features, standard bug fixes, API updates, UI components, non-critical database refactoring.
+- **Flow**: `CLASSIFY -> CONTEXT -> PLAN -> IMPLEMENT -> TEST -> VERIFY -> REVIEW -> COMPLETE`
+- **Runtime**: Uses Antigravity's native Implementation Plan and Task Group mechanisms as execution authority. Automated test execution and diff review required.
 
-Adapt these commands to match the project's actual `package.json` scripts.
+### Lane C — High Assurance (Full Governance Machine)
+- **Scope**: Authentication, authorization, security changes, database migrations, infrastructure/deployment, financial/payment logic, data retention, destructive operations, or major architecture changes.
+- **Flow**: `CLASSIFY -> CONTEXT -> PLAN -> ADR -> GOVERNANCE -> IMPLEMENT -> TEST -> SECURITY -> VERIFY -> DIFF REVIEW -> HUMAN APPROVAL -> MEMORY SYNC -> GOVERNANCE CHECK -> COMPLETE`
+- **Rigor**: Full Grouped Completion Invariants (Groups A–J), mandatory ADR evaluation, 7-point security check evidence, and externally grounded human approval.
+</EXECUTION_POLICY>
 
-## Boundaries — do not modify without explicit task scope
+<CONTEXT_POLICY>
+Context loading is lane-aware and progressive to prevent context window exhaustion:
+- **Lane A**: Load only the user prompt, target file, and relevant minimal coding rule (`00-core.md` / `04-coding.md`).
+- **Lane B**: Load `AGENTS.md`, active project context (`docs/CURRENT_STATE.md`), domain rules, and relevant skill from `.agents/skills/`.
+- **Lane C**: Load full baseline context, active technology profiles (`.agents/technology/profiles/`), security rules (`RULE-SEC-001`), and governance enforcement policy.
+- Never flood context with unrelated directories, vendor lockfiles, or speculative documentation.
+</CONTEXT_POLICY>
 
-- `.agents/rules/` — system rules, not application code
-- `.agents/orchestration/` — system policies
-- `.agents/state/` — modify only with actual execution facts
-- `docs/decisions/` — never overwrite; supersede with new ADRs
+<VERIFICATION_POLICY>
+A task is complete only when:
+- All acceptance criteria are satisfied with objective evidence.
+- Canonical verification commands exit with code 0:
+  * TypeScript/Node: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`
+  * Python: `ruff check`, `mypy`, `pytest`
+  * Go: `go vet ./...`, `go test ./...`, `go build ./...`
+  * Rust: `cargo fmt --check`, `cargo clippy`, `cargo test`, `cargo build`
+- No errors are masked or suppressed.
+- Governance validator (`validate-governance.py`) returns `PASS` and `governanceStatus` is `complete`.
+</VERIFICATION_POLICY>
 
-## Before meaningful work
+<MEMORY_POLICY>
+Repository memory is durable; conversation history is transient:
+- Before work: Reconstruct context from `docs/` and `.agents/state/`.
+- After work: Record durable decisions in `docs/decisions/` and status in `docs/CURRENT_STATE.md`.
+- Never leave important decisions or architectural changes stranded in chat.
+- Never overwrite historical ADRs; supersede them deliberately with new numbered ADRs.
+</MEMORY_POLICY>
 
-Read:
-
-1. `docs/INDEX.md`
-2. `docs/PROJECT_CONTEXT.md`
-3. `docs/CURRENT_STATE.md`
-4. `.agents/rules/00-core.md`
-5. `.agents/rules/13-agent-safety.md`
-6. `.agents/rules/11-project-memory.md`
-7. the relevant project rules and skills for the task
-
-Read `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`, and only the relevant ADRs whenever they affect the task.
-
-Use `.agents/orchestration/context-router.md` and `.agents/orchestration/context-budget-policy.md` to load the minimum sufficient context without wasting the context budget.
-
-For the canonical task execution sequence (RECEIVE → CLASSIFY → LOAD → PLAN → IMPLEMENT → TEST → VERIFY → REVIEW → SYNC → UPDATE → COMPLETE), see `.agents/orchestration/agent-operating-contract.md`.
-
-## Version-matched documentation
-
-When making framework-specific changes, use the documentation bundled with the installed packages when available, for example:
-
-```text
-node_modules/next/dist/docs/
-```
-
-Prefer version-matched installed documentation over stale model knowledge.
-
-## Stack
-
-This system is stack-agnostic. The default baseline is documented in `.agents/rules/02-tech-stack.md`. The actual project stack is recorded in `docs/PROJECT_CONTEXT.md`. Adapt skill procedures to the project's chosen technologies.
-
-## Completion
-
-Before declaring completion:
-
-- verify acceptance criteria;
-- run appropriate checks (format, lint, type-check, test, build);
-- review the diff;
-- evaluate quality gates (`.agents/skills/quality-gates/SKILL.md`);
-- synchronize durable project memory when needed;
-- update `.agents/state/` when tracked execution state changed.
-
-The repository is the source of truth; chat history is temporary context.
-
-## Cross-tool compatibility
-
-This system works with any AI coding agent that reads repository instructions:
-
-- **Gemini / Antigravity**: reads `AGENTS.md` and `.agents/` natively
-- **Cursor**: symlink or copy relevant content to `.cursor/rules/`
-- **Claude Code**: symlink `ln -s AGENTS.md CLAUDE.md`
-- **GitHub Copilot**: symlink or reference in `.github/copilot-instructions.md`
-- **Other agents**: most tools read `AGENTS.md` at the repository root
-
-The detailed rules, skills, and orchestration under `.agents/` provide depth; this file provides the essential entry point.
+<OUTPUT_CONTRACT>
+Upon completion, provide:
+1. Concise executive summary of changes.
+2. Complete file change list with specific actions taken.
+3. Objective verification evidence (commands, exit codes, test results).
+4. Synchronized project memory documents.
+5. Governance status and validation outcome.
+6. Any remaining blockers or deferred risks.
+</OUTPUT_CONTRACT>

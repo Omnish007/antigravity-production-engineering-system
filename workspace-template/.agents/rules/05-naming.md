@@ -1,46 +1,54 @@
+<!-- ID: RULE-NAMING-001 -->
 # Naming Rules
 
-Recommended activation: **Glob**.
+<ROLE>
+Operate as a Language and API Design Specialist ensuring consistent, self-documenting, and idiomatic naming conventions across code, APIs, and databases.
+</ROLE>
 
-## General
+<MISSION>
+Enforce consistent casing, intent-revealing identifiers, and ecosystem-idiomatic naming conventions across all project files, APIs, and database schemas.
+</MISSION>
 
-Names should communicate domain intent, not implementation trivia. Prefer complete, searchable names over clever abbreviations.
+<NON_NEGOTIABLES>
+- **NAM-01 (Consistent Casing Conventions)**: Follow the established casing conventions of the repository: PascalCase for components/classes, camelCase for functions/methods, UPPER_CASE for constants.
+- **NAM-02 (Descriptive Identifiers)**: Single-letter variable names are strictly forbidden outside of trivial loop counters (`i`, `j`). Names must describe intent and type.
+</NON_NEGOTIABLES>
 
-## TypeScript / React
+<DECISION_RULES>
+### Language and Ecosystem Conventions
+- **TypeScript / JavaScript**:
+  * Types / Classes: `PascalCase`
+  * Functions / Methods / Variables: `camelCase`
+  * Constants: `UPPER_SNAKE_CASE`
+  * Files: `kebab-case` or `camelCase`
+- **Python**:
+  * Types / Classes: `PascalCase`
+  * Functions / Methods / Variables: `snake_case`
+  * Constants: `UPPER_SNAKE_CASE`
+  * Files: `snake_case`
+- **Go**:
+  * Exported: `PascalCase`
+  * Unexported: `camelCase`
+  * Files: `snake_case`
+- **Rust**:
+  * Types / Traits: `PascalCase`
+  * Functions / Methods / Variables: `snake_case`
+  * Constants: `UPPER_SNAKE_CASE`
+  * Files: `snake_case`
+- **Booleans**:
+  * Prefix boolean identifiers with auxiliary verbs: `isActive`, `hasPermission`, `canExecute`, `shouldRetry`.
+- **REST APIs**:
+  * Use plural nouns for resources (`/api/v1/users`, `/api/v1/orders/{id}`).
+  * Use standard HTTP verbs (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
+- **Database**:
+  * SQL Tables: `snake_case` plural (`users`, `order_items`).
+  * SQL Columns: `snake_case` singular (`id`, `user_id`, `created_at`).
+  * NoSQL Collections: `camelCase` or `snake_case` plural (`users`, `orders`).
+</DECISION_RULES>
 
-- Components: `PascalCase`.
-- Hooks: `useSomething`.
-- Functions/variables: `camelCase`.
-- Types/interfaces: domain-specific `PascalCase`.
-- Boolean values: use names such as `isOpen`, `hasAccess`, `canEdit`, `shouldRetry`.
-- Constants: use `UPPER_SNAKE_CASE` only for true module-level constants where that improves clarity; otherwise normal `camelCase` is acceptable.
-
-## Files
-
-Prefer names that match the exported responsibility, for example:
-
-```text
-user.service.ts
-user.controller.ts
-user.schema.ts
-use-user.tsx
-user-card.tsx
-```
-
-Keep the repository's established file naming convention once chosen. Do not rename broad areas for stylistic preference.
-
-## APIs
-
-Use nouns for resources and explicit action names only when the operation is not naturally represented by a resource action. Use consistent casing and path conventions throughout the project.
-
-## MongoDB
-
-Use stable, domain-oriented collection/model names and consistent field names. Keep timestamps predictable (`createdAt`, `updatedAt`) unless the project has a justified alternative.
-
-## Git
-
-Use consistent branch prefixes and concise Conventional Commit-compatible messages when the repository adopts Conventional Commits.
-
-## Naming review
-
-Before adding a name, search for existing analogous names. Prefer consistency with adjacent code over inventing a theoretically cleaner convention.
+<ANTI_PATTERNS>
+- Using ambiguous abbreviations (`usr`, `ctx_mgr_fn`, `tmp_val`).
+- Inconsistent casing within the same file or package.
+- Action verbs in REST collection endpoints (e.g. `/api/v1/getUsers`).
+- Single-letter identifiers for domain entities or callback parameters.
+</ANTI_PATTERNS>

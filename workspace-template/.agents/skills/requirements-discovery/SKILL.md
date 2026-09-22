@@ -1,10 +1,37 @@
 ---
 name: requirements-discovery
+id: SKILL-REQ-DISC-001
 description: Turn an incomplete idea into explicit, testable, implementation-ready requirements without inventing business decisions.
 ---
 
 # Requirements Discovery Skill
 
+<MISSION>
+Turn an incomplete idea into explicit, testable, implementation-ready requirements without inventing business decisions.
+</MISSION>
+
+<WHEN_TO_USE>
+Activate this skill when executing tasks requiring requirements-discovery capabilities, workflows, or architectural guidance.
+</WHEN_TO_USE>
+
+<PRECONDITIONS>
+### Prerequisites
+- Active task in .agents/state/tasks.json must be IN_PROGRESS.
+    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+
+### Pre-flight Checklist
+- [ ] Stakeholder personas identified
+    - [ ] Non-functional requirements discovered
+    - [ ] Scope boundaries established
+</PRECONDITIONS>
+
+<NON_NEGOTIABLES>
+- Identify user personas, system actors, and trust boundaries.
+    - Uncover implicit requirements (reliability, rate limiting, error handling, auditability).
+    - Structure discovered requirements into clear functional categories.
+</NON_NEGOTIABLES>
+
+<PROCEDURE>
 ## Use when
 
 The user has an idea, rough request, conversation notes, or an incomplete feature description rather than a sufficiently detailed specification.
@@ -37,3 +64,13 @@ Produce a structured requirements document or update the appropriate file under 
 ## Guardrail
 
 Never manufacture product rules such as refund policy, role permissions, retention periods, pricing behavior, or legal/compliance requirements. Mark them as decisions the product owner must make when they cannot be inferred.
+</PROCEDURE>
+
+<VERIFICATION_POLICY>
+### Exit Criteria
+Discovered requirements documented in docs/PROJECT_CONTEXT.md.
+</VERIFICATION_POLICY>
+
+<DELIVERABLES>
+- Clarifying stakeholder questions, discovered constraints, user personas, and initial requirements draft.
+</DELIVERABLES>

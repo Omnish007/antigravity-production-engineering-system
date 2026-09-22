@@ -13,16 +13,15 @@ Instead of keeping important decisions inside chat history, this system stores t
 ## Quick start
 
 ```bash
-# 1. Copy global rules (once per machine)
+# 1. Install global rules safely (backs up existing configuration if present)
+if [ -f ~/.gemini/GEMINI.md ]; then cp ~/.gemini/GEMINI.md ~/.gemini/GEMINI.md.bak; fi
 cp global/GEMINI.md ~/.gemini/GEMINI.md
 
 # 2. Copy workspace template into your project (includes hidden dirs .agents/ and .github/)
 cp -a workspace-template/. /path/to/your-project/
 
-# 3. Update .nvmrc to match your project's Node.js version (default: 24 LTS)
-echo "24" > /path/to/your-project/.nvmrc
-
-# 4. Open your project in your AI coding tool and start working
+# 3. Open your project in your AI coding tool and initialize:
+#    The AI will detect your tech stack, configure memory, and start working.
 ```
 
 The system works immediately with any AI coding tool that reads `AGENTS.md` at the repository root.
@@ -37,7 +36,7 @@ After copying `.agents/rules/` into your project, configure the intended activat
 | **Glob** | Rules that apply only to specific file types | `04-coding.md` (→ `**/*.{ts,tsx,js,jsx}`), `06-uiux.md` (→ `**/*.{tsx,jsx,css}`) |
 | **Model Decision** | Rules the AI loads when it judges them relevant | `07-security.md`, `08-git.md`, `14-observability.md` |
 
-Each rule file includes a `Recommended activation:` line at the top as guidance. The activation mode is configured in Antigravity's UI, not in the Markdown file itself.
+Each rule file is cataloged with its recommended activation mode in `.agents/rules/RULE_ACTIVATION.md` and `.agents/rules/rule-activation.yaml`. The activation mode is configured in Antigravity's UI, not in the Markdown file itself.
 
 Skills (`.agents/skills/`) are automatically loaded by Antigravity when they are relevant to the current task — no manual activation configuration is needed.
 
@@ -45,15 +44,17 @@ Skills (`.agents/skills/`) are automatically loaded by Antigravity when they are
 
 ## What this package gives you
 
-This system has eight main parts:
+This system has ten main parts:
 
 | Part | What it does |
 |---|---|
 | `global/GEMINI.md` | Your personal, machine-wide engineering rules. Install once. |
 | `.agents/rules/` | Project rules the AI should consistently follow. |
-| `.agents/skills/` | Reusable procedures for tasks such as planning, features, bugs, APIs, UI, testing, security, and documentation. |
-| `.agents/orchestration/` | Decides how a task should be classified, what context to load, when approval is needed, and how work moves through its lifecycle. |
-| `.agents/state/` | Machine-readable project/task execution state. |
+| `.agents/technology/` | Modular technology profiles (30 profiles across frontend, backend, database, language, deployment) and machine-readable registry. |
+| `.agents/preferences/` | Developer defaults with strict precedence: `Project Reality > Personal Preference`. |
+| `.agents/skills/` | Reusable procedures for tasks such as planning, stack detection, features, bugs, APIs, UI, testing, security, governance enforcement, and documentation (28 skills). |
+| `.agents/orchestration/` | Decides how a task should be classified, what context to load, when approval is needed, how governance is enforced, and how work moves through its lifecycle. |
+| `.agents/state/` | Machine-readable project/task/governance execution state (8 state schemas, 7 populated state files + 1 JSONL, plus 1 verification schema = 9 formal schemas). |
 | `.agents/templates/` | Standard templates for PRDs, features, bugs, APIs, tests, reviews, ADRs, and verification. |
 | `docs/` | Human-readable project memory: what the project is, how it works, its conventions, and its current state. |
 | `docs/decisions/` | One-file-per-decision ADRs that preserve important technical and architectural decisions. |
@@ -63,9 +64,11 @@ This system has eight main parts:
 ```text
 Global behavior
       ↓
-Project rules
+Project rules + Developer preferences
       ↓
-Task classification + context routing
+Stack detection (.agents/state/stack.json)
+      ↓
+Task classification + context routing (Universal core + active technology profiles)
       ↓
 Relevant Skills
       ↓
@@ -76,24 +79,38 @@ Project-memory synchronization
 
 ---
 
-# Your default technology stack
+# Universal technology stack baseline
 
-The system is designed around your usual stack:
+**This system is stack-agnostic by design.** The core engineering discipline—validation, security, architecture, testing, verification, observability, and durable project memory—applies to any technology stack.
 
-- **Next.js**
-- **React**
-- **TypeScript**
-- **Tailwind CSS**
-- **shadcn/ui**
-- **Node.js**
-- **Express.js**
-- **MongoDB**
+The system features a **modular technology layer**:
 
-The files do **not** permanently force one exact patch version. The intended approach is to use the version already declared by the project and consult version-matched official documentation when technical behavior depends on the installed version.
+```text
+.agents/technology/
+├── registry.json             # Machine-readable catalog of all supported technologies
+├── README.md                 # Extension guide for adding new profiles
+└── profiles/
+    ├── frontend/             # nextjs, react, vue, nuxt, angular, sveltekit
+    ├── backend/              # node, express, fastify, nestjs, fastapi, django, spring-boot, go
+    ├── database/             # postgresql, mongodb, mysql, sqlite, redis, dynamodb
+    ├── language/             # typescript, javascript, python, go, rust, java
+    └── deployment/           # docker, vercel, aws, k8s
+```
 
-A project can intentionally use a different technology or architecture. That change should be documented as a deliberate project decision rather than silently changing the system's assumptions.
+### Stack detection and precedence
 
-**This system is stack-agnostic by design.** The engineering discipline (testing, security, verification, memory) applies to any stack. See `.agents/rules/02-tech-stack.md` for alternative stack profiles.
+1. **Stack Detection**: On startup, `.agents/skills/stack-detection/SKILL.md` inspects project manifests (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) and writes active technologies to `.agents/state/stack.json`.
+2. **Context Routing**: The context router (`.agents/orchestration/context-router.md`) loads only the universal rules plus the *active* technology profiles for the touched domain, keeping context clean and high-signal.
+3. **Precedence Contract**:
+   ```text
+   Project Reality (existing manifests & code)
+          >
+   Personal Preference (.agents/preferences/developer-defaults.md)
+          >
+   Agent Default
+   ```
+
+Any deliberate architectural deviation is documented as an ADR (`docs/decisions/ADR-*.md`) rather than silently changing the system's assumptions.
 
 ---
 
@@ -503,6 +520,17 @@ antigravity-engineering-system/
 ├── workspace-template/
 │   ├── AGENTS.md
 │   ├── .agents/
+│   │   ├── preferences/
+│   │   │   └── developer-defaults.md
+│   │   ├── technology/
+│   │   │   ├── registry.json
+│   │   │   ├── README.md
+│   │   │   └── profiles/
+│   │   │       ├── frontend/
+│   │   │       ├── backend/
+│   │   │       ├── database/
+│   │   │       ├── language/
+│   │   │       └── deployment/
 │   │   ├── rules/
 │   │   ├── skills/
 │   │   ├── orchestration/
@@ -573,6 +601,8 @@ The code, rules, Skills, state, requirements, conventions, and ADRs should work 
 
 - `FILE_MANIFEST.md` — one-line purpose of every file
 - `.agents/rules/` — project-wide constraints
+- `.agents/technology/` — modular technology profiles and registry
+- `.agents/preferences/` — developer defaults and precedence rules
 - `.agents/skills/` — reusable procedures
 - `.agents/orchestration/` — task routing and lifecycle policies
 - `docs/` — persistent project memory
@@ -600,21 +630,27 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 
 | Addition | Purpose |
 |---|---|
+| Literal Instruction Wrapper Language | Canonical XML-style semantic delimiters across global instructions, bridge, rules, orchestration, and skills |
+| Instruction Tag Standard & Validator | Centralized tag standard (`instruction-tag-standard.md`) and zero-tolerance validator (`validate-instruction-tags.py`) |
+| Semantic Task DAG Validator | Automated DAG validation (`validate-task-dag.py`) checking acyclicity, dependency integrity, and status progression |
+| Manifest Parity Checker | Automated manifest generator and validator (`generate-manifest.py`) preventing repository drift |
+| Modular Technology Layer | 30 profiles across frontend, backend, database, language, and deployment + `registry.json` |
+| Machine-Readable Stack Detection | `stack-detection` skill and validated `stack.json` state |
+| Developer Preferences | `developer-defaults.md` with strict precedence: `Project Reality > Personal Preference` |
+| Complete State Schemas | All 8 state files paired with strict JSON schemas (plus verification schema = 9 formal schemas) |
+| Hardened CI/CD Quality Gates | Polyglot `ai-validation.yml` with dynamic Node, Python, and JVM toolchain support |
 | `13-agent-safety.md` | OWASP LLM-aligned agent safety guardrails |
-| `14-observability.md` | Agent tracing, context budget, drift detection |
+| `14-observability.md` | Agent execution tracing, context budget, drift detection |
 | `context-budget-policy.md` | Context window management and token optimization |
 | `error-recovery-policy.md` | Graduated failure recovery with anti-doom-loop |
 | `multi-agent-policy.md` | Sub-agent delegation and handoff protocol |
-| `agent-operating-contract.md` | Canonical 11-phase task execution sequence |
+| `agent-operating-contract.md` | Canonical 15-stage High-Assurance Lifecycle sequence |
+| `policy-ownership.md` | Single authoritative index mapping every engineering policy domain to its canonical owner |
 | `quality-gates/SKILL.md` | Self-evaluation and CI/CD gating |
 | `refactoring/SKILL.md` | Behavior-preserving transformation discipline |
 | `performance/SKILL.md` | Evidence-driven performance engineering |
 | `incident-template.md` | Structured incident post-mortem |
 | `migration-template.md` | Safe data/schema/API migration planning |
-| `.github/workflows/` | CI/CD template for AI-generated changes |
-| Stack-agnostic design | Rules work with any technology stack |
-| Cross-tool interop | Works with Cursor, Claude, Copilot, and others |
-| Risk classification | Tasks classified by risk level |
 | Supply chain security | Lockfile integrity, SBOM, phantom dependency defense |
 | Structured logging | Correlation IDs, consistent log levels, observability |
 | Circuit breakers | Resilience patterns for external dependencies |
@@ -625,21 +661,21 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 
 ## Packaging for distribution
 
-When creating a distributable archive of this engineering system, **exclude the `.git/` directory**:
+When creating a distributable archive of this engineering system, **exclude `.git/`, compiled bytecode, and temporary caches**:
 
 ```bash
 # From the repository root:
-zip -r production-engineering-system.zip . -x ".git/*"
+zip -r production-engineering-system.zip . -x ".git/*" -x "*.pyc" -x "*/__pycache__/*" -x "*.DS_Store*"
 
 # Or with tar:
-tar --exclude='.git' -czf production-engineering-system.tar.gz .
+tar --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' -czf production-engineering-system.tar.gz .
 ```
 
-The distributable archive should contain only the engineering system files (~88 files), not Git history (~192+ files).
+The distributable archive should contain only the tracked engineering system files (verified via `FILE_MANIFEST.md`), not Git history or compiled Python bytecode.
 
 Verify the archive is clean:
 
 ```bash
 # Should show 0 results:
-unzip -l production-engineering-system.zip | grep ".git/"
+unzip -l production-engineering-system.zip | grep -E "(\.git/|__pycache__|\.pyc)"
 ```

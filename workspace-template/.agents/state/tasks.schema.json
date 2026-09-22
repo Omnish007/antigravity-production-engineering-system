@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TasksDAG",
+  "description": "Schema for the task Directed Acyclic Graph (DAG) in tasks.json.",
+  "type": "object",
+  "required": ["schemaVersion", "tasks", "phases"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "status", "riskLevel", "priority", "dependencies", "acceptanceCriteria"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^TASK-[0-9]{3,}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "simple",
+              "bug",
+              "feature",
+              "complex-feature",
+              "refactor",
+              "architecture",
+              "security",
+              "database",
+              "migration",
+              "performance",
+              "testing",
+              "deployment",
+              "documentation",
+              "requirements",
+              "investigation",
+              "infrastructure"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "CLASSIFIED",
+              "CONTEXT_READY",
+              "PLANNED",
+              "PENDING",
+              "READY",
+              "IN_PROGRESS",
+              "TESTING",
+              "VERIFYING",
+              "REVIEWING",
+              "MEMORY_SYNC",
+              "STATE_SYNC",
+              "GOVERNANCE_CHECK",
+              "COMPLETED",
+              "FAILED",
+              "BLOCKED",
+              "CANCELLED"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3"]
+          },
+          "owner": {
+            "type": ["string", "null"]
+          },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "acceptanceCriteria": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "expectedOutputs": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "verification": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "risks": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": ["string", "null"]
+          },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status", "taskIds", "order"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "CLASSIFIED",
+              "CONTEXT_READY",
+              "PLANNED",
+              "PENDING",
+              "READY",
+              "IN_PROGRESS",
+              "TESTING",
+              "VERIFYING",
+              "REVIEWING",
+              "MEMORY_SYNC",
+              "GOVERNANCE_CHECK",
+              "COMPLETED",
+              "FAILED",
+              "BLOCKED",
+              "CANCELLED"
+            ]
+          },
+          "taskIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "order": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

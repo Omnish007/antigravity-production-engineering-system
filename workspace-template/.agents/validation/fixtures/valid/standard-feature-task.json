@@ -1,0 +1,80 @@
+{
+  "name": "standard-feature-task",
+  "governance": {
+    "schemaVersion": "1.0.0",
+    "records": [
+      {
+        "taskId": "TASK-002",
+        "classification": {
+          "type": "feature",
+          "risk": "medium"
+        },
+        "requiredRules": ["RULE-CORE-001", "RULE-CODE-001"],
+        "requiredSkills": ["SKILL-FEATURE-001", "SKILL-TEST-001"],
+        "requiredTechnologyProfiles": ["frontend/react"],
+        "governanceStatus": "complete",
+        "completedAt": "2026-09-20T11:00:00Z",
+        "qualityGates": [
+          {
+            "id": "GATE-01",
+            "name": "test",
+            "status": "passed",
+            "command": "npm test",
+            "exitCode": 0,
+            "evidence": "Unit test suite passed with 14 passing tests",
+            "timestamp": "2026-09-20T10:55:00Z"
+          }
+        ],
+        "diffReview": {
+          "status": "reviewed",
+          "unrelatedChangesDetected": false,
+          "filesReviewed": ["src/Component.tsx"],
+          "reviewId": "REV-003",
+          "reviewerAgent": "code-reviewer",
+          "evidence": "Surgical feature diff reviewed with no extra modifications."
+        },
+        "acceptanceCriteriaEvidence": [
+          {
+            "criterion": "Avatar badge renders with user initial",
+            "status": "satisfied",
+            "evidence": "Verified with Component.test.tsx test assertion"
+          }
+        ]
+      }
+    ]
+  },
+  "tasks": {
+    "schemaVersion": "1.0.0",
+    "tasks": [
+      {
+        "id": "TASK-002",
+        "name": "Add user profile avatar badge",
+        "type": "feature",
+        "status": "COMPLETED",
+        "riskLevel": "medium",
+        "priority": "P2",
+        "dependencies": [],
+        "acceptanceCriteria": ["Avatar badge renders with user initial"],
+        "createdAt": "2026-09-20T10:10:00Z",
+        "updatedAt": "2026-09-20T11:00:00Z",
+        "completedAt": "2026-09-20T11:00:00Z"
+      }
+    ]
+  },
+  "events": [
+    {
+      "taskId": "TASK-002",
+      "event": "TASK_STARTED",
+      "timestamp": "2026-09-20T10:15:00Z"
+    },
+    {
+      "taskId": "TASK-002",
+      "event": "TASK_COMPLETED",
+      "timestamp": "2026-09-20T11:00:00Z"
+    }
+  ],
+  "blockers": {
+    "active": [],
+    "resolved": []
+  }
+}

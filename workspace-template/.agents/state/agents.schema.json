@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentsState",
+  "description": "Schema for agents.json tracking active logical roles and resource ownership.",
+  "type": "object",
+  "required": ["schemaVersion", "activeRoles", "ownership"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "activeRoles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "assignedTo", "assignedAt", "status"],
+        "properties": {
+          "role": { "type": "string" },
+          "assignedTo": { "type": "string" },
+          "assignedAt": { "type": "string" },
+          "taskId": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["active", "idle", "completed"] }
+        }
+      }
+    },
+    "ownership": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["resource", "owner", "scope", "since"],
+        "properties": {
+          "resource": { "type": "string" },
+          "owner": { "type": "string" },
+          "scope": { "type": "string", "enum": ["exclusive", "shared"] },
+          "since": { "type": "string" }
+        }
+      }
+    },
+    "roleSchema": { "type": "object" },
+    "ownershipSchema": { "type": "object" },
+    "notes": { "type": "string" }
+  }
+}

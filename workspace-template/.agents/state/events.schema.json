@@ -1,22 +1,38 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "AgentEvent",
-  "description": "Schema for agent execution events recorded in events.jsonl. Each line in events.jsonl is a self-contained JSON object conforming to this schema.",
+  "description": "Schema for agent execution events recorded in events.jsonl and per-task events/*.jsonl. Each line is a self-contained JSON object conforming to this schema.",
   "type": "object",
-  "required": ["event", "timestamp", "source"],
+  "required": ["event", "timestamp"],
   "properties": {
+    "eventId": {
+      "type": "string",
+      "pattern": "^EVT-[0-9]{4,}$",
+      "description": "Unique identifier for the event, e.g. EVT-000019."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing event sequence number."
+    },
     "event": {
       "type": "string",
       "enum": [
+        "SYSTEM_INITIALIZED",
         "TASK_STARTED",
         "TASK_COMPLETED",
         "TASK_FAILED",
         "TASK_BLOCKED",
+        "TASK_RECOVERED_RESET",
+        "TASK_RESUMED",
+        "TASK_RECOVERED_FAILED",
         "PHASE_CHANGED",
         "DECISION_MADE",
         "MEMORY_SYNCED",
         "ERROR_OCCURRED",
         "RECOVERY_ATTEMPTED",
+        "RETRY_RECORDED",
+        "RETRY_RESOLVED",
         "BLOCKER_RECORDED",
         "BLOCKER_RESOLVED",
         "VERIFICATION_PASSED",
@@ -25,7 +41,10 @@
         "WORKTREE_CREATED",
         "WORKTREE_REMOVED",
         "DEPLOYMENT_STARTED",
-        "DEPLOYMENT_COMPLETED"
+        "DEPLOYMENT_COMPLETED",
+        "TOOL_EXECUTION",
+        "OVERRIDE_REQUESTED",
+        "OVERRIDE_GRANTED"
       ],
       "description": "The type of event that occurred."
     },
@@ -44,7 +63,7 @@
     },
     "phase": {
       "type": ["string", "null"],
-      "description": "The execution phase (from agent-operating-contract.md) when the event occurred."
+      "description": "The execution phase when the event occurred."
     },
     "severity": {
       "type": "string",
@@ -52,8 +71,16 @@
       "description": "Severity level of the event."
     },
     "details": {
-      "type": "string",
-      "description": "Human-readable description of the event."
+      "type": ["string", "object", "null"],
+      "description": "Human-readable description or structured details of the event."
+    },
+    "recoveryAction": {
+      "type": ["string", "null"],
+      "description": "Specific recovery action taken if this is a recovery event."
+    },
+    "previousStatus": {
+      "type": ["string", "null"],
+      "description": "Previous task status before recovery or transition."
     },
     "filesMutated": {
       "type": "array",
@@ -72,6 +99,30 @@
     "duration": {
       "type": ["string", "null"],
       "description": "How long the associated operation took (e.g., '12.3s')."
+    },
+    "stepIdx": {
+      "type": ["integer", "null"],
+      "description": "Antigravity conversation step index where the tool was invoked."
+    },
+    "tool": {
+      "type": ["string", "null"],
+      "description": "The name of the tool executed."
+    },
+    "command": {
+      "type": ["string", "null"],
+      "description": "The command line or invocation arguments executed."
+    },
+    "hasError": {
+      "type": "boolean",
+      "description": "Whether the tool execution returned an error."
+    },
+    "commandRedacted": {
+      "type": "boolean",
+      "description": "Whether sensitive tokens or credentials were redacted from the command."
+    },
+    "error": {
+      "type": ["string", "null"],
+      "description": "Error details if tool execution failed."
     }
   },
   "additionalProperties": false

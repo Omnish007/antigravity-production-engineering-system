@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProjectState",
+  "description": "Schema for project.json tracking active lifecycle and tech stack.",
+  "type": "object",
+  "required": ["schemaVersion", "projectStatus", "projectId", "name", "currentPhase", "techStack"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "projectStatus": {
+      "type": "string",
+      "enum": ["NOT_INITIALIZED", "INITIALIZING", "ACTIVE", "PAUSED", "MAINTENANCE", "ARCHIVED"]
+    },
+    "validStatuses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "projectId": { "type": ["string", "null"] },
+    "governanceMode": {
+      "type": "string",
+      "enum": ["managed", "unmanaged"]
+    },
+    "governanceRoot": { "type": ["string", "null"] },
+    "name": { "type": ["string", "null"] },
+    "description": { "type": ["string", "null"] },
+    "repository": { "type": ["string", "null"] },
+    "currentPhase": { "type": ["string", "null"] },
+    "phases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "techStack": {
+      "type": ["object", "null"],
+      "properties": {
+        "runtime": { "type": "string" },
+        "language": { "type": "string" },
+        "frontend": { "type": "string" },
+        "backend": { "type": "string" },
+        "database": { "type": "string" },
+        "realtime": { "type": "string" },
+        "testing": { "type": "string" }
+      }
+    },
+    "createdAt": { "type": ["string", "null"] },
+    "lastUpdatedAt": { "type": ["string", "null"] },
+    "initializedBy": { "type": ["string", "null"] },
+    "activeTaskCount": { "type": "integer" },
+    "activeBlockerCount": { "type": "integer" },
+    "lastVerification": { "type": ["string", "null"] },
+    "deploymentState": { "type": ["string", "null"] },
+    "notes": { "type": "string" }
+  }
+}
