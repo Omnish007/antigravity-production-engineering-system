@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when authentication, authorization, input handling, secrets, credentials, permissions, cryptography, or security risk is relevant."
+---
 <!-- ID: RULE-SEC-001 -->
 # Security Rules
 

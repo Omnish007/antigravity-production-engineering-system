@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:antigravity:runtime-session:v1",
+  "title": "Antigravity Runtime Session",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "status",
+    "mode",
+    "conversationId",
+    "userMessageCount",
+    "contextPlan"
+  ],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "status": {"type": "string", "enum": ["bootstrapped", "running", "blocked", "completed"]},
+    "mode": {"type": "string", "enum": ["inquiry", "governed"]},
+    "conversationId": {"type": "string", "minLength": 1},
+    "promptHash": {"type": ["string", "null"]},
+    "promptPreview": {"type": ["string", "null"]},
+    "userMessageCount": {"type": "integer", "minimum": 0},
+    "activeTaskId": {"type": ["string", "null"], "pattern": "^TASK-[0-9]{3,}$"},
+    "contextPlan": {"type": "string", "minLength": 1},
+    "bootstrappedAt": {"type": "string"},
+    "lastInvocationAt": {"type": "string"},
+    "lastStopCheckAt": {"type": "string"},
+    "lastStopDecision": {"type": "string"},
+    "lastStopReason": {"type": ["string", "null"]},
+    "invocationNum": {"type": ["integer", "null"], "minimum": 0},
+    "invocationCount": {"type": "integer", "minimum": 1}
+  }
+}

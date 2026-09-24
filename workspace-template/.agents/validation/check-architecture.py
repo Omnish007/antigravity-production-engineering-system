@@ -367,8 +367,8 @@ def main() -> int:
     parser.add_argument(
         "--root",
         type=str,
-        default=".",
-        help="Root directory of the project to scan (default: current directory)",
+        default=None,
+        help="Root directory of the project to scan. If omitted, auto-detect the workspace root.",
     )
     parser.add_argument(
         "--json",
@@ -388,7 +388,14 @@ def main() -> int:
     )
 
     args = parser.parse_args()
-    root_path = Path(args.root).resolve()
+
+    if args.root:
+        root_path = Path(args.root).resolve()
+    else:
+        cwd = Path.cwd().resolve()
+        package_workspace = Path(__file__).resolve().parents[2]
+        candidates = [cwd, cwd / "workspace-template", package_workspace]
+        root_path = next((candidate for candidate in candidates if (candidate / ".agents").is_dir()), cwd)
 
     if not root_path.exists():
         print(f"Error: Path {root_path} does not exist.", file=sys.stderr)

@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when architecture or cross-layer boundaries are relevant."
+---
 <!-- ID: RULE-ARCH-LAYER-001 -->
 # Layered Architecture & Boundary Rules
 

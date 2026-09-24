@@ -1,3 +1,7 @@
+---
+trigger: always_on
+description: "Universal empirical verification, evidence, and truthful completion requirements."
+---
 <!-- ID: RULE-VERIFY-001 -->
 # Verification Rules
 

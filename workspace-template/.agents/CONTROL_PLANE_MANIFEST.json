@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "description": "Authoritative SHA-256 integrity manifest for Antigravity control-plane files",
-  "fileCount": 92,
+  "fileCount": 94,
   "files": {
     ".agents/agents/architect.md": {
       "sha256": "85d4ba425497e186115a88f73331c8d8b84707d5fe961694aab7082313753484",
@@ -40,8 +40,8 @@
       "bytes": 1494
     },
     ".agents/hooks.json": {
-      "sha256": "f1de69a0e4121014179f1e7974246d347f91a120db2eca1c1dc2b519024bac6a",
-      "bytes": 2222
+      "sha256": "5ed0e51c520223f5272b7c2038edb244f03a6e95551c45b257211420840ab220",
+      "bytes": 997
     },
     ".agents/orchestration/lane-policy.yaml": {
       "sha256": "c807c77932c192a5f80dad31da3fda772645ff3ce205133a2f229193fa170ba0",
@@ -56,184 +56,188 @@
       "bytes": 4834
     },
     ".agents/rules/00-core.md": {
-      "sha256": "1e041df96fde59d42db3e87ce735b05eb7ee7f5bb3617e5a5a9dae8b63c5ef9f",
-      "bytes": 5731
+      "sha256": "eee51b5ff67c342084d7cdbeeccd987145cdfd8983be7158b3a78ecc0c89fd83",
+      "bytes": 5832
     },
     ".agents/rules/01-project-context.md": {
-      "sha256": "f493fd423649f3e8f28d2c6f52368f9d63785eaec5b8608ff40acc7428220145",
-      "bytes": 3077
+      "sha256": "72d641cd74620c73846138ffa9702c2f243bd5ad49de2ed72173cb9a317a83a6",
+      "bytes": 3217
     },
     ".agents/rules/02-tech-stack.md": {
-      "sha256": "02be7b4327b16b5da015a07a75f5ec1750b0b9fd89f2a1a1af2539276618c680",
-      "bytes": 3832
+      "sha256": "abac281b60839cd839e11666f5aff9f18dac3a48d4ee346e40e88b53458aa817",
+      "bytes": 3995
     },
     ".agents/rules/03-architecture.md": {
-      "sha256": "f94128f60fdd087a26dededd5e4c8f9038c61d229f17385b27b52f896b6b2b88",
-      "bytes": 2375
+      "sha256": "a80d8c49eec895c26e31f34056c6de761aa7fb9b719d21e726482743e7eda161",
+      "bytes": 2530
     },
     ".agents/rules/04-coding.md": {
-      "sha256": "604fd1b320eea6a8abbcc3446e33211dc8610ef42268ccdc991acc5dd90be1f6",
-      "bytes": 10370
+      "sha256": "a5a83226ea765eb4e19502cabf88a51f82af43fdba6af21882ee5f7847cd177d",
+      "bytes": 10528
     },
     ".agents/rules/05-naming.md": {
-      "sha256": "f0ca28cd5e9a64579612f70d60490a47b87ebc1fad5f65103435c988132c17c0",
-      "bytes": 2282
+      "sha256": "5622ff2acb63caed3126402708eac09aa4dfba62f4605eacc593e00b0378cb5f",
+      "bytes": 2439
     },
     ".agents/rules/06-uiux.md": {
-      "sha256": "d47a6cf96909d819cc1c4dcba60b8adb6f630256d8f1f2b49dcd84f00e5e6266",
-      "bytes": 2636
+      "sha256": "c66da2fe10bb7af20d9616dfad05df6852287838099ac0e7c1eb4d424038fc40",
+      "bytes": 2797
     },
     ".agents/rules/07-security.md": {
-      "sha256": "fece536616bfeff9211a7854f72f81bea3c1789bded9a1b61adc070f7c0ce1fc",
-      "bytes": 4219
+      "sha256": "1322af512ae22a86e798dd220ac90459f9f92fdbb3307a636093e880be185a7a",
+      "bytes": 4402
     },
     ".agents/rules/08-git.md": {
-      "sha256": "52ebde673ca7943443b4cd84202aabc5b8780667829a63e034c296c8860d49e6",
-      "bytes": 1946
+      "sha256": "8a57c1add20e3f56256410f05a25d682f8fe6e60a8dfca78c32066cd0434b647",
+      "bytes": 2100
     },
     ".agents/rules/09-testing.md": {
-      "sha256": "246e3345d23d179a5a0ffa7f010c81647ce34b06baca6f4f13ac02b86b89f540",
-      "bytes": 3246
+      "sha256": "982450e113c03506763047860f676e1583413c4f826d0efdc40d5ceaf1469ca2",
+      "bytes": 3379
     },
     ".agents/rules/10-verification.md": {
-      "sha256": "f85307be93c6b754390ece79861f441e00c5305210e2ba9e5c45fed8b406bab5",
-      "bytes": 2509
+      "sha256": "b0e1243db0e351eddd2396b9b2b1aaedb819d50b331a3bb7b12f60870a0d9ba1",
+      "bytes": 2633
     },
     ".agents/rules/11-project-memory.md": {
-      "sha256": "d3241de51a94e7475f4a6876bbebf9a4d3be1ee2bfc50d814c0b76b4ce61fd73",
-      "bytes": 3182
+      "sha256": "85ef5b9ae46e407f9e5fddea1d6e8a3ab4813c46d006a5201f6bc8b6558fb9fa",
+      "bytes": 3319
     },
     ".agents/rules/12-requirements.md": {
-      "sha256": "4f71cd8f8a2dc5c14bc86369cafa6510b0cfd57ddcc27eb3903a50452fe8bc3c",
-      "bytes": 2483
+      "sha256": "67969c783672a51826d5c50f998896ee06f57092ed324411b4ef2580eb3eae3e",
+      "bytes": 2634
     },
     ".agents/rules/13-agent-safety.md": {
-      "sha256": "06d63a570357e28de912ca988a49a597ca99e9372b0c5936f8dfc32d7f0ce681",
-      "bytes": 5700
+      "sha256": "0fe826453eeecc02bbe3b4fe0d16a445a38718a4b723f78cb6a33275d3a75f7d",
+      "bytes": 5842
     },
     ".agents/rules/14-observability.md": {
-      "sha256": "b2c1d5bf8184053aeecdbafba02bdecb53f046814759cb4f1173e81460c3842d",
-      "bytes": 2720
+      "sha256": "a9d3d44a5586729a27ef17ae473408e6a342ebb2fcc07f5e0a475bcb0f45ded6",
+      "bytes": 2868
     },
     ".agents/rules/15-layered-architecture.md": {
-      "sha256": "289309ae1ac2225313ec417b5b175cc7b2cc9b9225ec03939db9e9a4d97e862e",
-      "bytes": 2192
+      "sha256": "4f1635bfd7711811ecb8b31fd97be207539a6482d2ae41c83f69e2ba9e6d655b",
+      "bytes": 2302
     },
     ".agents/rules/RULE_ACTIVATION.md": {
-      "sha256": "7ef79b8f86b5a7add58f3505b2b8e2567cf71c2c9f84ece2d7635b3e26b60ffe",
-      "bytes": 2861
+      "sha256": "a50117274c78ac2cf29ae0c6c00a1705c91fbcbf41c81b3477aa034bf7e141fe",
+      "bytes": 1297
     },
     ".agents/skills/acceptance-criteria/SKILL.md": {
-      "sha256": "76ff78a4107b542c32902b38a794de676d8f05d8b3c1667bf29c26b7404620c4",
-      "bytes": 2658
+      "sha256": "c7024eb5b53800be3bd5aecd0772967973159990f83feb800a844fbef7613582",
+      "bytes": 2994
     },
     ".agents/skills/api/SKILL.md": {
-      "sha256": "7de04bbdd184426509ec17b826463ba0f829fcc9234b8a899b44ceacbfb68e0f",
-      "bytes": 7145
+      "sha256": "e7deabc60418906c473f85a91b9292b7ea13fea67a881b35955144e45f319fed",
+      "bytes": 7481
     },
     ".agents/skills/architecture/SKILL.md": {
-      "sha256": "3ef4df4b2c2666d5af4e3c689e370d731b64347a84d99b7616daf912f8a2be87",
-      "bytes": 6390
+      "sha256": "91e3461eef05e6adc39ac2ec03ee1ce593e9f8b1fc6be087e46fd33876b102c5",
+      "bytes": 6726
     },
     ".agents/skills/backend/SKILL.md": {
-      "sha256": "a6df607e57c65027976f5a5d77c603013ffd86b24a13ccefe74e88a6257f77f3",
-      "bytes": 7792
+      "sha256": "57b2e8deabf6569b2e2426e742110b011dbbfa4a18257f73111c4c5078a1de48",
+      "bytes": 8128
     },
     ".agents/skills/bug-fix/SKILL.md": {
-      "sha256": "0a67c6b169e71d3edc768ec08115c138d81e66fb2b0d8c3b28622f61290850ac",
-      "bytes": 4216
+      "sha256": "ee52017d5f3852017e44484ac9be93e71d9de1e5f2d0634aa20ffceb8fe6a082",
+      "bytes": 4835
     },
     ".agents/skills/code-review/SKILL.md": {
-      "sha256": "60e23e359a9d42e66d74a9bf173eb3f86a0607f4a59745c71bac30b7c6475118",
-      "bytes": 6441
+      "sha256": "317af90d6e3da9d112b885382bf2c0a3ddf78cee90497b3de04625284b1226b0",
+      "bytes": 6777
     },
     ".agents/skills/database/SKILL.md": {
-      "sha256": "3d4759e2fd6e5e071006c37cb7f9482d82c0927cff321a8107035342777c4a36",
-      "bytes": 8766
+      "sha256": "45c5cdf621662372261d2902189adae2eb3122ebd533eb96eab79a47b46741d1",
+      "bytes": 8962
     },
     ".agents/skills/debugging/SKILL.md": {
-      "sha256": "a76140878565b5419339cc7827ed735498f562076f20f35a879e59edc65bf0df",
-      "bytes": 6080
+      "sha256": "d571c1d58edfa41cce98b56327db2141fe707b71414f39f8d0260f524e2ed5e2",
+      "bytes": 6416
     },
     ".agents/skills/deployment/SKILL.md": {
-      "sha256": "4930a8fadca963d1fbdad6a7cef3f740789457b64f3587026689031c9d764cf2",
-      "bytes": 6751
+      "sha256": "1df6428b4d4ce445147956f815227c68379050097e3b522e1434ed31dcd38455",
+      "bytes": 7087
     },
     ".agents/skills/documentation/SKILL.md": {
-      "sha256": "9ec84ffa44b15a75bb900725dd2daa6f735dd8328130d526086494b693ae845a",
-      "bytes": 4682
+      "sha256": "083178d61dc2ee32104f38602ae77ba3ff9b1cb7a09e564db9b4390e1e5acf34",
+      "bytes": 5018
     },
     ".agents/skills/feature-development/SKILL.md": {
-      "sha256": "57462bf92591a409a79273e4a8e47b114c51f0d8f2660f570d8f5521b6089728",
-      "bytes": 4035
+      "sha256": "240bc74b288295507b3f77bd4c062969e320db9f6486d857762737f232e9ad02",
+      "bytes": 4626
     },
     ".agents/skills/frontend/SKILL.md": {
-      "sha256": "47473e2f4c84b9b5dad19e9063b5138638d4d5e540669ad98fb1d1fc99e426f5",
-      "bytes": 7512
+      "sha256": "1d8d3d9ec5702f1a3d8fe410df8a7e6e5ac4cc54dd41a46f6d9f9304ef4c9225",
+      "bytes": 7848
     },
     ".agents/skills/git/SKILL.md": {
-      "sha256": "273f7c1c42ed6e59a266028cea55f02c683475abda992dbcddb62d9794e6879b",
-      "bytes": 4109
+      "sha256": "4d62fa7eedda95865fc0af746361af9f8ba35836d98a0c7302f8007264c2c3a2",
+      "bytes": 4445
     },
     ".agents/skills/governance-enforcement/SKILL.md": {
       "sha256": "1ea5c3fb16caf14ddcc29b839c703a8bd7ee0c06d52cecab1d274e0c564f56b7",
       "bytes": 8090
     },
     ".agents/skills/performance/SKILL.md": {
-      "sha256": "c1ef03fd820b7e9bbdd996f5ea0f7d7320ae240228265db8bff63f8cadf0e19e",
-      "bytes": 6244
+      "sha256": "8d6677e1260cec386350502ebff00f4e58a4fbc6cfda2a41af5516fe2a45ebf4",
+      "bytes": 6580
     },
     ".agents/skills/planning/SKILL.md": {
-      "sha256": "6ddda5b22d24d09291ad8e9bd70cf471407ef7a252dfce0dde1eb4bbe8b9d517",
-      "bytes": 4108
+      "sha256": "93545693cea520e7edaeaa7a76e2808058d46767da31844eea5376b4ffd353bf",
+      "bytes": 4444
     },
     ".agents/skills/prd-analysis/SKILL.md": {
-      "sha256": "3b441f48cbbb5382a684c98f80d1acf7efa5d8416de3b2180cebd4d95af40847",
-      "bytes": 2869
+      "sha256": "e59e3a06be24576429dcb104700ce1433c2024771652a05ecf8a6f8b3f2e58fa",
+      "bytes": 3205
     },
     ".agents/skills/project-init/SKILL.md": {
       "sha256": "da6227086c6b98275ef7a395405f2fd6d9067b5736c9cbd505065261710030b4",
       "bytes": 5499
     },
     ".agents/skills/project-memory/SKILL.md": {
-      "sha256": "b6b99d93cdf476a37a786b10ee5ff8c9b714c05710fcb6d3cb0ff8909cc94fa1",
-      "bytes": 2782
+      "sha256": "1bb1b9223e61a0db01f1217fa5fc8331d67524849d3396e2148b734aae5334f7",
+      "bytes": 3118
     },
     ".agents/skills/quality-gates/SKILL.md": {
-      "sha256": "c237240c3706b71ab4c1d5a105a4bc2b48b8176b44d248ab383c0ee2e4dc20f6",
-      "bytes": 5991
+      "sha256": "9ee2b0610ae737911715a2a38c6c4fe33dd2a3d60220b17e8e8517de2155139d",
+      "bytes": 6187
     },
     ".agents/skills/quality-gates/scripts/aggregate-state.py": {
       "sha256": "cf9932d2d87cccf78c260a03b16859bf2d5d5f2fa8aaa6aaf9bcc3839699f635",
       "bytes": 11975
+    },
+    ".agents/skills/quality-gates/scripts/bootstrap-session.py": {
+      "sha256": "e306a6898046400fab4973132c7b25977c9ed7c9b362ad8c7c8a56730f02e297",
+      "bytes": 26493
     },
     ".agents/skills/quality-gates/scripts/completion_gate.py": {
       "sha256": "314d091b35f4a8a95f3a7d89b99619e209c3db0b467897388b259f88f59e7ceb",
       "bytes": 3027
     },
     ".agents/skills/quality-gates/scripts/generate-manifest.py": {
-      "sha256": "1c72228c40231d1f43e50889ff418b00ca97fd0bc1b9ee75f59cbf29786f67a1",
-      "bytes": 14323
+      "sha256": "0a66645f0a2d457421619fe1c0cb17d92e458cf602e1d4534fc17264e6dc66cf",
+      "bytes": 14718
     },
     ".agents/skills/quality-gates/scripts/hook-post-tool.py": {
       "sha256": "e024f454425e8cc36a2095268ad4334ff6a9334ad12402d1784cebb7adbf7244",
       "bytes": 6427
     },
     ".agents/skills/quality-gates/scripts/hook-pre-tool.py": {
-      "sha256": "609c0197ca2b16b5f5fee0c83cb7a24936e338f8acdfe3f394d6023dcb8ed307",
-      "bytes": 11071
+      "sha256": "9f8a1c3fc3b0f43d9e754aad92def4156eb1911760551eb1994d61011bc3a079",
+      "bytes": 14990
     },
     ".agents/skills/quality-gates/scripts/hook-stop.py": {
-      "sha256": "fd8c9e5e142fdc4d5625e45ffef98fe7e5afa50d18f06e0771349ab41b6c7230",
-      "bytes": 1941
+      "sha256": "3f01856001ba252d39717121707940e6464fb31c89760f1a35555ff64e5f34cd",
+      "bytes": 4052
     },
     ".agents/skills/quality-gates/scripts/lint-documentation.py": {
       "sha256": "b9e5ed86c796ed8c0421ac244b3878c267c6d21ce7f526b55d7551f4ed05b258",
       "bytes": 5603
     },
     ".agents/skills/quality-gates/scripts/lint-policy-consistency.py": {
-      "sha256": "678df4a6e56d54cdfcc8edd6184b70a992ed7234cb9b200ad9dd7755a85b99b0",
-      "bytes": 5257
+      "sha256": "23db6d4aa8b7d63ba2514090b3c261a40b822efa821674134329bd1ef87c55ae",
+      "bytes": 5879
     },
     ".agents/skills/quality-gates/scripts/lint-state-instructions.py": {
       "sha256": "6ad7e644ee309a8e158d3bbc95b5d81e1c10091135b4fc9c1ecc0eb35a37cafc",
@@ -248,8 +252,8 @@
       "bytes": 12043
     },
     ".agents/skills/quality-gates/scripts/validate-agents.py": {
-      "sha256": "4709bc4344c3a04b2f0fae16ccbb9f1586a513c7a8f3e7bfdbd904e10adb69a9",
-      "bytes": 8849
+      "sha256": "493bda0489183b94fa4f65cf1dc70c4b5dc3dfe57bc2fa320a3e3ab66a1582cb",
+      "bytes": 9492
     },
     ".agents/skills/quality-gates/scripts/validate-control-plane.py": {
       "sha256": "3445287498935204ed417e6a3652a60be3c55194b09da9ccbba00ee2b66ea405",
@@ -260,12 +264,16 @@
       "bytes": 60231
     },
     ".agents/skills/quality-gates/scripts/validate-instruction-tags.py": {
-      "sha256": "20a022aac2530fcc33faf7dbdbc166c1602d45f75d311683c8b73288c167ee6d",
-      "bytes": 8122
+      "sha256": "0f894c19cfc57fda3d4d754ce3b7a9104c917870e0e7c9b59f486ae0b18b868a",
+      "bytes": 9578
     },
     ".agents/skills/quality-gates/scripts/validate-policy-registry.py": {
       "sha256": "5942576aceb624535c5100f316c8f3c8ea9104ef3c52e5dbf611957ea097ca78",
       "bytes": 5606
+    },
+    ".agents/skills/quality-gates/scripts/validate-runtime-contract.py": {
+      "sha256": "adffb74180ce06a35048f8fc27dbd0b793d6b8d42d3d5d62bffbbd3ef36fdbe9",
+      "bytes": 8163
     },
     ".agents/skills/quality-gates/scripts/validate-skills.py": {
       "sha256": "e4a1773158ad2bde2f0bf672de4db1a3fec11ecd4dbfecd6969cfe13d7e2169b",
@@ -280,36 +288,36 @@
       "bytes": 7078
     },
     ".agents/skills/refactoring/SKILL.md": {
-      "sha256": "3de3a700d81f4dd5de9249f055195996ce9490e9f1c92bc9c45c169c00fc9851",
-      "bytes": 6127
+      "sha256": "fc3f1ad2e178c75d04e7d3712c28bfd662ba27a1eb7cd165b2699c5ce0db1ed8",
+      "bytes": 6463
     },
     ".agents/skills/requirements-analysis/SKILL.md": {
-      "sha256": "898cff61e77a877424d449a8aa7ac92041c589fda7ffdcf0209e23f08e003760",
-      "bytes": 2557
+      "sha256": "801fca9b39ca016ebdcebba5e5d9720807747c9710dcbb30094db8aad401ff45",
+      "bytes": 2893
     },
     ".agents/skills/requirements-discovery/SKILL.md": {
-      "sha256": "20795c41ff1b5c273c3ddbcb90ac52812d08f02ec8cdaf7e7745047a6b39f105",
-      "bytes": 3104
+      "sha256": "cc01c1f759e71285e8f93505eb149ce71538a99641106c666f093131225bfc1e",
+      "bytes": 3440
     },
     ".agents/skills/security/SKILL.md": {
-      "sha256": "a3c7ab898109b3e70159d7b0c61ae1c7359ed0a0288373f4912387545c41b8a5",
-      "bytes": 5614
+      "sha256": "1f4846dbc7e2cd1e0c050453c48d95a0327e27a9bce3a78d942f0a37caf19c4d",
+      "bytes": 5950
     },
     ".agents/skills/stack-detection/SKILL.md": {
       "sha256": "3295d847e9ef034953514ec344ea962a854d553e8874b7e3fff5522c0dcfc200",
       "bytes": 4592
     },
     ".agents/skills/testing/SKILL.md": {
-      "sha256": "174d7510caff529c7a17a10f0c17849cfdea37ac751ed1eef8278b552e330636",
-      "bytes": 4900
+      "sha256": "76db33c077267e1fbaf90ce9b89e3985b624d022eb10e996e45f960352084a34",
+      "bytes": 5096
     },
     ".agents/skills/uiux/SKILL.md": {
-      "sha256": "2099d29946c0f8f2693c9f3a5366bc8537de202e3857e91d67e5dd005a9fcbc6",
-      "bytes": 5345
+      "sha256": "ad5dff13ffbee384b4b029476d3115f8beba029590a595f5aacecc063e4a4be9",
+      "bytes": 5681
     },
     ".agents/skills/verification/SKILL.md": {
-      "sha256": "84aa344943951a655cf43e920386337bf247446c7cde7417b560b936816e7f1c",
-      "bytes": 2878
+      "sha256": "e3493cd89f9899aaabf6d9e0576857ed95515aa4afef4de078ff12945cdf3ac2",
+      "bytes": 3214
     },
     ".agents/state/agents.schema.json": {
       "sha256": "94a14eb691def7982dabe2156d61b7abddcb2835c6e373508983eadf012c9849",
@@ -348,8 +356,8 @@
       "bytes": 418
     },
     ".agents/validation/core/governance_core.py": {
-      "sha256": "42eff50884f6dd3b5b0ca07384ac9fceb3b10797b590a6988b854ef1793f9323",
-      "bytes": 24979
+      "sha256": "5326a746b1690da99e9171a66a780e75d2c1d81a5c56a827030f644abcf18e26",
+      "bytes": 26278
     },
     ".agents/validation/core/verification_policy.py": {
       "sha256": "0cfbee8437b21902b5e87e32543a3537ef04b4f5281dd0ac0efe3a21904aa134",
@@ -364,12 +372,12 @@
       "bytes": 389
     },
     ".github/workflows/ai-validation.yml": {
-      "sha256": "f03fdb4086bedc7ea11ded97d2cd9b6c995f39b1caa6d45009f6bb46952800f8",
-      "bytes": 28243
+      "sha256": "cd539564ebfab1aa95577451afd03ab894e800ce6b6950fa7b25536672f04dd4",
+      "bytes": 28245
     },
     "AGENTS.md": {
-      "sha256": "456625cc018e242b045ddd25ad1fd34172f037dade78bf1bbca91796f21cdc63",
-      "bytes": 12796
+      "sha256": "11c29c356e72c9a2d062f68eff6d3c69d81691ab8edeedfdc1e3b8e4d846d0a6",
+      "bytes": 14518
     }
   }
 }

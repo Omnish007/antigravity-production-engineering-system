@@ -6,8 +6,14 @@ Every file listed below is included in this package. Each has one primary respon
 
 | Path | Purpose |
 |---|---|
+| `CHANGELOG.md` | Documents release history, migrations, and runtime-governance changes across versions. |
+| `DEEP_REVIEW.md` | Defines DEEP_REVIEW.md specification and implementation. |
 | `FILE_MANIFEST.md` | Gives a one-line purpose for every packaged file. |
+| `FINAL_VALIDATION.md` | Defines FINAL_VALIDATION.md specification and implementation. |
+| `LEGACY_SYSTEM_REVIEW.md` | Defines LEGACY_SYSTEM_REVIEW.md specification and implementation. |
 | `README.md` | Explains the architecture, installation, source-of-truth hierarchy, and completion contract. |
+| `RESEARCH_BASIS.md` | Documents researched official sources, release lines, and architectural baselines. |
+| `VERSION.md` | Freezes the system specification at the current release version. |
 | `global/GEMINI.md` | Defines cross-project agent behavior and durable engineering principles. |
 | `workspace-template/.agents/CONTROL_PLANE_MANIFEST.json` | Defines CONTROL_PLANE_MANIFEST.json specification and implementation. |
 | `workspace-template/.agents/agents/architect.md` | Defines architect.md specification and implementation. |
@@ -25,9 +31,10 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/validation/core/verification_policy.py` | Executable verification policy engine implementing canonical gate registry and taxonomy. |
 | `workspace-template/.agents/validation/core/workspace_resolver.py` | Deterministic workspace and governance root resolver enforcing explicit sentinels. |
 | `workspace-template/.agents/validation/requirements.txt` | Defines requirements.txt specification and implementation. |
-| `workspace-template/.agents/validation/tests/test-lifecycle-simulation.py` | Defines test-lifecycle-simulation.py specification and implementation. |
-| `workspace-template/.agents/validation/tests/test-validators.py` | Defines test-validators.py specification and implementation. |
+| `workspace-template/.agents/validation/tests/test_lifecycle_simulation.py` | Defines test_lifecycle_simulation.py specification and implementation. |
+| `workspace-template/.agents/validation/tests/test_validators.py` | Defines test_validators.py specification and implementation. |
 | `workspace-template/.gitignore` | Defines .gitignore specification and implementation. |
+| `workspace-template/pytest.ini` | Defines pytest.ini specification and implementation. |
 
 ## Workspace bridge
 
@@ -161,6 +168,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/orchestration/verification-schema.json` | Machine-readable contract for task verification evidence. |
 | `workspace-template/.agents/orchestration/worktree-policy.md` | Defines safe worktree isolation and reconciliation behavior when worktrees are used. |
 | `workspace-template/.agents/skills/quality-gates/scripts/aggregate-state.py` | Defines aggregate-state.py specification and implementation. |
+| `workspace-template/.agents/skills/quality-gates/scripts/bootstrap-session.py` | Defines bootstrap-session.py specification and implementation. |
 | `workspace-template/.agents/skills/quality-gates/scripts/completion_gate.py` | Authoritative stop condition and completion gate evaluator for governed tasks. |
 | `workspace-template/.agents/skills/quality-gates/scripts/generate-manifest.py` | Automated manifest generator and parity checker to prevent manifest drift. |
 | `workspace-template/.agents/skills/quality-gates/scripts/hook-post-tool.py` | Defines hook-post-tool.py specification and implementation. |
@@ -176,6 +184,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-governance.py` | Defines validate-governance.py specification and implementation. |
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-instruction-tags.py` | Automated validator verifying instruction tag vocabulary, balancing, frontmatter integrity, and rule character limits. |
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-policy-registry.py` | Validates policy registry integrity, canonical owners, and supporting artifacts. |
+| `workspace-template/.agents/skills/quality-gates/scripts/validate-runtime-contract.py` | Defines validate-runtime-contract.py specification and implementation. |
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-skills.py` | Validates Antigravity Skills mechanically using PyYAML, checking required sections and naming. |
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-task-dag.py` | Automated semantic DAG validator verifying task graph integrity, acyclicity, and status progression. |
 | `workspace-template/.agents/skills/quality-gates/scripts/validate-technology-profiles.py` | Validates technology profile frontmatter, required metadata, and document structure. |
@@ -196,6 +205,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/state/project.schema.json` | JSON Schema defining valid project metadata and lifecycle phase structure. |
 | `workspace-template/.agents/state/retries.json` | Stores failed attempts, reasons, and retry policy state. |
 | `workspace-template/.agents/state/retries.schema.json` | JSON Schema defining retry logging and escalation ladder state. |
+| `workspace-template/.agents/state/runtime/session.schema.json` | Defines session.schema.json specification and implementation. |
 | `workspace-template/.agents/state/stack.json` | Stores detected and declared technology stack state. |
 | `workspace-template/.agents/state/stack.schema.json` | JSON Schema defining technology stack structure, categories, and version metadata. |
 | `workspace-template/.agents/state/tasks.json` | Stores tasks, dependencies, status, and outputs. |

@@ -75,8 +75,9 @@ def lint_directory(target_dir: Path) -> Tuple[List[str], int]:
 
     extensions = {".md", ".yaml", ".yml", ".json"}
     for root, dirs, files in os.walk(target_dir):
-        # Skip hidden git and cache dirs
-        dirs[:] = [d for d in dirs if not d.startswith(".") and d != "__pycache__" and d != "node_modules"]
+        # `.agents` is the governed control-plane and must be linted when it is
+        # the requested target. Only skip caches and VCS metadata.
+        dirs[:] = [d for d in dirs if d not in {".git", ".pytest_cache", "__pycache__", "node_modules"}]
         for f in files:
             fpath = Path(root) / f
             if fpath.is_symlink():
@@ -95,14 +96,25 @@ def lint_directory(target_dir: Path) -> Tuple[List[str], int]:
 
 def main():
     parser = argparse.ArgumentParser(description="Lint documentation and policies for semantic consistency (P1-35)")
-    parser.add_argument("target_dirs", nargs="*", default=["workspace-template/.agents", "workspace-template/docs"],
-                        help="Directories to lint")
+    parser.add_argument("target_dirs", nargs="*", default=None,
+                        help="Directories to lint; when omitted, auto-detect governed workspace paths from the current directory")
     args = parser.parse_args()
+
+    if not args.target_dirs:
+        cwd = Path.cwd().resolve()
+        if (cwd / ".agents").is_dir() and (cwd / "docs").is_dir():
+            target_dirs = [cwd / ".agents", cwd / "docs"]
+        elif (cwd / "workspace-template" / ".agents").is_dir():
+            target_dirs = [cwd / "workspace-template" / ".agents", cwd / "workspace-template" / "docs"]
+        else:
+            target_dirs = [cwd / ".agents", cwd / "docs"]
+    else:
+        target_dirs = [Path(d) for d in args.target_dirs]
 
     total_errors: List[str] = []
     total_files = 0
 
-    for d in args.target_dirs:
+    for d in target_dirs:
         p = Path(d).resolve()
         if not p.is_dir():
             continue

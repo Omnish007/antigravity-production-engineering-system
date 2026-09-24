@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when logs, metrics, tracing, health checks, diagnostics, or runtime observability are relevant."
+---
 <!-- ID: RULE-OBS-001 -->
 # Observability Rules
 

@@ -15,6 +15,7 @@ import os
 import sys
 import re
 import json
+from pathlib import Path
 
 APPROVED_TAGS = {
     # Core identity & priorities
@@ -105,6 +106,26 @@ def check_markdown_file(file_path, is_skill=False, is_rule=False, is_agent=False
     errors = []
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
+
+    # Antigravity modular-rule contract: every rule needs platform-native YAML frontmatter.
+    if is_rule and Path(file_path).name != "RULE_ACTIVATION.md":
+        if not content.startswith("---\n"):
+            errors.append(f"Rule file does not start with YAML frontmatter: {file_path}")
+        else:
+            end_fm = content.find("\n---\n", 4)
+            if end_fm == -1:
+                errors.append(f"Unclosed YAML frontmatter in rule: {file_path}")
+            else:
+                frontmatter = content[:end_fm + 5]
+                if TAG_PATTERN.search(frontmatter):
+                    errors.append(f"XML tags found inside YAML frontmatter in rule: {file_path}")
+                trigger_match = re.search(r"^trigger:\s*([A-Za-z_]+)\s*$", frontmatter, re.MULTILINE)
+                if not trigger_match or trigger_match.group(1) not in {"always_on", "model_decision", "glob", "manual"}:
+                    errors.append(f"Rule frontmatter must declare a supported trigger: {file_path}")
+                elif trigger_match.group(1) == "model_decision" and not re.search(r"^description:\s*.+$", frontmatter, re.MULTILINE):
+                    errors.append(f"model_decision rule is missing description: {file_path}")
+                elif trigger_match.group(1) == "glob" and not re.search(r"^globs:\s*.+$", frontmatter, re.MULTILINE):
+                    errors.append(f"glob rule is missing globs: {file_path}")
 
     # Rule character limit
     if is_rule:

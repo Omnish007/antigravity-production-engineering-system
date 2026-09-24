@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when tests, regressions, debugging, test design, or test automation is relevant."
+---
 <!-- ID: RULE-TEST-001 -->
 # Testing Rules
 

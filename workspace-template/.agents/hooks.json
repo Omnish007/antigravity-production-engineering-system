@@ -1,36 +1,15 @@
 {
+  "session-bootstrap": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 .agents/skills/quality-gates/scripts/bootstrap-session.py",
+        "timeout": 20
+      }
+    ]
+  },
   "pretool-guard": {
     "PreToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-pre-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
       {
         "matcher": "*",
         "hooks": [
@@ -45,36 +24,6 @@
   },
   "posttool-audit": {
     "PostToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 .agents/skills/quality-gates/scripts/hook-post-tool.py",
-            "timeout": 15
-          }
-        ]
-      },
       {
         "matcher": "*",
         "hooks": [

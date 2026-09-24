@@ -204,13 +204,23 @@ def main():
     if len(sys.argv) > 1:
         agents_dir = sys.argv[1]
     else:
-        candidates = [
-            os.path.join(".agents", "agents"),
-            os.path.join("workspace-template", ".agents", "agents"),
-        ]
+        # Resolve the governed workspace even when this validator is launched
+        # from the package root, CI checkout root, or the workspace itself.
+        # This prevents path-dependent validation where the same validator
+        # passes only because the caller happened to `cd` into workspace-template.
+        resolved = resolve_workspace() if resolve_workspace is not None else None
+        candidates = []
+        if resolved is not None:
+            candidates.append(resolved.project_root / ".agents" / "agents")
+        candidates.extend([
+            Path.cwd() / ".agents" / "agents",
+            Path.cwd() / "workspace-template" / ".agents" / "agents",
+            _script_dir.parent.parent.parent.parent / ".agents" / "agents",
+        ])
         for c in candidates:
-            if os.path.isdir(c):
-                agents_dir = c
+            c = Path(c).resolve()
+            if c.is_dir():
+                agents_dir = str(c)
                 break
 
     if not agents_dir:

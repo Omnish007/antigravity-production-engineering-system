@@ -1,3 +1,7 @@
+---
+trigger: always_on
+description: "Universal engineering invariants and execution discipline."
+---
 <!-- ID: RULE-CORE-001 -->
 # Core Engineering Invariants & Implementation Governance
 

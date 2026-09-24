@@ -48,11 +48,11 @@ jobs:
       - name: Lint State Instructions
         run: python3 .agents/skills/quality-gates/scripts/lint-state-instructions.py --check
 
-      - name: Run Validator Test Suite
-        run: python3 .agents/validation/tests/test-validators.py
+      - name: Validate Runtime Contract
+        run: python3 .agents/skills/quality-gates/scripts/validate-runtime-contract.py
 
-      - name: Run Lifecycle Simulation Test Suite
-        run: python3 .agents/validation/tests/test-lifecycle-simulation.py
+      - name: Run Framework Regression Suite
+        run: python3 -m pytest -q .agents/validation/tests
 
       - name: Check Manifest Integrity
         run: python3 .agents/skills/quality-gates/scripts/generate-manifest.py --check

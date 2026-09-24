@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when architecture, module boundaries, dependencies, APIs, data flow, or design decisions are relevant."
+---
 <!-- ID: RULE-ARCH-001 -->
 # Architecture & Design Rules
 

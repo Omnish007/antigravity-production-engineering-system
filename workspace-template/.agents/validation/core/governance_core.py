@@ -148,6 +148,28 @@ def evaluate_governance_completion(
             reason="[GOVERNANCE GUARD] Cannot stop: Governed workspace detected but state directory '.agents/state/' is missing or unreadable. State must not be bypassed.",
         )
 
+    # Runtime bootstrap distinguishes read-only inquiry sessions from governed work.
+    # Without this early gate, a read-only question inside a codebase is incorrectly
+    # forced through task-completion checks and cannot terminate cleanly.
+    payload_conversation = str(payload.get("conversationId") or "")
+    if payload_conversation:
+        safe_conversation = re.sub(r"[^A-Za-z0-9._-]", "_", payload_conversation)[:180] or "unknown"
+        runtime_session = state_dir / "runtime" / "sessions" / f"{safe_conversation}.json"
+    else:
+        runtime_session = state_dir / "runtime" / "session.json"
+    if runtime_session.is_file():
+        try:
+            runtime = json.loads(runtime_session.read_text(encoding="utf-8"))
+            runtime_mode = runtime.get("mode")
+            runtime_conversation = runtime.get("conversationId")
+            same_conversation = (not payload_conversation) or runtime_conversation == payload_conversation
+            if runtime_mode == "inquiry" and same_conversation:
+                return CompletionResult(allowed=True, decision="allow")
+        except Exception:
+            # Corrupt runtime metadata must not weaken governance. Fall through to
+            # the canonical state checks below, which will fail closed if required.
+            pass
+
     # 1. Load canonical blockers & validate semantics (P0-35, P0-36, P0-37)
     global_active_blockers: List[Dict[str, Any]] = []
     task_active_blockers: Dict[str, List[Dict[str, Any]]] = {}

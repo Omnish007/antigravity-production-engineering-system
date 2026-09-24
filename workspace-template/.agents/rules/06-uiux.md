@@ -1,3 +1,8 @@
+---
+trigger: glob
+description: "Accessibility, responsive UI, component, styling, and UX conventions."
+globs: "**/*.{jsx,tsx,vue,svelte,css,scss,sass,html}"
+---
 <!-- ID: RULE-UI-001 -->
 # UI/UX Rules
 

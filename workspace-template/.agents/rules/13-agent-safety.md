@@ -1,3 +1,7 @@
+---
+trigger: always_on
+description: "Universal prompt-injection defense, sandbox, credential, side-effect, and agent safety constraints."
+---
 <!-- ID: RULE-AGENT-SAFETY-001 -->
 # Agent Safety Rules
 

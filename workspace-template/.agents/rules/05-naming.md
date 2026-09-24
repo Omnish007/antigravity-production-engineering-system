@@ -1,3 +1,8 @@
+---
+trigger: glob
+description: "Naming conventions for implementation artifacts."
+globs: "**/*.{js,jsx,ts,tsx,mjs,cjs,py,go,java,kt,rs,rb,php,cs,cpp,h}"
+---
 <!-- ID: RULE-NAMING-001 -->
 # Naming Rules
 

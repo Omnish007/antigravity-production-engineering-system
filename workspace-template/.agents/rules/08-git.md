@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when git history, branches, commits, merges, rebases, pull requests, or release workflow is relevant."
+---
 <!-- ID: RULE-GIT-001 -->
 # Git Rules
 

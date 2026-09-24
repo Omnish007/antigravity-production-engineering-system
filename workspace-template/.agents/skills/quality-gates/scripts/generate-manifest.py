@@ -17,6 +17,7 @@ from typing import Dict, List, Set, Tuple
 
 IGNORE_DIRS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache", "node_modules"}
 IGNORE_EXTS = {".pyc", ".pyo", ".zip", ".tar.gz", ".DS_Store"}
+RUNTIME_EPHEMERAL_FILES = {"session.json", "context-plan.md"}
 
 DEFAULT_SECTIONS = [
     "## Package-level",
@@ -34,8 +35,8 @@ DEFAULT_SECTIONS = [
 ]
 
 KNOWN_PURPOSES = {
-    "VERSION.md": "Freezes the system specification at version 4.0.0.",
-    "CHANGELOG.md": "Documents release history, migrations, and freeze specifications across all versions.",
+    "VERSION.md": "Freezes the system specification at the current release version.",
+    "CHANGELOG.md": "Documents release history, migrations, and runtime-governance changes across versions.",
     "RESEARCH_BASIS.md": "Documents researched official sources, release lines, and architectural baselines.",
     "VALIDATION.md": "Documents comprehensive validation matrix, test results, and adversarial security assessments.",
     "workspace-template/.agents/rules/rule-activation.yaml": "Declarative matrix defining rule activation triggers, stable IDs, and domain mappings.",
@@ -71,11 +72,18 @@ KNOWN_PURPOSES = {
 def get_disk_files(root_dir: str) -> Set[str]:
     disk_files = set()
     for dirpath, dirnames, filenames in os.walk(root_dir):
-        # Filter out ignored directories
-        dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS and not (Path(dirpath) / d).is_symlink()]
+        # Filter caches/VCS metadata. Runtime session logs and per-conversation
+        # context plans are ephemeral; the runtime schema remains distributable.
+        if Path(dirpath).name == "runtime":
+            dirnames[:] = []
+        else:
+            dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS and not (Path(dirpath) / d).is_symlink()]
+
         for f in filenames:
             ext = os.path.splitext(f)[1]
             if ext in IGNORE_EXTS or f == ".DS_Store":
+                continue
+            if Path(dirpath).name == "runtime" and f in RUNTIME_EPHEMERAL_FILES:
                 continue
             full_path = os.path.join(dirpath, f)
             if os.path.islink(full_path):

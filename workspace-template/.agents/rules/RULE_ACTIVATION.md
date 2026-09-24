@@ -1,36 +1,24 @@
-# Rule Activation Reference
+---
+title: Rule Activation Contract
+---
 
-<MISSION>
-Provide a human-readable catalog derived from `rule-activation.yaml`. The YAML matrix is authoritative for rule IDs, activation criteria, precedence, and domain bindings.
-</MISSION>
+# Rule Activation Contract
 
-## Activation Tiers
+The runtime activation contract is **platform-native YAML frontmatter on each rule file** plus the repository-level routing table in `rule-activation.yaml`. The routing table is a documentation/audit index; it is not a substitute for the platform trigger metadata.
 
-1. **ALWAYS**: Universal foundational rules loaded on every execution.
-2. **CODE_TOUCH**: Activated whenever application source code is inspected or modified.
-3. **GOVERNED_TASK**: Activated whenever a task enters formal governance (Lane B or Lane C).
-4. **DOMAIN_MATCH**: Dynamically activated based on the task domain identified by `.agents/orchestration/context-router.md`.
-5. **TASK_INIT / STATE_SYNC**: Activated during specific task lifecycle phases.
+## Supported runtime triggers
 
-## Rule Activation Matrix (human-readable view)
+- `always_on`: loaded for every model invocation.
+- `model_decision`: the runtime selects the rule from the task/context.
+- `glob`: selected when the target files match the rule's `globs`.
+- `manual`: loaded only when explicitly requested.
 
-| Rule ID | Name | File | Activation | Precedence | Domain / Purpose |
-|---|---|---|---|---|---|
-| `RULE-CORE-001` | Core Engineering Principles | `00-core.md` | ALWAYS | 100 | Universal engineering constraints |
-| `RULE-SAFETY-001` | Agent Safety Invariants | `13-agent-safety.md` | ALWAYS | 95 | Sandboxing, credentials, prompt safety |
-| `RULE-CODE-001` | Coding Discipline | `04-coding.md` | CODE_TOUCH | 90 | Language/code style and cleanliness |
-| `RULE-ARCH-LAYER-001` | Layered Architecture Standard | `15-layered-architecture.md` | CODE_TOUCH | 88 | Architecture boundaries & anti-patterns |
-| `RULE-VERIFY-001` | Verification Rules | `10-verification.md` | GOVERNED_TASK | 85 | Mandatory verification & exit codes |
-| `RULE-ARCH-001` | Architecture & Design | `03-architecture.md` | DOMAIN_MATCH | 80 | System boundaries, ADR triggers |
-| `RULE-SEC-001` | Security Engineering | `07-security.md` | DOMAIN_MATCH | 80 | Security, auth, SAST scanning |
-| `RULE-TEST-001` | Testing Standards | `09-testing.md` | DOMAIN_MATCH | 75 | Unit, integration, e2e testing |
-| `RULE-STACK-001` | Technology Stack Conventions | `02-tech-stack.md` | DOMAIN_MATCH | 75 | Detected stack conventions |
-| `RULE-CTX-001` | Project Context & Architecture | `01-project-context.md` | TASK_INIT | 70 | Architecture & domain understanding |
-| `RULE-REQ-001` | Requirements & Acceptance Criteria | `12-requirements.md` | DOMAIN_MATCH | 70 | PRD & acceptance criteria |
-| `RULE-UI-001` | UI/UX & Frontend Conventions | `06-uiux.md` | DOMAIN_MATCH | 65 | Accessibility, components, styling |
-| `RULE-NAMING-001` | Naming Conventions | `05-naming.md` | CODE_TOUCH | 60 | Consistent identifier naming |
-| `RULE-GIT-001` | Git & Version Control | `08-git.md` | DOMAIN_MATCH | 60 | Commits, branches, PR discipline |
-| `RULE-MEM-001` | Project Memory Discipline | `11-project-memory.md` | ALWAYS | 92 | Durable memory synchronization & state updates |
-| `RULE-OBS-001` | Observability & Telemetry | `14-observability.md` | DOMAIN_MATCH | 50 | Logging, metrics, tracing |
+Every modular rule under `.agents/rules/*.md` must contain valid frontmatter with a supported `trigger`. `model_decision` rules must provide a useful `description`; `glob` rules must provide `globs`.
 
-See `rule-activation.yaml` for the machine-readable version.
+## Layering
+
+`AGENTS.md` remains the repository bootstrap contract and is always authoritative. `always_on` rules provide universal constraints. The context router, task classifier, technology profiles, skills, and project documents narrow the runtime context for the current request.
+
+## Reliability rule
+
+Do not claim a rule, policy, or skill was loaded merely because it is listed in a registry. The agent must read the actual file or receive runtime evidence that the file was loaded.

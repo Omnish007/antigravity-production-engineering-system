@@ -43,3 +43,19 @@ if __name__ == "__main__":
     test_static_validators()
     test_state_taxonomy_is_canonical()
     print("Validator self-tests PASSED")
+
+
+def test_architecture_checker_has_workspace_root() -> None:
+    script = ROOT / ".agents" / "validation" / "check-architecture.py"
+    proc = subprocess.run([sys.executable, str(script), "--json"], cwd=ROOT.parent, text=True, capture_output=True)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    payload = json.loads(proc.stdout)
+    assert payload["root"] == str(ROOT)
+    assert payload["errors"] == 0
+
+
+def test_agent_validator_autodetects_workspace_from_package_root() -> None:
+    script = ROOT / ".agents" / "skills" / "quality-gates" / "scripts" / "validate-agents.py"
+    proc = subprocess.run([sys.executable, str(script)], cwd=ROOT.parent, text=True, capture_output=True)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "Checked 9 agent definition(s)" in proc.stdout

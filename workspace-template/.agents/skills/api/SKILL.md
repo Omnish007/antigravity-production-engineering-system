@@ -16,8 +16,9 @@ Activate this skill when executing tasks requiring api capabilities, workflows, 
 
 <PRECONDITIONS>
 ### Prerequisites
-- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
-    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
+- For governed execution, the canonical task record `.agents/state/tasks/TASK-ID.json` must exist.
+- Use the lifecycle state defined in `.agents/orchestration/task-lifecycle.md` for the current phase; do not require `IN_PROGRESS` merely because the skill is available during execution.
+- Implementation-phase mutations require a `TASK_STARTED` event before code/configuration changes. Planning, requirements, analysis, review, verification, and memory-sync phases may legitimately run in their own lifecycle states.
     - Must be loaded as part of the Atomic Backend Bundle alongside `.agents/skills/backend/SKILL.md`, `.agents/skills/security/SKILL.md`, and `.agents/rules/07-security.md`.
 
 ### Pre-flight Checklist

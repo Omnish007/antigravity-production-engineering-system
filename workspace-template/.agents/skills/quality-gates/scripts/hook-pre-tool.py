@@ -117,6 +117,50 @@ def load_tool_registry(workspace_root: Path) -> Dict[str, Dict[str, Any]]:
     return {}
 
 
+EXECUTION_MUTATION_STATUSES = {
+    "IN_PROGRESS", "TESTING", "VERIFYING", "REVIEWING", "MEMORY_SYNC", "STATE_SYNC", "GOVERNANCE_CHECK"
+}
+STATE_WRITE_PREFIXES = (".agents/state/",)
+REPO_MUTATION_COMMAND_PATTERNS = [
+    r"\bsed\s+-[a-zA-Z]*i\b",
+    r"\bperl\s+-[a-zA-Z]*i\b",
+    r"(?:^|[;&|\s])(?:cat|printf|echo)\b[^;\n]*>\s*(?:\./|/|[A-Za-z0-9_.-]+/)",
+    r"\b(?:python|python3)\b[^;\n]*\b(?:open\(|write_text\(|write_bytes\(|unlink\()",
+    r"\bnode\b[^;\n]*\b(?:writeFile|writeFileSync|rmSync|unlink)\b",
+    r"\bgit\s+(?:apply|checkout|restore|clean|mv|rm|commit|merge|rebase|cherry-pick)\b",
+    r"\b(?:npm|pnpm|yarn)\s+(?:install|add|remove|uninstall|update|upgrade|pkg\s+set)\b",
+    r"\b(?:composer|pip|poetry)\s+(?:install|update|add|remove)\b",
+]
+
+def _safe_conversation_id(conversation_id: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]", "_", conversation_id or "unknown")[:180] or "unknown"
+
+
+def active_task_status(workspace_root: Path, conversation_id: str = "") -> Tuple[Optional[str], Optional[str]]:
+    runtime_dir = workspace_root / ".agents" / "state" / "runtime"
+    session_file = runtime_dir / "sessions" / f"{_safe_conversation_id(conversation_id)}.json" if conversation_id else runtime_dir / "session.json"
+    if not session_file.is_file():
+        return None, None
+    try:
+        session = json.loads(session_file.read_text(encoding="utf-8"))
+        task_id = session.get("activeTaskId")
+        if not task_id:
+            return None, None
+        task_file = workspace_root / ".agents" / "state" / "tasks" / f"{task_id}.json"
+        if not task_file.is_file():
+            return task_id, None
+        task = json.loads(task_file.read_text(encoding="utf-8"))
+        return task_id, task.get("status")
+    except Exception:
+        return None, None
+
+def requires_execution_task(status: Optional[str]) -> bool:
+    return status not in EXECUTION_MUTATION_STATUSES
+
+def is_repo_mutation_command(command: str) -> bool:
+    return any(re.search(pattern, command, re.IGNORECASE) for pattern in REPO_MUTATION_COMMAND_PATTERNS)
+
+
 def main():
     try:
         raw_input = sys.stdin.read()
@@ -156,6 +200,8 @@ def main():
     ws_info = resolve_workspace(payload={"workspacePaths": workspace_paths})
     ws_root = ws_info.project_root
     tool_registry = load_tool_registry(ws_root)
+    conversation_id = str(payload.get("conversationId") or "")
+    active_task_id, task_status = active_task_status(ws_root, conversation_id)
 
     # New/unregistered tools must never inherit an implicit allow decision.
     if tool_name not in tool_registry:
@@ -187,6 +233,17 @@ def main():
                     }))
                     return
 
+            # Repository-mutating shell commands require an execution-state task.
+            # Read-only inspection/test commands remain available before implementation.
+            if is_repo_mutation_command(cmd) and not ws_info.is_governed:
+                pass
+            elif is_repo_mutation_command(cmd) and requires_execution_task(task_status):
+                print(json.dumps({
+                    "decision": "deny",
+                    "reason": f"[GOVERNANCE GUARD] Repository-mutating command blocked: active task must be in an execution state before mutation (task={active_task_id or 'none'}, status={task_status or 'none'})."
+                }))
+                return
+
             # Check high-risk patterns -> FORCE_ASK
             for pattern, reason in HIGH_RISK_PATTERNS:
                 if re.search(pattern, cmd, re.IGNORECASE):
@@ -210,6 +267,9 @@ def main():
             abs_path, rel_path = canonicalize_path(target_file, ws_root)
             paths_to_test = [target_file.strip().replace("\\", "/"), rel_path, abs_path]
 
+            # Canonical state is writable during lifecycle bookkeeping.
+            is_state_write = rel_path.startswith(STATE_WRITE_PREFIXES)
+
             # Hard DENY any path escaping the workspace boundary (P0-17)
             if rel_path.startswith("..") or (ws_root and not abs_path.startswith(str(ws_root.resolve()))):
                 print(json.dumps({
@@ -228,7 +288,12 @@ def main():
                         }))
                         return
 
-            # Check high-risk file paths -> FORCE_ASK (P0-14, P0-15)
+            # Check high-risk file paths -> FORCE_ASK (P0-14, P0-15).
+            # Canonical state is deliberately handled by the lifecycle itself and
+            # must remain machine-writable; other control-plane edits stay gated.
+            if is_state_write:
+                print(json.dumps({"decision": "allow"}))
+                return
             for pattern, reason in HIGH_RISK_PATH_PATTERNS:
                 for p_str in paths_to_test:
                     if re.search(pattern, p_str, re.IGNORECASE):
@@ -237,6 +302,15 @@ def main():
                             "reason": f"[HIGH-RISK PATH] {reason} File: '{target_file.strip()}'"
                         }))
                         return
+
+            # All remaining governed application writes require a lifecycle task
+            # that has passed classification/planning and entered execution.
+            if ws_info.is_governed and requires_execution_task(task_status):
+                print(json.dumps({
+                    "decision": "deny",
+                    "reason": f"[GOVERNANCE GUARD] Application mutation blocked: register/classify/plan the task and move it into an execution state before editing repository files (task={active_task_id or 'none'}, status={task_status or 'none'})."
+                }))
+                return
 
     # Default: ALLOW
     print(json.dumps({"decision": "allow"}))

@@ -16,8 +16,9 @@ Activate this skill when executing tasks requiring feature-development capabilit
 
 <PRECONDITIONS>
 ### Prerequisites
-- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
-    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
+- For governed execution, the canonical task record `.agents/state/tasks/TASK-ID.json` must exist.
+- Use the lifecycle state defined in `.agents/orchestration/task-lifecycle.md` for the current phase; do not require `IN_PROGRESS` merely because the skill is available during execution.
+- Implementation-phase mutations require a `TASK_STARTED` event before code/configuration changes. Planning, requirements, analysis, review, verification, and memory-sync phases may legitimately run in their own lifecycle states.
 
 ### Pre-flight Checklist
 - [ ] Acceptance criteria defined and agreed
@@ -30,7 +31,7 @@ Activate this skill when executing tasks requiring feature-development capabilit
 <NON_NEGOTIABLES>
 - Map all feature requirements to explicit acceptance criteria before coding.
 - Respect established project architectural boundaries and layer separation as defined in docs/ARCHITECTURE.md; do not force an unchosen architectural style.
-- All new features must include unit and integration tests.
+- Add the tests appropriate to the feature's risk, interfaces, and architecture. Unit/integration coverage is required when the changed behavior has testable business, API, persistence, or integration boundaries; purely documentary or configuration-only changes use the applicable non-runtime verification instead.
 - If the feature introduces Type 1 architectural decisions, evaluates competing trade-offs, or crosses the 5 architectural planes, author an ADR in `docs/decisions/` before writing code.
 </NON_NEGOTIABLES>
 

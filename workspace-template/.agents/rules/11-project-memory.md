@@ -1,3 +1,7 @@
+---
+trigger: always_on
+description: "Universal durable-memory, state synchronization, and current-state documentation requirements."
+---
 <!-- ID: RULE-MEM-001 -->
 # Project Memory Rules
 

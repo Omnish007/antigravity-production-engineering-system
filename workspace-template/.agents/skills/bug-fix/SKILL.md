@@ -16,8 +16,9 @@ Activate this skill when executing tasks requiring bug-fix capabilities, workflo
 
 <PRECONDITIONS>
 ### Prerequisites
-- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
-    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
+- For governed execution, the canonical task record `.agents/state/tasks/TASK-ID.json` must exist.
+- Use the lifecycle state defined in `.agents/orchestration/task-lifecycle.md` for the current phase; do not require `IN_PROGRESS` merely because the skill is available during execution.
+- Implementation-phase mutations require a `TASK_STARTED` event before code/configuration changes. Planning, requirements, analysis, review, verification, and memory-sync phases may legitimately run in their own lifecycle states.
 
 ### Pre-flight Checklist
 - [ ] Reproducing test reproduces failure
@@ -27,9 +28,10 @@ Activate this skill when executing tasks requiring bug-fix capabilities, workflo
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>
-- Must write an automated reproducing test BEFORE applying any fix.
-    - Fix must be surgical: touch only code directly causing the bug.
-    - Never introduce unrelated refactoring or formatting changes in a bug fix.
+- Reproduce the defect before fixing it when technically feasible. If reproduction is infeasible, record why and use the strongest available direct evidence instead of pretending reproduction occurred.
+- A regression test MUST be added or strengthened when the defect is testable; for non-testable defects, record an explicit alternative verification method.
+- Fix must be surgical: touch only code directly causing the bug.
+- Never introduce unrelated refactoring or formatting changes in a bug fix.
 </NON_NEGOTIABLES>
 
 <PROCEDURE>

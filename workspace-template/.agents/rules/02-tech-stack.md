@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when stack, framework, library, runtime, dependency, or platform-specific implementation choices are relevant."
+---
 <!-- ID: RULE-STACK-001 -->
 # Technology Stack Governance & Profile Architecture
 

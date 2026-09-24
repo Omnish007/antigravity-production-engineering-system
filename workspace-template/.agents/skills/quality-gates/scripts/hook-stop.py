@@ -11,6 +11,7 @@ Antigravity Stop Lifecycle Hook:
 import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -47,6 +48,55 @@ def check_stop_conditions(
     )
 
 
+def _workspace_from_payload(payload: Dict[str, Any]) -> Optional[Path]:
+    candidates = payload.get("workspacePaths", [])
+    if isinstance(candidates, str):
+        candidates = [candidates]
+    for raw in candidates:
+        try:
+            p = Path(raw).resolve()
+        except Exception:
+            continue
+        for candidate in [p, *p.parents]:
+            if (candidate / ".agents").is_dir() and (candidate / "AGENTS.md").is_file():
+                return candidate
+    return None
+
+
+def _safe_conversation_id(conversation_id: str) -> str:
+    import re
+    return re.sub(r"[^A-Za-z0-9._-]", "_", conversation_id or "unknown")[:180] or "unknown"
+
+
+def _update_runtime_session(payload: Dict[str, Any], result: Dict[str, Any]) -> None:
+    workspace = _workspace_from_payload(payload)
+    if workspace is None:
+        return
+    runtime_dir = workspace / ".agents" / "state" / "runtime"
+    conversation_id = str(payload.get("conversationId") or "")
+    path = runtime_dir / "sessions" / f"{_safe_conversation_id(conversation_id)}.json" if conversation_id else runtime_dir / "session.json"
+    if not path.is_file():
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["lastStopCheckAt"] = datetime.now(timezone.utc).isoformat()
+        data["lastStopDecision"] = result.get("decision")
+        data["lastStopReason"] = result.get("reason")
+        if result.get("decision") == "allow":
+            data["status"] = "completed"
+        else:
+            data["status"] = "blocked"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        if conversation_id:
+            active_view = runtime_dir / "session.json"
+            active_view.parent.mkdir(parents=True, exist_ok=True)
+            active_view.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    except Exception:
+        # Runtime telemetry must never weaken the authoritative stop decision.
+        return
+
+
 def main():
     try:
         raw_input = sys.stdin.read()
@@ -55,6 +105,7 @@ def main():
         payload = {}
 
     result = evaluate_completion(payload=payload)
+    _update_runtime_session(payload, result)
     print(json.dumps(result))
     sys.exit(0 if result.get("decision") == "allow" else 1)
 

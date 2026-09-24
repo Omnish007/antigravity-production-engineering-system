@@ -1,3 +1,8 @@
+---
+trigger: glob
+description: "Coding discipline for application/source changes."
+globs: "**/*.{js,jsx,ts,tsx,mjs,cjs,py,go,java,kt,rs,rb,php,cs,cpp,h}"
+---
 <!-- ID: RULE-CODE-001 -->
 # Coding Rules
 

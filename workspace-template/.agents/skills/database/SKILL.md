@@ -16,8 +16,9 @@ Activate this skill when executing tasks requiring database capabilities, workfl
 
 <PRECONDITIONS>
 ### Prerequisites
-- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
-- A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
+- For governed execution, the canonical task record `.agents/state/tasks/TASK-ID.json` must exist.
+- Use the lifecycle state defined in `.agents/orchestration/task-lifecycle.md` for the current phase.
+- Implementation-phase mutations require a `TASK_STARTED` event before code/configuration changes; planning and verification may run in their designated lifecycle states.
 - Must consult `.agents/state/stack.json` and load the matching profile from `.agents/technology/profiles/database/` (e.g. `postgresql.md`, `mongodb.md`, `mysql.md`, `sqlite.md`, `redis.md`, `dynamodb.md`).
 
 ### Pre-flight Checklist

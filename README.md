@@ -1,4 +1,4 @@
-# Antigravity 2.0 Production Engineering System
+# Antigravity Production Engineering System — Legacy-Hardened Runtime Edition
 
 A reusable engineering system for building software with **Antigravity 2.0 and other AI coding agents**.
 
@@ -31,9 +31,11 @@ cp -a workspace-template/. /path/to/your-project/
 
 The repository root `AGENTS.md` is the single project bootstrap/router. Platform adapters may add runtime-specific configuration, but they must not create a competing project governance contract.
 
-### Post-setup: configure platform adapters only where required
+### Post-setup: verify the runtime adapter
 
-After copying the workspace template, keep the repository governance model as the canonical contract. For Antigravity, configure only the runtime-specific rule activation and hook settings that the platform requires:
+After copying the workspace template, keep the repository governance model as the canonical contract. The workspace already contains the Antigravity-native rule frontmatter and `.agents/hooks.json` runtime adapter. In Antigravity, verify the workspace hooks are enabled in **Settings → Customizations → Hooks** (or with `/hooks` in CLI) before relying on runtime enforcement.
+
+The adapter provides these runtime guarantees when hooks are enabled:
 
 | Mode | When to use | Example rules |
 |---|---|---|
@@ -41,7 +43,9 @@ After copying the workspace template, keep the repository governance model as th
 | **Glob** | Rules that apply only to specific file types | `04-coding.md` (→ `**/*.{ts,tsx,js,jsx}`), `06-uiux.md` (→ `**/*.{tsx,jsx,css}`) |
 | **Model Decision** | Rules the AI loads when it judges them relevant | `07-security.md`, `08-git.md`, `14-observability.md` |
 
-Each rule file is cataloged with its recommended activation mode in `.agents/rules/RULE_ACTIVATION.md` and `.agents/rules/rule-activation.yaml`. The activation mode is configured in Antigravity's UI, not in the Markdown file itself.
+**Important:** rule files now carry their own native activation metadata. The table above is an audit summary, not the execution mechanism. The execution mechanism is the rule frontmatter plus `.agents/hooks.json`.
+
+Each rule file is cataloged with its recommended activation mode in `.agents/rules/RULE_ACTIVATION.md` and `.agents/rules/rule-activation.yaml`. Each modular rule now carries the platform-native activation trigger in YAML frontmatter; `.agents/rules/rule-activation.yaml` remains the auditable routing registry. This removes a critical failure mode where a custom registry claimed activation but the host runtime could not discover the rule behavior.
 
 Skills (`.agents/skills/`) are task-specific procedures. The host agent may load them automatically when supported; otherwise the bootstrap/router identifies the exact skill path to load. Do not load the entire skill library into context.
 
@@ -87,6 +91,35 @@ Project-memory synchronization
 # Universal technology stack baseline
 
 **This system is stack-agnostic by design.** The core engineering discipline—validation, security, architecture, testing, verification, observability, and durable project memory—applies to any technology stack.
+
+The runtime execution path is now explicit:
+
+```text
+PreInvocation bootstrap
+      ↓
+Session + context plan + provisional task (governed work)
+      ↓
+Injected bootstrap reads
+      ↓
+Inspect → classify → load rules/skills → plan
+      ↓
+PreToolUse mutation gate
+      ↓
+Implement → test → verify → review
+      ↓
+State/memory sync
+      ↓
+Stop completion gate
+```
+
+
+## What changed in 2.2.0 — Legacy-Hardened
+
+Version 2.2.0 was compared against the older production-engineering system that had previously been used in a real project. The merge preserves its strongest proven behaviors—root-cause-first debugging, risk-based verification, minimum-sufficient context, explicit decision/research/escalation paths, structured recovery, parallel reconciliation, and durable memory sync—without restoring its duplicate control-plane structure.
+
+The runtime bootstrap now prioritizes task-specific rules and skills ahead of generic project-memory files. Every governed task has baseline planning, verification, testing, quality-gates, and governance-enforcement skills available, while security/testing/observability rules are promoted when directly implicated by the prompt.
+
+See [`LEGACY_SYSTEM_REVIEW.md`](LEGACY_SYSTEM_REVIEW.md) for the full comparison and [`RESEARCH_BASIS.md`](RESEARCH_BASIS.md) for current Antigravity platform assumptions.
 
 The system features a **modular technology layer**:
 
@@ -644,7 +677,7 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 
 ---
 
-## What's new in v2.0
+## What's new in v2.1
 
 | Addition | Purpose |
 |---|---|
@@ -674,6 +707,13 @@ The detailed rules, skills, and orchestration under `.agents/` provide depth. `A
 | Circuit breakers | Resilience patterns for external dependencies |
 | Feature flags | Safe rollout discipline |
 | Enhanced deployment | Blue/green, canary, SLO/SLI monitoring |
+| **Runtime Bootstrap Hook** | `PreInvocation` session bootstrap that records prompt intent, prepares context loading, and creates provisional governed task state before the model acts |
+| **Native Rule Activation** | Platform-native YAML frontmatter on every modular rule, replacing registry-only activation assumptions |
+| **Mutation State Gate** | `PreToolUse` blocks application mutation until a governed task enters an execution state |
+| **Inquiry Completion Fix** | Read-only sessions can terminate without fabricated task completion state |
+| **Hook Deduplication** | One deterministic handler per lifecycle event instead of repeated identical registrations |
+| **Path-Aware Policy Linting** | Policy linter works correctly from workspace root and package root |
+| **Deterministic Regression Suite** | Standard pytest discovery and runtime/bootstrap regression coverage |
 
 ---
 

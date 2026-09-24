@@ -51,3 +51,21 @@ When upgrading a major dependency:
 3. Record any convention changes in `docs/CONVENTIONS.md`.
 4. Create an ADR if the upgrade affects architecture.
 5. Update relevant rules/skills if behavior has changed.
+
+## Antigravity runtime references — 2026-09-25
+
+The framework's runtime adapter is aligned with the documented Antigravity extension model:
+
+- Rules: https://antigravity.google/docs/rules
+  - `AGENTS.md` / `GEMINI.md` are root instruction files.
+  - Modular `.agents/rules/*.md` files require YAML frontmatter and supported triggers such as `always_on`, `model_decision`, `glob`, and `manual`.
+- Hooks: https://antigravity.google/docs/hooks
+  - workspace `.agents/hooks.json` supports `PreInvocation`, `PreToolUse`, `PostToolUse`, `PostInvocation`, and `Stop` lifecycle hooks.
+  - `PreInvocation` is used here as the mandatory session bootstrap point.
+  - `Stop` remains the authoritative completion boundary.
+- Agent Skills: https://antigravity.google/docs/skills
+  - skills live in `SKILL.md` files and should be loaded on demand from the task/context.
+- Custom agents/subagents: https://antigravity.google/docs/agents
+  - custom agents have explicit configuration/frontmatter and are treated as isolated runtime roles rather than implicit global instructions.
+
+Design principle: use platform-native runtime contracts for runtime behavior and keep repository registries as auditable policy maps rather than pretending that a custom registry alone changes platform execution.

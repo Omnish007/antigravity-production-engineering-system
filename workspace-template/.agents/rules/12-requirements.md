@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when requirements, acceptance criteria, scope, user stories, or requirement ambiguity is relevant."
+---
 <!-- ID: RULE-REQ-001 -->
 # Requirements Rules
 

@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+description: "Load when project context, product intent, actors, domain, or existing behavior is relevant."
+---
 <!-- ID: RULE-CONTEXT-001 -->
 # Project Context Rules
 
