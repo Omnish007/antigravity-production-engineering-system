@@ -24,13 +24,13 @@ Activate this skill when executing tasks requiring project-init capabilities, wo
 - [ ] Repository root inspected
 - [ ] Tech stack detected and recorded in `.agents/state/stack.json`
 - [ ] State files (`.agents/state/`) initialized
-- [ ] `SYSTEM_INITIALIZED` execution event logged to `events.jsonl`
+- [ ] `SYSTEM_INITIALIZED` project initialization event logged to the project-level telemetry stream
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>
 - Execute stack detection from repository evidence; never make unverified assumptions about frameworks or runtimes.
-- Initialize `.agents/state/project.json` and `tasks.json` with valid starter schemas.
-- Record the `SYSTEM_INITIALIZED` execution event in `.agents/state/events.jsonl`.
+- Initialize `.agents/state/project.json`, canonical state directories (`tasks/`, `governance/`, `events/`, `blockers/`), and empty derived aggregates with valid starter schemas.
+- Record the `SYSTEM_INITIALIZED` event in the canonical project initialization event path; task-specific lifecycle events belong in `.agents/state/events/TASK-ID.jsonl`.
 - Maintain a clean boundary between repository bootstrap (this skill) and subsequent per-task execution.
 </NON_NEGOTIABLES>
 

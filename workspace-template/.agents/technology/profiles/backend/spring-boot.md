@@ -38,7 +38,9 @@ Applies to JVM enterprise services, REST APIs, and microservices built with Spri
 - Official: https://spring.io/projects/spring-boot
 
 ## 5. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Controllers (`@RestController`)**: Thin HTTP entry points. Accept `@Valid` DTO records, delegate to `@Service`, and return `ResponseEntity<T>`. Querying repositories or databases directly inside controllers is STRICTLY FORBIDDEN.
   - **Services (`@Service`)**: Contain domain business logic, workflow rules, validation, and transaction boundaries (`@Transactional`). Completely decoupled from `HttpServletRequest` or `HttpServletResponse`.
   - **Repositories (`@Repository`)**: Spring Data JPA repositories or custom persistence implementations. Encapsulate all database queries and projections.

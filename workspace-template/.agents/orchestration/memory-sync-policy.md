@@ -31,7 +31,7 @@ Run this review after:
 | Reusable practice adopted | `docs/CONVENTIONS.md` |
 | Deliberate trade-off/long-lived choice | new or updated ADR |
 | Completed/in-progress/blocked work changed | `docs/CURRENT_STATE.md` |
-| Task execution metadata changed | `.agents/state/*.json` / `events.jsonl` |
+| Task execution metadata changed | `.agents/state/governance/<TASK-ID>.json` and the task-scoped event stream defined by the active state schema; aggregate state is derived |
 </MEMORY_POLICY>
 
 <DECISION_RULES>

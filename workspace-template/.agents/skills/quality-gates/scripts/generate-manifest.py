@@ -10,6 +10,7 @@ Automated manifest generator and parity checker to prevent manifest drift:
 """
 
 import os
+from pathlib import Path
 import re
 import sys
 from typing import Dict, List, Set, Tuple
@@ -38,7 +39,7 @@ KNOWN_PURPOSES = {
     "RESEARCH_BASIS.md": "Documents researched official sources, release lines, and architectural baselines.",
     "VALIDATION.md": "Documents comprehensive validation matrix, test results, and adversarial security assessments.",
     "workspace-template/.agents/rules/rule-activation.yaml": "Declarative matrix defining rule activation triggers, stable IDs, and domain mappings.",
-    "workspace-template/.agents/rules/RULE_ACTIVATION.md": "Authoritative catalog of all project rules, activation criteria, and precedence levels.",
+    "workspace-template/.agents/rules/RULE_ACTIVATION.md": "Human-readable rule catalog derived from rule-activation.yaml; the YAML matrix is authoritative for activation and precedence.",
     "workspace-template/.agents/orchestration/policy-registry.yaml": "Authoritative machine-readable registry of policy domains, canonical owners, and schemas.",
     "workspace-template/.agents/orchestration/lane-policy.yaml": "Authoritative machine-readable execution lane policy governing Fast, Standard, and High-Assurance ceremonies.",
     "workspace-template/.agents/orchestration/antigravity-tool-registry.json": "Authoritative versioned registry of Antigravity platform tools, access modes, and risk levels.",
@@ -59,7 +60,7 @@ KNOWN_PURPOSES = {
     "workspace-template/.agents/skills/quality-gates/scripts/lint-documentation.py": "Lints documentation for tag closures, broken relative links, and heading hierarchy.",
     "workspace-template/.agents/validation/core/__init__.py": "Python package initializer for core governance and verification engine.",
     "workspace-template/.agents/validation/core/workspace_resolver.py": "Deterministic workspace and governance root resolver enforcing explicit sentinels.",
-    "workspace-template/.agents/validation/core/verification_policy.py": "Executable verification policy engine implementing canonical gate registry and taxonomy.",
+    "workspace-template/.agents/validation/core/verification_policy.py": "Executable verification policy engine loading canonical gate, risk, task-type, and evidence rules from verification-policy.yaml.",
     "workspace-template/.agents/validation/core/governance_core.py": "Authoritative governance evaluation engine enforcing task-scoped stop conditions and completion invariants.",
     "workspace-template/.agents/state/governance.json": "Stores task-scoped governance requirements, quality gate evidence, and completion status.",
     "workspace-template/.agents/state/governance.schema.json": "JSON Schema defining task-scoped governance state and completion gate structures.",
@@ -71,12 +72,14 @@ def get_disk_files(root_dir: str) -> Set[str]:
     disk_files = set()
     for dirpath, dirnames, filenames in os.walk(root_dir):
         # Filter out ignored directories
-        dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS]
+        dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS and not (Path(dirpath) / d).is_symlink()]
         for f in filenames:
             ext = os.path.splitext(f)[1]
             if ext in IGNORE_EXTS or f == ".DS_Store":
                 continue
             full_path = os.path.join(dirpath, f)
+            if os.path.islink(full_path):
+                continue
             rel_path = os.path.relpath(full_path, root_dir)
             disk_files.add(rel_path)
     return disk_files

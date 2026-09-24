@@ -4,7 +4,10 @@
   "title": "GovernanceState",
   "description": "Schema for task-scoped governance requirements, quality gates, and completion status.",
   "type": "object",
-  "required": ["schemaVersion", "records"],
+  "required": [
+    "schemaVersion",
+    "records"
+  ],
   "properties": {
     "schemaVersion": {
       "type": "string",
@@ -39,14 +42,16 @@
         },
         "classification": {
           "type": "object",
-          "required": ["type", "risk"],
+          "required": [
+            "type",
+            "risk"
+          ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
                 "simple",
                 "bug",
-                "bugfix",
                 "feature",
                 "complex-feature",
                 "refactor",
@@ -56,19 +61,21 @@
                 "migration",
                 "performance",
                 "testing",
-                "test",
                 "deployment",
                 "documentation",
-                "docs",
                 "requirements",
                 "investigation",
-                "unknown/mixed",
                 "infrastructure"
               ]
             },
             "risk": {
               "type": "string",
-              "enum": ["low", "medium", "high", "critical"]
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
             }
           },
           "additionalProperties": false
@@ -109,8 +116,12 @@
           "type": "array",
           "items": {
             "oneOf": [
-              { "$ref": "#/$defs/securityCheck" },
-              { "type": "string" }
+              {
+                "$ref": "#/$defs/securityCheck"
+              },
+              {
+                "type": "string"
+              }
             ]
           }
         },
@@ -122,16 +133,53 @@
         },
         "approvalRequirements": {
           "type": "object",
-          "required": ["required", "satisfied"],
+          "required": [
+            "required",
+            "satisfied"
+          ],
           "properties": {
-            "required": { "type": "boolean" },
-            "satisfied": { "type": "boolean" },
-            "approver": { "type": ["string", "null"] },
-            "approvalSource": { "type": ["string", "null"] },
-            "approvalId": { "type": ["string", "null"] },
-            "approvedAt": { "type": ["string", "null"] },
-            "approvalEvidence": { "type": ["string", "null"] },
-            "notes": { "type": ["string", "null"] }
+            "required": {
+              "type": "boolean"
+            },
+            "satisfied": {
+              "type": "boolean"
+            },
+            "approver": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "approvalSource": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "approvalId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "approvedAt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "approvalEvidence": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "notes": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           },
           "additionalProperties": false
         },
@@ -139,8 +187,12 @@
           "type": "array",
           "items": {
             "oneOf": [
-              { "$ref": "#/$defs/evidenceRequirement" },
-              { "type": "string" }
+              {
+                "$ref": "#/$defs/evidenceRequirement"
+              },
+              {
+                "type": "string"
+              }
             ]
           }
         },
@@ -168,27 +220,60 @@
         "override": {
           "type": "object",
           "properties": {
-            "requested": { "type": "boolean" },
-            "granted": { "type": "boolean" },
-            "reason": { "type": ["string", "null"] },
-            "scope": { "type": ["string", "null"] },
-            "actor": { "type": ["string", "null"] },
-            "timestamp": { "type": ["string", "null"] }
+            "requested": {
+              "type": "boolean"
+            },
+            "granted": {
+              "type": "boolean"
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "scope": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "actor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           },
           "additionalProperties": false
         },
         "completedAt": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "notes": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "qualityGate": {
       "type": "object",
-      "required": ["name", "status"],
+      "required": [
+        "name",
+        "status"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -213,29 +298,47 @@
           ]
         },
         "command": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "exitCode": {
-          "type": ["integer", "null"]
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "evidence": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "evidenceRef": {
           "$ref": "#/$defs/evidenceRef"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "timestamp": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "securityCheck": {
       "type": "object",
-      "required": ["name", "status"],
+      "required": [
+        "name",
+        "status"
+      ],
       "properties": {
         "id": {
           "type": "string"
@@ -259,38 +362,65 @@
           ]
         },
         "command": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "exitCode": {
-          "type": ["integer", "null"]
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "tool": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "toolVersion": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "scope": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "evidence": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "evidenceRef": {
           "$ref": "#/$defs/evidenceRef"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "timestamp": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "evidenceRequirement": {
       "type": "object",
-      "required": ["description", "status"],
+      "required": [
+        "description",
+        "status"
+      ],
       "properties": {
         "description": {
           "type": "string"
@@ -306,76 +436,129 @@
           ]
         },
         "evidence": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "evidenceRef": {
           "$ref": "#/$defs/evidenceRef"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "diffReview": {
       "type": "object",
-      "required": ["status", "filesReviewed", "unrelatedChangesDetected"],
+      "required": [
+        "status",
+        "filesReviewed",
+        "unrelatedChangesDetected"
+      ],
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["reviewed", "passed", "not_applicable"]
+          "enum": [
+            "reviewed",
+            "passed",
+            "not_applicable"
+          ]
         },
         "filesReviewed": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "unrelatedChangesDetected": {
           "type": "boolean"
         },
         "reviewId": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "reviewer": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "reviewerAgent": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "commit": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "baseCommit": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "baseSha": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "findings": {
-          "type": ["array", "null"],
-          "items": { "type": "string" }
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
         },
         "evidence": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "evidenceRef": {
           "$ref": "#/$defs/evidenceRef"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "acceptanceCriterionEvidence": {
       "type": "object",
-      "required": ["criterion", "status", "evidence"],
+      "required": [
+        "criterion",
+        "status",
+        "evidence"
+      ],
       "properties": {
         "criterion": {
           "type": "string"
         },
         "status": {
           "type": "string",
-          "enum": ["satisfied", "unsatisfied", "not_applicable"]
+          "enum": [
+            "satisfied",
+            "unsatisfied",
+            "not_applicable"
+          ]
         },
         "evidence": {
           "type": "string"
@@ -384,27 +567,78 @@
           "$ref": "#/$defs/evidenceRef"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false
     },
     "evidenceRef": {
       "type": "object",
-      "required": ["type"],
+      "required": [
+        "type",
+        "capturedAt"
+      ],
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ci-artifact", "local-command", "artifact-review", "manual-checkpoint"]
+          "enum": [
+            "ci-artifact",
+            "local-command",
+            "artifact-review",
+            "manual-checkpoint"
+          ]
         },
-        "source": { "type": ["string", "null"] },
-        "runId": { "type": ["string", "null"] },
-        "artifact": { "type": ["string", "null"] },
-        "command": { "type": ["string", "null"] },
-        "exitCode": { "type": ["integer", "null"] },
-        "commit": { "type": ["string", "null"] },
-        "capturedAt": { "type": ["string", "null"] },
-        "sha256": { "type": ["string", "null"] }
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifact": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "capturedAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       },
       "additionalProperties": false
     }

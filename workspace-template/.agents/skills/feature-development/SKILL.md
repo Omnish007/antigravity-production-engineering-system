@@ -16,14 +16,14 @@ Activate this skill when executing tasks requiring feature-development capabilit
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task in .agents/state/tasks.json must be IN_PROGRESS.
-    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
+    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
 
 ### Pre-flight Checklist
 - [ ] Acceptance criteria defined and agreed
 - [ ] Architectural boundaries and layer separation identified from docs/ARCHITECTURE.md
 - [ ] Project context, conventions, and existing ADRs reviewed
-- [ ] Task scope and expected outputs explicitly defined in tasks.json
+- [ ] Task scope and expected outputs explicitly defined in the canonical task record `.agents/state/tasks/TASK-ID.json`
 - [ ] Dependencies and test harness operational
 </PRECONDITIONS>
 
@@ -54,7 +54,7 @@ For localized low-risk work, use a compact plan. For cross-layer or high-risk wo
 ## Phase 1.5: Architectural Scaffolding
 
 Before writing any business logic or persistence implementation:
-- Scaffold the 4-layer structure complying with `15-layered-architecture.md`:
+- Scaffold the project's documented architecture, using `15-layered-architecture.md` as boundary guidance and the active technology profile as the concrete implementation source:
   - `dtos/`: Define input/output validation schemas and typed contracts.
   - `controllers/`: Declare thin transport adapters.
   - `services/`: Declare pure domain service classes or functions.

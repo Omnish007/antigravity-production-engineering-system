@@ -29,7 +29,9 @@ Applies to high-performance Node.js HTTP services and microservices built with F
 - Node.js Runtime: Node.js 20+ LTS.
 
 ## 4. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Routes (`src/routes/`)**: Declarative schema definitions (TypeBox, JSON Schema) and route registrations only. Direct database operations inside route definitions or options are STRICTLY FORBIDDEN.
   - **Handlers / Controllers (`src/controllers/`)**: Thin adapter functions extracting `request.body` / `request.params` and returning results from domain services.
   - **Domain Services (`src/services/`)**: Transport-agnostic business logic. Passing Fastify `FastifyRequest` or `FastifyReply` into services is STRICTLY FORBIDDEN.

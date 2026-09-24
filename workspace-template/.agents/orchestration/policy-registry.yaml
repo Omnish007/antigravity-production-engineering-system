@@ -1,12 +1,19 @@
-version: "1.0.0"
-description: "Authoritative machine-readable registry of policy domains, canonical owners, supporting artifacts, and schemas."
+version: "1.1.0"
+description: "Authoritative map of policy domains to one canonical owner. Supporting artifacts explain or validate the owner; they do not redefine the policy."
+
 policies:
+  - domain: "Policy Authority Map"
+    canonicalOwner: "policy-registry.yaml"
+    supportingArtifacts:
+      - "../../AGENTS.md"
+    authority: "Defines which file owns each governance domain and prevents ambiguous authority chains."
+
   - domain: "Agent Execution Lifecycle"
     canonicalOwner: "agent-operating-contract.md"
     supportingArtifacts:
       - "task-lifecycle.md"
       - "../../AGENTS.md"
-    authority: "Sole authority for the 15-stage High-Assurance Lifecycle sequence (RECEIVE through COMPLETE), phase boundaries, and operational modes."
+    authority: "Owns the end-to-end execution activities and operating modes; persisted states are owned by task-lifecycle.md."
 
   - domain: "Task State Machine"
     canonicalOwner: "task-lifecycle.md"
@@ -15,25 +22,39 @@ policies:
       - "../state/tasks.json"
       - "../state/events.jsonl"
       - "../skills/quality-gates/scripts/validate-task-dag.py"
-    authority: "Sole authority for task state definitions (DRAFT through COMPLETED), legal transitions, and execution event logging."
+    authority: "Owns persisted task states, legal transitions, and lifecycle event semantics."
+
+  - domain: "Task Classification"
+    canonicalOwner: "task-classifier.md"
+    supportingArtifacts:
+      - "lane-policy.yaml"
+      - "verification-policy.yaml"
+    authority: "Defines canonical task taxonomy, risk dimensions, and lane assignment procedure."
+
+  - domain: "Execution Lanes"
+    canonicalOwner: "lane-policy.yaml"
+    supportingArtifacts:
+      - "task-classifier.md"
+      - "agent-operating-contract.md"
+    authority: "Defines inquiry mode, Lane A/B/C triggers, risk floors, limits, ceremony, and side-effect boundaries."
 
   - domain: "Architectural Decisions & ADR Triggers"
     canonicalOwner: "decision-policy.md"
     supportingArtifacts:
       - "../../docs/decisions/INDEX.md"
-    authority: "Sole authority for the Canonical Significance Formula (ADR trigger), autonomous vs escalation boundaries, and ADR conflict resolution."
+    authority: "Defines ADR trigger significance and conflict resolution."
 
   - domain: "Context Loading & Routing"
     canonicalOwner: "context-router.md"
     supportingArtifacts:
       - "context-budget-policy.md"
-    authority: "Sole authority for mapping task types and risk levels to four-tier context bundles (REQUIRED, RECOMMENDED, OPTIONAL, EXCLUDED)."
+    authority: "Defines minimum sufficient context for each task class and risk level."
 
   - domain: "Context Budget & Window Optimization"
     canonicalOwner: "context-budget-policy.md"
     supportingArtifacts:
       - "context-router.md"
-    authority: "Sole authority for context window limits, token optimization strategies, and eviction priorities."
+    authority: "Defines context limits, prioritization, and eviction strategy."
 
   - domain: "Durable Memory Synchronization"
     canonicalOwner: "memory-sync-policy.md"
@@ -41,73 +62,73 @@ policies:
       - "../../docs/INDEX.md"
       - "../../docs/CURRENT_STATE.md"
       - "../../docs/CONVENTIONS.md"
-    authority: "Sole authority for when, where, and how durable project memory (docs/) must be updated following code changes."
+    authority: "Defines when and how durable project memory is updated."
 
   - domain: "Verification Gates & Evidence"
-    canonicalOwner: "../rules/10-verification.md"
+    canonicalOwner: "verification-policy.yaml"
     schema: "verification-schema.json"
     supportingArtifacts:
-      - "verification-policy.yaml"
+      - "../rules/10-verification.md"
       - "../skills/verification/SKILL.md"
-    authority: "Sole authority for objective completion criteria, required exit codes, and verification evidence standards."
+    authority: "Defines canonical gates, task taxonomy, risk-level gates, evidence requirements, and gate merge semantics."
 
   - domain: "Failure Recovery & Retries"
     canonicalOwner: "error-recovery-policy.md"
     schema: "../state/retries.schema.json"
     supportingArtifacts:
       - "../state/retries.json"
-    authority: "Sole authority for graduated failure recovery, retry logging (retries.json), and anti-doom-loop escalation ladders."
+    authority: "Defines retry ceilings, recovery ladder, and escalation conditions."
 
   - domain: "Action Permissions & Checkpoints"
     canonicalOwner: "checkpoint-policy.md"
     supportingArtifacts:
       - "../rules/13-agent-safety.md"
-    authority: "Sole authority for autonomous vs approval-required actions, blast radius thresholds, and human checkpoint protocols."
+    authority: "Defines autonomous versus approval-required actions and blast-radius thresholds."
 
   - domain: "Agent Safety Guardrails"
     canonicalOwner: "../rules/13-agent-safety.md"
     supportingArtifacts:
       - "../rules/00-core.md"
       - "../rules/07-security.md"
-    authority: "Sole authority for prompt injection defenses, credential sanitization, untrusted content handling, and sandbox constraints."
+    authority: "Defines prompt-injection defense, secret handling, excessive-agency controls, and untrusted-content boundaries."
 
   - domain: "Technology Stack Detection"
     canonicalOwner: "../skills/stack-detection/SKILL.md"
     schema: "../state/stack.schema.json"
     supportingArtifacts:
       - "../state/stack.json"
-    authority: "Sole authority for detecting languages, frameworks, runtimes, and databases from repository evidence into stack.json."
+    authority: "Defines stack detection and evidence requirements."
 
   - domain: "Technology Profiles & Metadata"
     canonicalOwner: "../technology/registry.json"
     supportingArtifacts:
       - "../technology/README.md"
-    authority: "Sole authority for registered technology IDs, version policies, and the 8-section profile standard."
+    authority: "Defines registered technology identifiers and profile metadata."
 
   - domain: "Instruction Tag Standard"
     canonicalOwner: "instruction-tag-standard.md"
     supportingArtifacts:
       - "../skills/quality-gates/scripts/validate-instruction-tags.py"
-    authority: "Sole authority for approved XML tag vocabulary, hierarchy, syntax rules, and validator enforcement."
+    authority: "Defines optional semantic tag vocabulary and validation syntax."
 
   - domain: "Parallel Work & Concurrency"
     canonicalOwner: "parallel-work-policy.md"
     supportingArtifacts:
       - "worktree-policy.md"
-    authority: "Sole authority for concurrent task execution, conflict domains, and resource locking."
+    authority: "Defines concurrent task boundaries, conflict domains, and locking."
 
   - domain: "Worktree Isolation"
     canonicalOwner: "worktree-policy.md"
     supportingArtifacts:
       - "parallel-work-policy.md"
-    authority: "Sole authority for git worktree creation, directory isolation, lifecycle cleanup, and branch merging."
+    authority: "Defines worktree lifecycle and isolation controls."
 
   - domain: "Multi-Agent Delegation"
     canonicalOwner: "multi-agent-policy.md"
     schema: "../state/agents.schema.json"
     supportingArtifacts:
       - "../state/agents.json"
-    authority: "Sole authority for sub-agent spawning, context passing, task partitioning, and handoff protocols."
+    authority: "Defines sub-agent delegation, context passing, task partitioning, and handoffs."
 
   - domain: "Governance Enforcement"
     canonicalOwner: "governance-enforcement-policy.md"
@@ -116,4 +137,4 @@ policies:
       - "../state/governance.json"
       - "../skills/quality-gates/scripts/validate-governance.py"
       - "../skills/governance-enforcement/SKILL.md"
-    authority: "Sole authority for task-scoped governance resolution, Grouped Completion Invariants (Groups A–J), and compliance validation."
+    authority: "Defines task-scoped governance resolution and completion enforcement."

@@ -13,9 +13,14 @@ Instead of keeping important decisions inside chat history, this system stores t
 ## Quick start
 
 ```bash
-# 1. Install global rules safely (backs up existing configuration if present)
-if [ -f ~/.gemini/GEMINI.md ]; then cp ~/.gemini/GEMINI.md ~/.gemini/GEMINI.md.bak; fi
-cp global/GEMINI.md ~/.gemini/GEMINI.md
+# 1. Install the optional Antigravity global adapter without overwriting an existing file
+if [ -f ~/.gemini/GEMINI.md ]; then
+  cp ~/.gemini/GEMINI.md ~/.gemini/GEMINI.md.bak
+  cp global/GEMINI.md ~/.gemini/GEMINI.md.new
+  echo "Merge global/GEMINI.md.new into ~/.gemini/GEMINI.md, preserving existing unrelated instructions."
+else
+  cp global/GEMINI.md ~/.gemini/GEMINI.md
+fi
 
 # 2. Copy workspace template into your project (includes hidden dirs .agents/ and .github/)
 cp -a workspace-template/. /path/to/your-project/
@@ -24,11 +29,11 @@ cp -a workspace-template/. /path/to/your-project/
 #    The AI will detect your tech stack, configure memory, and start working.
 ```
 
-The system works immediately with any AI coding tool that reads `AGENTS.md` at the repository root.
+The repository root `AGENTS.md` is the single project bootstrap/router. Platform adapters may add runtime-specific configuration, but they must not create a competing project governance contract.
 
-### Post-setup: configure rule activation in Antigravity
+### Post-setup: configure platform adapters only where required
 
-After copying `.agents/rules/` into your project, configure the intended activation mode for each rule in Antigravity's **Rules customization panel** (Settings → Rules):
+After copying the workspace template, keep the repository governance model as the canonical contract. For Antigravity, configure only the runtime-specific rule activation and hook settings that the platform requires:
 
 | Mode | When to use | Example rules |
 |---|---|---|
@@ -38,7 +43,7 @@ After copying `.agents/rules/` into your project, configure the intended activat
 
 Each rule file is cataloged with its recommended activation mode in `.agents/rules/RULE_ACTIVATION.md` and `.agents/rules/rule-activation.yaml`. The activation mode is configured in Antigravity's UI, not in the Markdown file itself.
 
-Skills (`.agents/skills/`) are automatically loaded by Antigravity when they are relevant to the current task — no manual activation configuration is needed.
+Skills (`.agents/skills/`) are task-specific procedures. The host agent may load them automatically when supported; otherwise the bootstrap/router identifies the exact skill path to load. Do not load the entire skill library into context.
 
 ---
 
@@ -48,7 +53,7 @@ This system has ten main parts:
 
 | Part | What it does |
 |---|---|
-| `global/GEMINI.md` | Your personal, machine-wide engineering rules. Install once. |
+| `global/GEMINI.md` | Thin Antigravity global adapter; repository `AGENTS.md` remains project authority. |
 | `.agents/rules/` | Project rules the AI should consistently follow. |
 | `.agents/technology/` | Modular technology profiles (30 profiles across frontend, backend, database, language, deployment) and machine-readable registry. |
 | `.agents/preferences/` | Developer defaults with strict precedence: `Project Reality > Personal Preference`. |
@@ -62,7 +67,7 @@ This system has ten main parts:
 ### The core idea
 
 ```text
-Global behavior
+AGENTS.md (single project bootstrap)
       ↓
 Project rules + Developer preferences
       ↓
@@ -110,7 +115,7 @@ The system features a **modular technology layer**:
    Agent Default
    ```
 
-### Cleaning up unused technology profiles
+### Keeping technology context focused
 
 This system ships with **30 technology profiles** covering a wide range of stacks. When you clone this system into your project, **delete the profiles you do not use** to reduce context size and keep the AI focused on your actual stack.
 

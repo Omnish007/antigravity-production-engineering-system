@@ -30,7 +30,9 @@ Applies to Python web applications, APIs, and administrative backends built with
 - Compatibility Target: Django 5.2 LTS.
 
 ## 4. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Routing (`urls.py`)**: Declarative URL path routing and view binding only.
   - **Views / ViewSets (`views.py`)**: Thin HTTP adapters. Validate inputs via DRF Serializers, invoke domain services in `services.py`, and return HTTP responses. Complex business logic or direct queries in views are FORBIDDEN.
   - **Domain Services (`services.py`)**: Pure business logic, state mutations, and multi-model transactions. Transport-agnostic (never accept `HttpRequest`). Prevents "Fat Models" anti-pattern.

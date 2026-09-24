@@ -11,9 +11,9 @@ Define safe repository isolation for parallel or high-risk work without reimplem
 </NON_NEGOTIABLES>
 
 <ACTION_SPACE_CONSTRAINTS>
-## Antigravity Native Task Groups & Worktree Support
+## Host-Native Task Groups & Worktree Support
 
-When Antigravity or the host runtime provides native Task Groups or workspace branching, use them for parallel subagent execution. Native task groups coordinate subagents while worktrees provide file-system isolation.
+When the host runtime provides native task groups, workspace branching, or equivalent isolation, use the native mechanism through the platform adapter. Native task groups coordinate subagents while worktrees provide file-system isolation.
 
 ## Naming
 
@@ -83,5 +83,5 @@ If a worktree becomes corrupted or the work must be abandoned:
 - if changes exist, stash or commit them to a recovery branch;
 - remove the worktree with `git worktree remove`;
 - record the abandoned work in the task record;
-- update `events.jsonl` with the worktree abandonment event.
+- append the worktree abandonment event to the canonical `.agents/state/events/TASK-ID.jsonl`; regenerate the derived aggregate after reconciliation.
 </FAILURE_RECOVERY>

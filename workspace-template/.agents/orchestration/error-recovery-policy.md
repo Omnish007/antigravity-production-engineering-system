@@ -53,7 +53,7 @@ Apply a targeted fix:
 ### 5. Verify & Closeout
 After recovery passes:
 - update the retry record in `.agents/state/retries.json` with `outcome: "success"`;
-- log `RETRY_RESOLVED` event in `.agents/state/events.jsonl`.
+- log `RETRY_RESOLVED` event in `.agents/state/events/TASK-ID.jsonl`.
 </FAILURE_RECOVERY>
 
 <ESCALATION_POLICY>
@@ -122,6 +122,6 @@ When recording a failure, capture:
 ## Integration
 - Retry policy configuration: `.agents/state/retries.json`
 - Blocker recording: `.agents/state/blockers.json`
-- Event logging: `.agents/state/events.jsonl`
+- Event logging: `.agents/state/events/TASK-ID.jsonl`
 - Human approval gates: `.agents/orchestration/checkpoint-policy.md`
 </OUTPUT_CONTRACT>

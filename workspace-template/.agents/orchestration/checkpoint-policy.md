@@ -64,7 +64,7 @@ Maximize safe engineering autonomy while establishing unambiguous, non-bypassabl
 <ESCALATION_POLICY>
 When human approval is required:
 1. Complete all non-destructive preparation and analysis steps first.
-2. Record the pending approval in `.agents/state/governance.json` (`approvalRequirements.required = true`).
+2. Record the pending approval in `.agents/state/governance/TASK-ID.json` (`approvalRequirements.required = true`).
 3. Present the exact proposed action, anticipated blast radius, and verification plan clearly to the user.
 4. Present the rollback strategy or alternative path if rejected.
 5. Stop and wait for explicit human approval before executing the gated action.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Automated Static Architecture Linter (RULE-ARCH-LAYER-001).
 
-Validates strict 4-layer separation of concerns across backend and frontend codebases:
+Validates architecture boundaries. By default, it checks only explicitly selected/conventional boundaries; --strict enables the legacy four-layer policy for projects that have adopted it:
 1. Route Violations: Forbids direct ORM/database imports and query calls in routes/endpoints/API handlers.
 2. Controller Violations: Forbids direct ORM/DB model imports and query calls in controllers.
 3. Service Violations: Forbids HTTP transport coupling (Request, Response, status codes) in domain services.
@@ -199,8 +199,10 @@ class ArchitectureChecker:
     def _is_route_file(self, rel_str: str) -> bool:
         parts = rel_str.lower().split("/")
         filename = parts[-1]
-        route_dirs = {"routes", "endpoints", "api"}
-        in_route_dir = any(p in route_dirs for p in parts[:-1])
+        if self._is_service_file(rel_str) or self._is_controller_file(rel_str) or "repository" in filename or "repositories" in parts or "model" in filename or "models" in parts:
+            return False
+        route_dirs = {"routes", "endpoints"}
+        in_route_dir = any(p in route_dirs for p in parts[:-1]) or (parts[-2] == "api" if len(parts) >= 2 else False) or "app/api" in rel_str
         has_route_name = "route" in filename or "router" in filename or "endpoint" in filename
         return in_route_dir or has_route_name
 
@@ -248,8 +250,8 @@ class ArchitectureChecker:
 
         # Check direct DB calls
         if self.re_db_method_calls.search(line) or self.re_db_python_calls.search(line):
-            # Exclude false positives like router.use, app.use
-            if not line.startswith("router.") and not line.startswith("app."):
+            # Exclude HTTP routing method calls on routers
+            if not re.search(r"""\b(?:router|app|[a-zA-Z0-9_]*router)\.(?:use|get|post|put|patch|delete|all|options|head)\s*\(""", line, re.IGNORECASE):
                 self.violations.append(
                     ArchitectureViolation(
                         rule_id="ARCH-ROUTE-DB-QUERY",
@@ -376,8 +378,8 @@ def main() -> int:
     parser.add_argument(
         "--strict",
         action="store_true",
-        default=True,
-        help="Treat warnings as errors (default: True)",
+        default=False,
+        help="Treat architecture warnings as errors; use when the project explicitly adopts strict boundary enforcement.",
     )
     parser.add_argument(
         "--verbose",

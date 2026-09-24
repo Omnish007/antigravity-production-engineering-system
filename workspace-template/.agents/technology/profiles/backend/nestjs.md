@@ -29,7 +29,9 @@ Applies to enterprise-grade Node.js and TypeScript server applications built wit
 - Language & Runtime: TypeScript 5.x, Node.js 20+ LTS.
 
 ## 4. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Controllers**: Thin HTTP adapters. Handle ONLY `@Body()`, `@Param()`, `@Query()`, and return values or invoke response formatters. Direct database access or Prisma/TypeORM queries are STRICTLY FORBIDDEN.
   - **Services (`@Injectable()`)**: Contain all business logic, authorization rules, domain validations, and transaction boundaries. Must remain completely transport-agnostic (never inject `@Res()` or Express `Response`).
   - **Repositories / Providers**: Isolated persistence layer using dedicated repository classes or abstract providers wrapping TypeORM, Prisma, or Mongoose.

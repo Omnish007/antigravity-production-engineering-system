@@ -18,12 +18,34 @@
     },
     "taskType": {
       "type": "string",
-      "enum": ["feature", "bugfix", "refactor", "performance", "review", "deployment", "infrastructure", "migration", "documentation"],
+      "enum": [
+        "simple",
+        "bug",
+        "feature",
+        "complex-feature",
+        "refactor",
+        "architecture",
+        "security",
+        "database",
+        "migration",
+        "performance",
+        "testing",
+        "deployment",
+        "documentation",
+        "requirements",
+        "investigation",
+        "infrastructure"
+      ],
       "description": "Task type from task-classifier.md"
     },
     "riskLevel": {
       "type": "string",
-      "enum": ["low", "medium", "high", "critical"],
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
       "description": "Risk classification from task-classifier.md"
     },
     "verifiedAt": {
@@ -156,9 +178,15 @@
       "type": "object",
       "description": "Pre/post performance comparison when applicable",
       "properties": {
-        "baseline": { "type": "object" },
-        "current": { "type": "object" },
-        "regression": { "type": "boolean" }
+        "baseline": {
+          "type": "object"
+        },
+        "current": {
+          "type": "object"
+        },
+        "regression": {
+          "type": "boolean"
+        }
       }
     },
     "trajectory": {
@@ -167,7 +195,11 @@
       "properties": {
         "planFollowed": {
           "type": "string",
-          "enum": ["yes", "no", "adapted"]
+          "enum": [
+            "yes",
+            "no",
+            "adapted"
+          ]
         },
         "doomLoops": {
           "type": "boolean"
@@ -177,7 +209,9 @@
         },
         "recoveryActions": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

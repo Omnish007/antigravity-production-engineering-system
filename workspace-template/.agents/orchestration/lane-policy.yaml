@@ -1,65 +1,76 @@
-schemaVersion: "1.0.0"
-title: "Antigravity Execution Lane Policy"
-description: "Authoritative machine-readable lane policy governing ceremony, risk limits, gate requirements, and side-effects across execution tiers."
+schemaVersion: "1.1.0"
+title: "Portable Agent Execution Lane Policy"
+description: "Authoritative machine-readable policy for execution mode, risk limits, ceremony, and required gates. Read-only inquiry is not a mutation lane."
+
+modes:
+  inquiry:
+    description: "Read-only explanation, research, inspection, or codebase lookup with no repository mutation."
+    mutationAllowed: false
+    taskRegistrationRequired: false
 
 lanes:
   fast:
     lane: "fast"
     tier: "Lane A"
     name: "Fast Low-Risk Governed Mutation"
-    description: "Lightweight ceremony for localized edits, single-file doc fixes, syntax fixes, and trivial corrections. Fast does not mean unguided; it means lower ceremony."
+    description: "Highly reversible, localized repository changes with bounded scope."
     trigger:
-      description: "Low-risk localized edits (typos, small isolated bugfixes, single-file doc fixes, renames)"
       taskTypes:
         - "simple"
         - "documentation"
-        - "investigation"
+        - "requirements"
       riskLevelMax: "low"
+      reversibilityRequired: "HIGH"
+      externalSideEffects: false
     riskLimits:
       maxFilesChanged: 3
       maxLinesChanged: 100
       destructiveOperations: false
-      sensitiveFilesAllowed: false
+      sensitiveTargetsAllowed: false
     taskRegistration:
       required: true
       canonicalTaskFile: true
       mode: "lightweight"
     requiredContext:
       mode: "targeted"
-      maxBudgetTokens: 4000
-      domainScope: "local_module"
+      maxBudgetTokens: 6000
     requiredGates:
       - "lint"
     approvalRequirements:
       externalApproval: false
-      diffReview: false
       humanSignoff: false
     allowedSideEffects:
       filesystem: "scoped_workspace_mutation"
       network: "none"
       subagents: "none"
       destructiveCommands: "forbidden"
-      controlPlaneMutation: "forbidden"
+      productionChanges: "forbidden"
+      controlPlaneMutation: "approval_required"
 
   standard:
     lane: "standard"
     tier: "Lane B"
     name: "Standard Governed Lifecycle"
-    description: "Standard engineering workflow covering feature development, non-trivial bugs, refactoring, and test suite additions."
+    description: "Normal engineering work where the change is not high assurance."
     trigger:
-      description: "Standard features, bug fixes, refactoring, and test additions"
       taskTypes:
-        - "feature"
+        - "simple"
         - "bug"
+        - "feature"
         - "refactor"
+        - "database"
         - "testing"
+        - "performance"
+        - "documentation"
         - "requirements"
+        - "investigation"
       riskLevelMax: "medium"
+      externalSideEffects: "workspace_or_sandbox_only"
     riskLimits:
       maxFilesChanged: 25
       maxLinesChanged: 1500
       destructiveOperations: false
-      sensitiveFilesAllowed: false
+      sensitiveTargetsAllowed: false
     taskRegistration:
       required: true
       canonicalTaskFile: true
@@ -67,7 +78,6 @@ lanes:
     requiredContext:
       mode: "domain_specific"
       maxBudgetTokens: 16000
-      domainScope: "subsystem"
     requiredGates:
       - "lint"
       - "typecheck"
@@ -75,37 +85,36 @@ lanes:
       - "build"
     approvalRequirements:
       externalApproval: false
-      diffReview: false
       humanSignoff: false
     allowedSideEffects:
       filesystem: "workspace_mutation"
       network: "sandboxed"
-      subagents: "specialized_workers"
+      subagents: "specialized_workers_only"
       destructiveCommands: "forbidden"
-      controlPlaneMutation: "forbidden"
+      productionChanges: "forbidden"
+      controlPlaneMutation: "approval_required"
 
   high_assurance:
     lane: "high_assurance"
     tier: "Lane C"
     name: "High Assurance Governed Lifecycle"
-    description: "Full governance ceremony for critical architectural changes, migrations, security surfaces, databases, and deployment boundaries."
+    description: "Full governance for high-impact, security-sensitive, irreversible, production, or externally side-effecting work."
     trigger:
-      description: "Architectural migrations, security-sensitive changes, database schemas, and critical infrastructure"
       taskTypes:
         - "complex-feature"
         - "architecture"
         - "security"
-        - "database"
         - "migration"
-        - "performance"
         - "deployment"
         - "infrastructure"
-      riskLevelMax: "critical"
+      riskLevelMin: "high"
+      externalSideEffects: true
+      lowReversibility: true
     riskLimits:
       maxFilesChanged: unlimited
       maxLinesChanged: unlimited
       destructiveOperations: false
-      sensitiveFilesAllowed: true
+      sensitiveTargetsAllowed: true
     taskRegistration:
       required: true
       canonicalTaskFile: true
@@ -113,7 +122,6 @@ lanes:
     requiredContext:
       mode: "exhaustive"
       maxBudgetTokens: 32000
-      domainScope: "cross_system"
     requiredGates:
       - "lint"
       - "typecheck"
@@ -121,15 +129,25 @@ lanes:
       - "build"
       - "security"
       - "memorySync"
-      - "adrReview"
       - "diffReview"
+      - "governanceValidation"
     approvalRequirements:
       externalApproval: true
-      diffReview: true
       humanSignoff: true
     allowedSideEffects:
       filesystem: "governed_workspace_mutation"
-      network: "isolated"
+      network: "isolated_and_explicit"
       subagents: "strictly_isolated"
-      destructiveCommands: "forbidden"
-      controlPlaneMutation: "forbidden"
+      destructiveCommands: "explicit_approval_required"
+      productionChanges: "explicit_approval_required"
+      controlPlaneMutation: "explicit_approval_required"
+
+overrides:
+  - condition: "riskLevel in [high, critical]"
+    minimumLane: "C"
+  - condition: "externalSideEffects == true"
+    minimumLane: "C"
+  - condition: "reversibility == LOW"
+    minimumLane: "C"
+  - condition: "touches authentication, authorization, credentials, production data, financial logic, or destructive migration"
+    minimumLane: "C"

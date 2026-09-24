@@ -23,7 +23,7 @@ Inspect executable repository evidence (manifests, lockfiles, configuration, sou
 
 <PRECONDITIONS>
 - Access to repository root and configuration/manifest files.
-- Active task in `.agents/state/tasks.json` if run as part of a formal lifecycle phase.
+- For formal lifecycle execution, the current task record `.agents/state/tasks/TASK-ID.json` must exist.
 </PRECONDITIONS>
 
 <NON_NEGOTIABLES>

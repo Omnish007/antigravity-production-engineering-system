@@ -3,8 +3,8 @@
 ```yaml
 id: TASK-000
 name: <short-name>
-type: feature  # feature | bugfix | refactor | performance | review | deployment | infrastructure | migration | documentation
-status: PENDING  # PENDING | READY | IN_PROGRESS | VERIFYING | COMPLETED | FAILED | BLOCKED | CANCELLED
+type: feature  # canonical types: simple | bug | feature | complex-feature | refactor | architecture | security | database | migration | performance | testing | deployment | documentation | requirements | investigation | infrastructure
+status: DRAFT  # DRAFT | CLASSIFIED | CONTEXT_READY | PLANNED | PENDING | READY | IN_PROGRESS | TESTING | VERIFYING | REVIEWING | MEMORY_SYNC | STATE_SYNC | GOVERNANCE_CHECK | COMPLETED | FAILED | BLOCKED | CANCELLED
 riskLevel: medium  # low | medium | high | critical
 priority: P1  # P0 (urgent) | P1 (high) | P2 (normal) | P3 (low)
 owner: <logical-role>
@@ -42,7 +42,7 @@ Outline of the planned implementation approach.
 - performance impact assessed where relevant;
 - blockers recorded if any;
 - memory synchronized if durable knowledge changed;
-- state files updated (tasks.json, events.jsonl).
+- canonical per-task state updated under `.agents/state/tasks/TASK-ID.json` and `.agents/state/events/TASK-ID.jsonl`; derived aggregates are synchronized by tooling.
 
 ## Evidence
 

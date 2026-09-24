@@ -80,7 +80,7 @@ def load_tool_registry(agents_dir: Path) -> Set[str]:
                         return tools
             except Exception:
                 pass
-    return FALLBACK_TOOLS
+    raise RuntimeError("Antigravity tool registry not found; refusing to validate agents against an implicit tool allowlist.")
 
 
 def parse_frontmatter(file_content: str, filepath: str) -> Tuple[Dict[str, Any], List[str]]:

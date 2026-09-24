@@ -1,243 +1,62 @@
-version: "1.0.0"
+version: "1.1.0"
 policy:
-  name: "Antigravity Engineering Verification Policy"
-  description: "Declarative matrix defining mandatory verification gates, canonical gate kinds, and evidence requirements per task risk and type (P0-23, P0-24, P0-27)."
+  name: "Portable Engineering Verification Policy"
+  description: "Authoritative verification matrix for required gates, task types, risks, and evidence. Required gates are the union of risk-level gates and task-type gates."
+  mergeStrategy: "union"
 
   gateRegistry:
-    lint:
-      id: "GATE-LINT"
-      kind: "lint"
-      name: "lint"
-      description: "Static code analysis and style checks"
-    format:
-      id: "GATE-FORMAT"
-      kind: "lint"
-      name: "format"
-      description: "Code formatting verification"
-    docLint:
-      id: "GATE-DOCLINT"
-      kind: "lint"
-      name: "docLint"
-      description: "Documentation syntax and freshness linting"
-    typecheck:
-      id: "GATE-TYPECHECK"
-      kind: "typecheck"
-      name: "typecheck"
-      description: "Static type checking verification"
-    test:
-      id: "GATE-TEST"
-      kind: "test"
-      name: "test"
-      description: "Automated unit and integration test suite execution"
-    migrationTest:
-      id: "GATE-MIGRATION-TEST"
-      kind: "test"
-      name: "migrationTest"
-      description: "Database schema migration test"
-    benchmark:
-      id: "GATE-BENCHMARK"
-      kind: "test"
-      name: "benchmark"
-      description: "Performance benchmark execution"
-    smokeTest:
-      id: "GATE-SMOKE"
-      kind: "test"
-      name: "smokeTest"
-      description: "Smoke and post-deployment health check testing"
-    dryRun:
-      id: "GATE-DRYRUN"
-      kind: "test"
-      name: "dryRun"
-      description: "Infrastructure deployment plan dry-run"
-    build:
-      id: "GATE-BUILD"
-      kind: "build"
-      name: "build"
-      description: "Compilation and deployable package build verification"
-    security:
-      id: "GATE-SECURITY"
-      kind: "security"
-      name: "security"
-      description: "Security scanning, SAST, or dependency vulnerability checks"
-    diffReview:
-      id: "GATE-DIFF-REVIEW"
-      kind: "diff-review"
-      name: "diffReview"
-      description: "Automated or peer diff review for blast radius and correctness"
-    rollbackPlan:
-      id: "GATE-ROLLBACK"
-      kind: "diff-review"
-      name: "rollbackPlan"
-      description: "Reversibility and rollback procedure review"
-    governanceValidation:
-      id: "GATE-GOV-VALIDATION"
-      kind: "diff-review"
-      name: "governanceValidation"
-      description: "Governance schema and artifact consistency validation"
-    memorySync:
-      id: "GATE-MEM-SYNC"
-      kind: "memory-sync"
-      name: "memorySync"
-      description: "Durable knowledge and project memory synchronization"
-    adrReview:
-      id: "GATE-ADR"
-      kind: "adr"
-      name: "adrReview"
-      description: "Architecture Decision Record compliance and registration"
+    lint: { id: "GATE-LINT", kind: "lint", name: "lint", description: "Static analysis and style checks" }
+    format: { id: "GATE-FORMAT", kind: "lint", name: "format", description: "Formatting verification" }
+    docLint: { id: "GATE-DOCLINT", kind: "lint", name: "docLint", description: "Documentation validation" }
+    typecheck: { id: "GATE-TYPECHECK", kind: "typecheck", name: "typecheck", description: "Static type checking" }
+    test: { id: "GATE-TEST", kind: "test", name: "test", description: "Behavioral and regression test execution" }
+    migrationTest: { id: "GATE-MIGRATION-TEST", kind: "test", name: "migrationTest", description: "Migration-specific verification" }
+    benchmark: { id: "GATE-BENCHMARK", kind: "test", name: "benchmark", description: "Performance benchmark" }
+    smokeTest: { id: "GATE-SMOKE", kind: "test", name: "smokeTest", description: "Post-deployment smoke/health checks" }
+    dryRun: { id: "GATE-DRYRUN", kind: "test", name: "dryRun", description: "Infrastructure plan dry-run" }
+    build: { id: "GATE-BUILD", kind: "build", name: "build", description: "Compilation/package verification" }
+    security: { id: "GATE-SECURITY", kind: "security", name: "security", description: "Security and dependency checks" }
+    diffReview: { id: "GATE-DIFF-REVIEW", kind: "diff-review", name: "diffReview", description: "Scope/blast-radius review" }
+    rollbackPlan: { id: "GATE-ROLLBACK", kind: "diff-review", name: "rollbackPlan", description: "Reversibility/rollback review" }
+    governanceValidation: { id: "GATE-GOV-VALIDATION", kind: "diff-review", name: "governanceValidation", description: "Governance artifact validation" }
+    memorySync: { id: "GATE-MEM-SYNC", kind: "memory-sync", name: "memorySync", description: "Durable memory synchronization" }
+    adrReview: { id: "GATE-ADR", kind: "adr", name: "adrReview", description: "ADR compliance and registration" }
 
   riskLevels:
     low:
-      requiredGates:
-        - lint
-      recommendedGates:
-        - format
-        - typecheck
-      optionalGates:
-        - test
-      evidenceRequirements:
-        requireSubstantiveEvidence: true
-        requireExitCodes: true
+      requiredGates: ["lint"]
+      recommendedGates: ["format", "typecheck"]
+      evidenceRequirements: { requireSubstantiveEvidence: true, requireExitCodes: true }
     medium:
-      requiredGates:
-        - lint
-        - typecheck
-        - test
-        - build
-      recommendedGates:
-        - security
-      optionalGates: []
-      evidenceRequirements:
-        requireSubstantiveEvidence: true
-        requireExitCodes: true
-        requireTestCounts: true
+      requiredGates: ["lint", "typecheck", "test", "build"]
+      recommendedGates: ["security"]
+      evidenceRequirements: { requireSubstantiveEvidence: true, requireExitCodes: true, requireTestCounts: true }
     high:
-      requiredGates:
-        - lint
-        - typecheck
-        - test
-        - build
-        - security
-        - memorySync
-      recommendedGates:
-        - diffReview
-      optionalGates: []
-      evidenceRequirements:
-        requireSubstantiveEvidence: true
-        requireExitCodes: true
-        requireTestCounts: true
-        requireSecurityScan: true
-    critical:
-      requiredGates:
-        - lint
-        - typecheck
-        - test
-        - build
-        - security
-        - adrReview
-        - diffReview
-        - memorySync
-        - governanceValidation
+      requiredGates: ["lint", "typecheck", "test", "build", "security", "memorySync", "diffReview"]
       recommendedGates: []
-      optionalGates: []
-      evidenceRequirements:
-        requireSubstantiveEvidence: true
-        requireExitCodes: true
-        requireTestCounts: true
-        requireSecurityScan: true
-        requireAdrCheck: true
-        requireDiffReview: true
+      evidenceRequirements: { requireSubstantiveEvidence: true, requireExitCodes: true, requireTestCounts: true, requireSecurityScan: true, requireDiffReview: true }
+    critical:
+      requiredGates: ["lint", "typecheck", "test", "build", "security", "adrReview", "diffReview", "rollbackPlan", "memorySync", "governanceValidation"]
+      recommendedGates: []
+      evidenceRequirements: { requireSubstantiveEvidence: true, requireExitCodes: true, requireTestCounts: true, requireSecurityScan: true, requireAdrCheck: true, requireDiffReview: true }
 
-  # 16 Canonical Task Types (P0-23)
   taskTypes:
-    simple:
-      defaultRisk: "low"
-      mandatoryGates:
-        - lint
-    bug:
-      defaultRisk: "medium"
-      mandatoryGates:
-        - test
-        - lint
-        - typecheck
-    feature:
-      defaultRisk: "medium"
-      mandatoryGates:
-        - test
-        - lint
-        - typecheck
-        - build
-    complex-feature:
-      defaultRisk: "high"
-      mandatoryGates:
-        - test
-        - lint
-        - typecheck
-        - build
-        - security
-        - diffReview
-    refactor:
-      defaultRisk: "medium"
-      mandatoryGates:
-        - test
-        - lint
-        - typecheck
-        - diffReview
-    architecture:
-      defaultRisk: "high"
-      mandatoryGates:
-        - adrReview
-        - diffReview
-    security:
-      defaultRisk: "high"
-      mandatoryGates:
-        - security
-        - test
-        - diffReview
-    database:
-      defaultRisk: "medium"
-      mandatoryGates:
-        - test
-        - lint
-    migration:
-      defaultRisk: "critical"
-      mandatoryGates:
-        - migrationTest
-        - rollbackPlan
-        - adrReview
-        - test
-    performance:
-      defaultRisk: "medium"
-      mandatoryGates:
-        - test
-        - benchmark
-    testing:
-      defaultRisk: "low"
-      mandatoryGates:
-        - test
-    deployment:
-      defaultRisk: "high"
-      mandatoryGates:
-        - build
-        - security
-        - smokeTest
-    documentation:
-      defaultRisk: "low"
-      mandatoryGates:
-        - docLint
-    requirements:
-      defaultRisk: "low"
-      mandatoryGates:
-        - lint
-    investigation:
-      defaultRisk: "low"
-      mandatoryGates:
-        - lint
-    infrastructure:
-      defaultRisk: "high"
-      mandatoryGates:
-        - lint
-        - security
-        - dryRun
+    simple: { defaultRisk: "low", mandatoryGates: ["lint"] }
+    bug: { defaultRisk: "medium", mandatoryGates: ["test", "lint", "typecheck"] }
+    feature: { defaultRisk: "medium", mandatoryGates: ["test", "lint", "typecheck", "build"] }
+    complex-feature: { defaultRisk: "high", mandatoryGates: ["test", "lint", "typecheck", "build", "security", "diffReview"] }
+    refactor: { defaultRisk: "medium", mandatoryGates: ["test", "lint", "typecheck", "diffReview"] }
+    architecture: { defaultRisk: "high", mandatoryGates: ["adrReview", "diffReview"] }
+    security: { defaultRisk: "high", mandatoryGates: ["security", "test", "diffReview"] }
+    database: { defaultRisk: "medium", mandatoryGates: ["test", "lint"] }
+    migration: { defaultRisk: "critical", mandatoryGates: ["migrationTest", "rollbackPlan", "adrReview", "test"] }
+    performance: { defaultRisk: "medium", mandatoryGates: ["test", "benchmark", "diffReview"] }
+    testing: { defaultRisk: "low", mandatoryGates: ["test"] }
+    deployment: { defaultRisk: "high", mandatoryGates: ["build", "security", "smokeTest", "diffReview"] }
+    documentation: { defaultRisk: "low", mandatoryGates: ["docLint"] }
+    requirements: { defaultRisk: "low", mandatoryGates: ["lint"] }
+    investigation: { defaultRisk: "low", mandatoryGates: ["lint"] }
+    infrastructure: { defaultRisk: "high", mandatoryGates: ["lint", "security", "dryRun", "diffReview"] }
 
   taskTypeAliases:
     bugfix: "bug"

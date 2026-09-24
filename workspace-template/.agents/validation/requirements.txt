@@ -1,0 +1,2 @@
+# Dependencies required by the framework validators.
+PyYAML>=6.0,<7

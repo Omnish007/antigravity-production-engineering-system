@@ -352,7 +352,20 @@ def evaluate_governance_completion(
     else:
         # No task ID supplied: check if tasks exist
         if not tasks:
-            # Governed workspace with no tasks defined
+            # Check if project contains application code or manifests
+            code_sentinels = ["apps", "src", "package.json", "pyproject.toml", "go.mod", "Cargo.toml"]
+            has_code = any((ws_info.project_root / s).exists() for s in code_sentinels)
+            if has_code:
+                return CompletionResult(
+                    allowed=False,
+                    decision="continue",
+                    reason=(
+                        "[GOVERNANCE GUARD] Cannot stop: Governed workspace contains application code, "
+                        "but NO tasks were registered in '.agents/state/tasks.json'. "
+                        "You MUST register and complete your active task in '.agents/state/tasks/<TASK-ID>.json', "
+                        "update 'docs/CURRENT_STATE.md', and pass 'python3 .agents/validation/check-architecture.py' before completing."
+                    ),
+                )
             return CompletionResult(allowed=True, decision="allow")
 
         # If exactly 1 task exists in state, evaluate that task

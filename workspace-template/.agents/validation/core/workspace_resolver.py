@@ -110,16 +110,8 @@ def resolve_workspace(
             except Exception:
                 pass
 
-    # 6. Fallback: if .agents directory exists even without managed project.json
-    if not resolved_root:
-        for base in candidates:
-            curr = base if base.is_dir() else base.parent
-            for p in [curr, *curr.parents]:
-                if (p / ".agents").is_dir():
-                    resolved_root = p
-                    break
-            if resolved_root:
-                break
+    # 6. Do not infer governance solely from the presence of a `.agents` directory.
+    # A workspace is governed only when the managed project sentinel is valid.
 
     # 7. Ultimate fallback: CWD
     if not resolved_root:

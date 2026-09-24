@@ -31,7 +31,9 @@ Applies to Python asynchronous REST APIs, microservices, and backend services bu
 - Official: https://fastapi.tiangolo.com/
 
 ## 5. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Routers (`src/routers/`)**: Define `@router.post("/")`, URL paths, query parameters, HTTP status codes, and `response_model`. Must inject domain services via `Depends(get_service)`. Zero direct database queries or session manipulation allowed.
   - **Domain Services (`src/services/`)**: Implement business logic, orchestration, and domain rules. Accept and return domain objects or DTOs. Completely decoupled from FastAPI `Request`, `Response`, or status codes.
   - **Repositories (`src/repositories/`)**: Pure persistence abstractions taking `AsyncSession` (or DB client) and executing SQLAlchemy/asyncpg queries.

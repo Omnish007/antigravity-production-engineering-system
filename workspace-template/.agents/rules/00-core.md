@@ -14,6 +14,7 @@ Enforce universal engineering execution invariants that apply to every code chan
 - **CORE-02 (Surgical Precision)**: Touch only files and lines directly required for the active task. Unrelated refactoring, reformatting, or deleting existing comments/code is strictly forbidden.
 - **CORE-03 (Server-Side Trust Boundary)**: All input validation, authorization, and sanitization MUST be enforced on the server. Never trust client-supplied data or route guards as security boundaries.
 - **CORE-04 (Zero Silent Failures)**: Empty catch blocks, swallowed errors, and unhandled promise rejections are strictly forbidden. All errors must be logged with context and returned as structured error types (e.g., RFC 7807 problem details for HTTP APIs, gRPC status codes, or typed Result/Error objects for libraries and background workers).
+- **CORE-05 (Hardened Skill & Governance Preflight)**: No governed mutation may be planned or executed without first explicitly reading the governing `SKILL.md`, consulting the applicable rules, and registering the task in the canonical per-task state required by the active lane. The mechanism used to read files is platform-specific; the semantic requirement is not.
 </NON_NEGOTIABLES>
 
 <SAFETY_CONSTRAINTS>

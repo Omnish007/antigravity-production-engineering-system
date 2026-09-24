@@ -9,6 +9,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `FILE_MANIFEST.md` | Gives a one-line purpose for every packaged file. |
 | `README.md` | Explains the architecture, installation, source-of-truth hierarchy, and completion contract. |
 | `global/GEMINI.md` | Defines cross-project agent behavior and durable engineering principles. |
+| `workspace-template/.agents/CONTROL_PLANE_MANIFEST.json` | Defines CONTROL_PLANE_MANIFEST.json specification and implementation. |
 | `workspace-template/.agents/agents/architect.md` | Defines architect.md specification and implementation. |
 | `workspace-template/.agents/agents/code-reviewer.md` | Defines code-reviewer.md specification and implementation. |
 | `workspace-template/.agents/agents/database-specialist.md` | Defines database-specialist.md specification and implementation. |
@@ -23,6 +24,9 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/validation/core/governance_core.py` | Authoritative governance evaluation engine enforcing task-scoped stop conditions and completion invariants. |
 | `workspace-template/.agents/validation/core/verification_policy.py` | Executable verification policy engine implementing canonical gate registry and taxonomy. |
 | `workspace-template/.agents/validation/core/workspace_resolver.py` | Deterministic workspace and governance root resolver enforcing explicit sentinels. |
+| `workspace-template/.agents/validation/requirements.txt` | Defines requirements.txt specification and implementation. |
+| `workspace-template/.agents/validation/tests/test-lifecycle-simulation.py` | Defines test-lifecycle-simulation.py specification and implementation. |
+| `workspace-template/.agents/validation/tests/test-validators.py` | Defines test-validators.py specification and implementation. |
 | `workspace-template/.gitignore` | Defines .gitignore specification and implementation. |
 
 ## Workspace bridge
@@ -184,6 +188,7 @@ Every file listed below is included in this package. Each has one primary respon
 | `workspace-template/.agents/state/agents.schema.json` | JSON Schema defining agent roles, tasks, and state. |
 | `workspace-template/.agents/state/blockers.json` | Stores unresolved blockers and their disposition. |
 | `workspace-template/.agents/state/blockers.schema.json` | JSON Schema defining blocker severity, resolution, and tracking. |
+| `workspace-template/.agents/state/events.jsonl` | Defines events.jsonl specification and implementation. |
 | `workspace-template/.agents/state/events.schema.json` | JSON Schema defining the structure and allowed values for events in `events.jsonl`. |
 | `workspace-template/.agents/state/governance.json` | Defines governance.json specification and implementation. |
 | `workspace-template/.agents/state/governance.schema.json` | Defines governance.schema.json specification and implementation. |

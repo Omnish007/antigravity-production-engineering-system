@@ -70,7 +70,7 @@ When multiple agents work concurrently:
 
 If one parallel task fails:
 - it should not block other independent tasks;
-- record the failure in `retries.json` and `events.jsonl`;
+- record the failure in the canonical task retry record and `.agents/state/events/TASK-ID.jsonl`; regenerate aggregate views after reconciliation;
 - preserve successful work from other parallel tasks;
 - re-evaluate dependencies before continuing dependent tasks.
 </FAILURE_RECOVERY>

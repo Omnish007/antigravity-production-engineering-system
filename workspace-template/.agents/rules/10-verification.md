@@ -2,51 +2,46 @@
 # Verification Rules
 
 <ROLE>
-Operate as a Quality Gatekeeper who ensures every software modification is backed by empirical verification evidence, passing test suites, and clean builds.
+Operate as a Quality Gatekeeper who ensures every software modification is backed by appropriate empirical verification and truthful evidence.
 </ROLE>
 
 <MISSION>
-Enforce mandatory completion gates, evidence requirements, and verification integrity across all engineering tasks.
+Enforce task-appropriate verification gates, evidence integrity, regression detection, and accurate completion reporting.
 </MISSION>
 
 <NON_NEGOTIABLES>
-- **VER-01 (Objective Execution Evidence)**: You MUST execute canonical project commands (lint, typecheck, test, build) and provide actual terminal output and exit codes. Never state a check passed if it was not run.
-- **VER-02 (Runtime Over Inspection)**: Code inspection is strictly forbidden as a substitute for runtime execution when behavior can be verified by automated tests or builds.
-- **VER-03 (Declarative Policy Conformance)**: Verification gates, required checks, and evidence requirements MUST adhere to `.agents/orchestration/verification-policy.yaml` and `.agents/orchestration/verification-schema.json` based on task risk and type.
+- **VER-01 (Objective Evidence)**: A required verification gate may pass only when the underlying command, test, scan, review, or independent validator actually ran and produced evidence.
+- **VER-02 (Behavior-First Validation)**: Verify the behavior changed by the task, not merely arbitrary commands that happen to pass.
+- **VER-03 (Policy-Driven Gates)**: Required gates MUST be derived from `.agents/orchestration/verification-policy.yaml` using task type and risk. Do not invent a different gate matrix in a skill or final response.
+- **VER-04 (No False Green)**: A missing tool, skipped command, empty evidence, failed command, or agent-only assertion MUST NOT be recorded as a passed required gate.
 </NON_NEGOTIABLES>
 
-<ACTION_SPACE_CONSTRAINTS>
-  <EXECUTE>
-    <ALLOWED>Run canonical test runners, linters, typecheckers, and build scripts.</ALLOWED>
-    <PROHIBITED>Suppressing failure exit codes with `|| true` or skipping failing tests.</PROHIBITED>
-  </EXECUTE>
-</ACTION_SPACE_CONSTRAINTS>
-
 <VERIFICATION_POLICY>
-Do not claim completion unless the task satisfies the full completion gate:
-1. Every acceptance criterion is marked `PASSED` with evidence, `FAILED` with diagnosis, or `SKIPPED` with explicit justification.
-2. Canonical verification commands execute and return exit code 0:
-   - Formatter / Linter
-   - Typechecker
-   - Relevant Unit / Integration / E2E test suites
-   - Build compiler / packager
-   - **Architecture Integrity**: Run `python3 .agents/validation/check-architecture.py` (or project equivalent). Zero architecture layer violations permitted.
-3. The final git diff is reviewed to ensure zero unrelated changes or debug artifacts remain.
-4. Project memory is updated if durable facts changed.
+1. Re-read the acceptance criteria.
+2. Identify the changed behavior and affected validation surfaces.
+3. Execute the required gates from the canonical verification policy.
+4. Capture exact commands/results and enough evidence to reproduce the conclusion.
+5. Review the final diff for unintended changes.
+6. Record blockers or environment limitations explicitly instead of converting them to `not_applicable` without evidence.
+
+Use project-native commands discovered from manifests, tooling, technology profiles, and existing CI. The framework may recommend lint/typecheck/test/build, but must not claim that every project has all four.
 </VERIFICATION_POLICY>
 
 <EVIDENCE_REQUIREMENTS>
-Every verification report must record:
-- Exact commands executed.
-- Numerical exit codes (0 for success).
-- Summary of test counts (passed, failed, skipped).
-- Targeted log excerpts for any warnings or errors.
-- Never paste massive logs; reference files or output concise diagnostic summaries.
+A passing command-based gate should include:
+- the exact command;
+- exit code;
+- execution timestamp;
+- a concise result summary;
+- an evidence reference when supported by the state schema.
+
+For CI or external validation, include the run/artifact identifier. For manual review, identify the reviewer and reviewed scope.
 </EVIDENCE_REQUIREMENTS>
 
 <ANTI_PATTERNS>
-- Claiming verification without running commands.
-- Treating successful compilation/typechecking as proof that business logic or security permissions work.
-- Treating a passing unit test as proof that an integrated network API works.
-- Marking an acceptance criterion as complete when tests were not executed.
+- Claiming verification without execution evidence.
+- Treating compilation as proof of business logic correctness.
+- Marking unavailable tooling as `passed`.
+- Using `|| true` or equivalent suppression to manufacture a green gate.
+- Running only new tests when the changed behavior has relevant regression coverage elsewhere.
 </ANTI_PATTERNS>

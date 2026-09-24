@@ -16,8 +16,8 @@ Activate this skill when executing tasks requiring uiux capabilities, workflows,
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task in .agents/state/tasks.json must be IN_PROGRESS.
-    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
+    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
     - Must be loaded as part of the Atomic Frontend Bundle alongside `.agents/skills/frontend/SKILL.md` and `.agents/rules/06-uiux.md`.
 
 ### Pre-flight Checklist

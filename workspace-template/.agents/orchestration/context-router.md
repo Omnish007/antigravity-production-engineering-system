@@ -6,7 +6,7 @@ Route the minimum sufficient context—combining mandatory universal rules, acti
 
 <NON_NEGOTIABLES>
 - **ROUTER-01 (Four-Tier Context Structure)**: Every task domain MUST resolve context into four explicit tiers: `REQUIRED`, `RECOMMENDED`, `OPTIONAL`, and `EXCLUDED`.
-- **ROUTER-02 (Calibrated Context Routing & Governed Task Boundary)**: "Not every action is a governed task; every governed task is governed completely." Read-only inquiries, direct questions, and ephemeral inspections (Lane A Fast Track) do not require governance task creation or skill loading. However, for any governed task modifying application code, configuration, or repository state, the agent MUST route to and load BOTH the mandatory rule(s) (`.agents/rules/*.md`) AND the primary `REQUIRED` domain skill (`.agents/skills/*/SKILL.md`) for every domain touched before modifying code, and must satisfy full governance completion.
+- **ROUTER-02 (Calibrated Context Routing & Governed Task Boundary)**: "Not every action is a governed task; every governed task is governed completely." Read-only inquiries, direct questions, and ephemeral inspections use Inquiry mode and do not require a governed task record or mutation skills. However, for any governed task modifying application code, configuration, or repository state, the agent MUST route to and load BOTH the mandatory rule(s) (`.agents/rules/*.md`) AND the primary `REQUIRED` domain skill (`.agents/skills/*/SKILL.md`) for every domain touched before modifying code, and must satisfy full governance completion.
 - **ROUTER-03 (Strict Exclusion Enforcement)**: Files, profiles, and skills listed in the `EXCLUDED` tier MUST NOT be loaded into context, preventing context bloat and hallucinated constraints.
 - **ROUTER-04 (Active Profile Binding)**: Whenever a task touches a language, framework, database, or deployment domain, the matching profile from `.agents/technology/profiles/` MUST be loaded.
 </NON_NEGOTIABLES>
@@ -46,7 +46,7 @@ For auth, security, migrations, infra, production deployments, financial logic, 
 3. `docs/INDEX.md`, `docs/PROJECT_CONTEXT.md`, `docs/CURRENT_STATE.md`, `docs/decisions/INDEX.md`
 4. `.agents/rules/00-core.md`, `.agents/rules/13-agent-safety.md`, `.agents/rules/07-security.md`
 5. Active technology profiles and domain skills
-6. `.agents/orchestration/governance-enforcement-policy.md` and `.agents/state/governance.json`
+6. `.agents/orchestration/governance-enforcement-policy.md` and the current task-scoped `.agents/state/governance/TASK-ID.json`
 7. Domain Context Tiers mapped below.
 
 ---

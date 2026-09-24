@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 # Add core validation package to sys.path
 _script_dir = Path(__file__).resolve().parent
@@ -99,6 +99,24 @@ def canonicalize_path(raw_path: str, workspace_root: Optional[Path] = None) -> T
     return resolved_abs.replace("\\", "/"), rel
 
 
+def load_tool_registry(workspace_root: Path) -> Dict[str, Dict[str, Any]]:
+    """Load the platform adapter registry; unknown tools are unsafe by default."""
+    candidates = [
+        workspace_root / ".agents" / "orchestration" / "antigravity-tool-registry.json",
+        Path(__file__).resolve().parents[3] / "orchestration" / "antigravity-tool-registry.json",
+    ]
+    for candidate in candidates:
+        try:
+            if candidate.is_file():
+                data = json.loads(candidate.read_text(encoding="utf-8"))
+                tools = data.get("tools")
+                if isinstance(tools, dict):
+                    return tools
+        except Exception:
+            continue
+    return {}
+
+
 def main():
     try:
         raw_input = sys.stdin.read()
@@ -137,6 +155,24 @@ def main():
     workspace_paths = payload.get("workspacePaths", [])
     ws_info = resolve_workspace(payload={"workspacePaths": workspace_paths})
     ws_root = ws_info.project_root
+    tool_registry = load_tool_registry(ws_root)
+
+    # New/unregistered tools must never inherit an implicit allow decision.
+    if tool_name not in tool_registry:
+        print(json.dumps({
+            "decision": "force_ask",
+            "reason": f"[GOVERNANCE GUARD] Tool {tool_name!r} is not registered in the platform adapter registry. Explicit confirmation is required."
+        }))
+        return
+
+    registry_entry = tool_registry.get(tool_name)
+    required_metadata = {"capability", "access", "risk", "supportedAgentTypes"}
+    if not isinstance(registry_entry, dict) or not required_metadata.issubset(registry_entry):
+        print(json.dumps({
+            "decision": "deny",
+            "reason": f"[GOVERNANCE GUARD] Tool {tool_name!r} has incomplete registry metadata. Control-plane repair is required before execution."
+        }))
+        return
 
     # 1. Inspect command execution calls
     if tool_name in {"run_command", "bash", "terminal", "execute_command"}:

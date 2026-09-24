@@ -1,76 +1,50 @@
 <!-- ID: RULE-ARCH-LAYER-001 -->
-# Universal Layered Architecture & Clean Separation Rule
+# Layered Architecture & Boundary Rules
 
 <ROLE>
-Operate as a Principal Enterprise Software Architect enforcing strict Clean/Hexagonal/Layered Architecture across all codebases.
+Provide technology-aware boundary guidance and prevent responsibility leakage. This rule is a **default architecture pattern**, not a universal folder mandate.
 </ROLE>
 
 <MISSION>
-Eliminate architectural erosion, god-objects, inline business logic, and mixed-responsibility files by enforcing a non-negotiable 4-layer separation of concerns across all backend and frontend projects.
+Keep transport, application/domain logic, persistence/infrastructure, and presentation concerns separated where the active project architecture calls for those boundaries.
 </MISSION>
 
 <NON_NEGOTIABLES>
-- **LAY-01 (Strict 4-Layer Backend Separation)**: All backend code MUST strictly follow the unidirectional flow:
-  `Transport/Route -> Controller -> Service -> Repository -> Database / External API`.
-- **LAY-02 (Zero DB Queries in Routes/Controllers)**: Direct database queries, ORM/ODM model calls (`User.find()`, `prisma.user.findMany()`, `db.query()`, etc.) inside route definitions or controllers are STRICTLY FORBIDDEN.
-- **LAY-03 (No HTTP Abstractions in Services/Repositories)**: Passing HTTP `req`, `res`, `next`, `headers`, or status codes into domain services or repositories is STRICTLY FORBIDDEN. Services and repositories must be completely transport-agnostic.
-- **LAY-04 (Thin Route Handlers)**: Route files MUST contain only route definitions, HTTP method binding, path parameters, and middleware attachment. Handler logic exceeding 5 lines in a route file is FORBIDDEN.
-- **LAY-05 (Frontend Separation of Concerns)**: Frontend code MUST strictly follow:
-  `UI Component -> Custom Hook / Composable / State -> API Service -> HTTP Client`. Direct `fetch()`, `axios()`, or backend queries inside UI rendering components are STRICTLY FORBIDDEN.
-- **LAY-06 (DTO Validation at Boundaries)**: All incoming payloads MUST be validated using explicit DTO schemas (Zod, Joi, Pydantic, TypeBox, class-validator) BEFORE reaching the service layer.
+- **LAY-01 (Project Architecture Wins)**: Follow `docs/ARCHITECTURE.md`, accepted ADRs, and the active technology profile. This rule must not force a four-layer layout onto a project whose chosen architecture uses different boundaries.
+- **LAY-02 (No Unjustified Boundary Bypass)**: Route/transport code must not directly access persistence when an application/domain boundary exists and is part of the project architecture.
+- **LAY-03 (Core Transport Independence)**: Domain/application services must not depend on HTTP request/response objects when the project architecture defines them as transport-agnostic.
+- **LAY-04 (Frontend Data Boundary)**: UI components should consume the project's API/client/state boundary rather than issuing arbitrary network/database calls directly, unless the framework's native architecture explicitly defines another safe pattern.
+- **LAY-05 (Evidence-Based Exceptions)**: A deliberate deviation is acceptable when documented in the active architecture/technology profile and supported by tests.
 </NON_NEGOTIABLES>
 
----
+## Default Reference Pattern
 
-## 1. Backend Layer Responsibilities & Constraints
-
-| Layer | Primary Responsibility | Allowed Dependencies | FORBIDDEN Actions |
-|---|---|---|---|
-| **1. Transport / Routes** (`routes/`, `endpoints/`) | Define HTTP paths, methods, route-level middleware (auth, rate limits, schema validator). | Controllers, Middleware | **FORBIDDEN**: Inline business logic, database queries, ORM calls, response formatting. |
-| **2. Controller / Adapter** (`controllers/`, `handlers/`) | Extract HTTP params/query/body, invoke service layer, map domain results/errors to HTTP status codes & JSON. | Service Layer, DTOs / Schemas | **FORBIDDEN**: Direct database access, SQL/Mongoose/Prisma calls, complex business rules, transaction orchestration. |
-| **3. Domain Service** (`services/`, `use-cases/`) | Pure business rules, domain calculations, workflow orchestration, transaction boundaries, idempotency. | Repositories, Domain Models, Event Publishers, External Service Clients | **FORBIDDEN**: Reading or writing HTTP `req`/`res`, referencing HTTP status codes (200, 404, 500), direct database queries/raw SQL. |
-| **4. Repository / Data Access** (`repositories/`, `dao/`) | Database persistence, ORM/ODM queries, query building, indexing optimization, data mapping to domain entities. | Database Client, ORM/ODM Models, Domain Entities | **FORBIDDEN**: Business logic, authorization decisions, HTTP formatting. |
-| **5. Contracts & DTOs** (`dtos/`, `schemas/`, `types/`) | Data validation schemas, transport DTO interfaces, domain entity type definitions. | Pure type definitions, validation libraries (Zod, Pydantic) | **FORBIDDEN**: Any runtime logic, database or transport dependencies. |
-
----
-
-## 2. Directory Layout Standard
-
-Every project must enforce the following folder structure (or framework equivalent):
+For applications that actually use a classic layered backend, this pattern is recommended:
 
 ```text
-src/
-├── routes/          # Express/Fastify/Koa routers (declarative paths & middleware only)
-├── controllers/     # HTTP Request/Response adapters (thin, delegates to services)
-├── services/        # Pure domain business logic & use cases
-├── repositories/    # Database query abstractions & persistence logic
-├── models/          # DB schemas (Mongoose, Prisma, SQLAlchemy, TypeORM)
-├── dtos/            # Zod/Pydantic schemas and TypeScript request/response types
-├── middleware/      # Auth, logging, rate limiting, error handling, validation
-├── errors/          # Custom Domain and HTTP error classes
-└── utils/           # Pure stateless utility functions
+Transport / Routes
+        ↓
+Controllers / Handlers
+        ↓
+Application / Domain Services
+        ↓
+Repositories / Infrastructure Adapters
+        ↓
+Persistence / External Systems
 ```
 
----
+This diagram is a **reference pattern**, not a mandatory directory structure.
 
-## 3. Dependency Flow Invariant
+## Frontend Reference Pattern
 
-Dependencies MUST ONLY point inward toward the domain:
+```text
+UI / Pages
+   ↓
+View Hooks / State
+   ↓
+API / Client Services
+   ↓
+External API
 ```
-Routes  ──>  Controllers  ──>  Services  ──>  Repositories  ──>  Database
-  │               │                │                 │
-  ▼               ▼                ▼                 ▼
-             DTOs / Schemas / Domain Types / Custom Errors
-```
-**Violation Rule**: Any circular dependency, backward call (e.g. Repository calling Service), or bypass (e.g. Route or Controller calling Repository or Model directly) is an immediate blocking verification failure.
 
----
-
-## 4. Frontend Layer Responsibilities & Constraints
-
-| Layer | Responsibility | Allowed Dependencies | FORBIDDEN |
-|---|---|---|---|
-| **Components / Pages** | Pure JSX/HTML markup, UI layout, visual states (loading, disabled). | Custom Hooks, UI Primitives, Design Tokens | Direct `fetch()`, `axios`, WebSocket connections, business calculations. |
-| **Custom Hooks / Store** | View state management, caching (TanStack Query, Zustand), lifecycle hooks. | API Services, State Store | Direct SQL/DB queries, raw HTTP client setup. |
-| **API Services** | Typed API interaction functions, request payload formatting, response parsing. | HTTP Client Instance (`apiClient.ts`), DTO Types | Direct JSX/DOM manipulation, UI component state. |
-| **HTTP Client** | Centralized Axios/fetch instance with base URL, timeout, auth interceptors. | Environment variables, Auth tokens | Component logic, domain calculations. |
+Framework-native server components, server actions, loaders, RPC, GraphQL, or other patterns may alter this flow when documented and validated.

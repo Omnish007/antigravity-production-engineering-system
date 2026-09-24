@@ -16,8 +16,8 @@ Activate this skill when executing tasks requiring requirements-analysis capabil
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task in .agents/state/tasks.json must be IN_PROGRESS.
-    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
+    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
 
 ### Pre-flight Checklist
 - [ ] Requirements parsed and validated

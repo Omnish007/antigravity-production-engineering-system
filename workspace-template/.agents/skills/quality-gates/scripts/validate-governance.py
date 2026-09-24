@@ -792,7 +792,7 @@ def validate_governance_layers(
         matching_task = tasks_by_id.get(task_id) if tasks_by_id else None
         if tasks_by_id and not matching_task:
             errors.append(
-                f"Governance record '{task_id}' does not exist in tasks.json (orphan governance record)."
+                f"Governance record '{task_id}' does not exist in the canonical task record set (orphan governance record)."
             )
 
         if matching_task:
@@ -804,13 +804,13 @@ def validate_governance_layers(
                 aliases = {("bug", "bugfix"), ("bugfix", "bug"), ("docs", "documentation"), ("documentation", "docs")}
                 if (t_type, c_type) not in aliases:
                     errors.append(
-                        f"Contradictory classification: Task '{task_id}' is type '{t_type}' in tasks.json but '{c_type}' in governance.json."
+                        f"Contradictory classification: Task '{task_id}' is type '{t_type}' in the task record but '{c_type}' in the governance record."
                     )
 
             # Circular bypass prevention: governance cannot be marked complete while task is still in-flight
             if status == "complete" and t_status not in {"GOVERNANCE_CHECK", "COMPLETED"}:
                 errors.append(
-                    f"Task '{task_id}' has governanceStatus 'complete' but task status in tasks.json is '{t_status}' (must reach GOVERNANCE_CHECK before completion)."
+                    f"Task '{task_id}' has governanceStatus 'complete' but task status is '{t_status}' (must reach GOVERNANCE_CHECK before completion)."
                 )
 
         # Blocker check
@@ -828,7 +828,7 @@ def validate_governance_layers(
             task_events = [e for e in events if e.get("taskId") == task_id]
             if not task_events:
                 errors.append(
-                    f"Task '{task_id}' is marked completed/complete but has no execution event history in events.jsonl or events directory."
+                    f"Task '{task_id}' is marked completed/complete but has no execution event history in the canonical per-task event stream."
                 )
             else:
                 has_started = any(e.get("event") == "TASK_STARTED" for e in task_events)
@@ -1207,18 +1207,18 @@ def validate_governance_layers(
         if t_status == "COMPLETED":
             if t_id not in seen_gov_task_ids:
                 errors.append(
-                    f"Task '{t_id}' is COMPLETED in tasks.json but has no record in {gov_filepath}."
+                    f"Task '{t_id}' is COMPLETED but has no canonical governance record at {gov_filepath}."
                 )
             else:
                 gov_rec = next((r for r in records if r.get("taskId") == t_id), None)
                 if gov_rec and gov_rec.get("governanceStatus") != "complete":
                     errors.append(
-                        f"Task '{t_id}' is COMPLETED in tasks.json but governanceStatus is '{gov_rec.get('governanceStatus')}'."
+                        f"Task '{t_id}' is COMPLETED in but governanceStatus is '{gov_rec.get('governanceStatus')}'."
                     )
         elif t_status == "GOVERNANCE_CHECK":
             if t_id not in seen_gov_task_ids:
                 errors.append(
-                    f"Task '{t_id}' is in GOVERNANCE_CHECK in tasks.json but has no record in {gov_filepath}."
+                    f"Task '{t_id}' is in GOVERNANCE_CHECK but has no canonical governance record at {gov_filepath}."
                 )
 
     return errors, metrics

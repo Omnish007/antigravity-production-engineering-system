@@ -89,6 +89,9 @@ def collect_control_plane_files(project_root: Path, gov_root: Path) -> Dict[str,
                     rel = str(p.relative_to(project_root))
                     files[rel] = p
 
+    # 0. Root bootstrap
+    add_file("AGENTS.md", project_root / "AGENTS.md")
+
     # 1. Hooks configuration
     add_file(".agents/hooks.json", gov_root / "hooks.json")
 
@@ -177,6 +180,9 @@ def main():
     }
 
     for rel_path, abs_path in sorted(cp_files.items()):
+        if abs_path.is_symlink():
+            errors.append(f"Control-plane entry is a symbolic link and is not trusted: {rel_path}")
+            continue
         digest = compute_sha256(abs_path)
         current_manifest["files"][rel_path] = {
             "sha256": digest,

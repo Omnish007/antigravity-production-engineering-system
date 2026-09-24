@@ -2,7 +2,7 @@
   "pretool-guard": {
     "PreToolUse": [
       {
-        "matcher": "run_command",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -12,7 +12,7 @@
         ]
       },
       {
-        "matcher": "write_to_file",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -22,7 +22,7 @@
         ]
       },
       {
-        "matcher": "replace_file_content",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -32,7 +32,7 @@
         ]
       },
       {
-        "matcher": "multi_replace_file_content",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -46,7 +46,7 @@
   "posttool-audit": {
     "PostToolUse": [
       {
-        "matcher": "run_command",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -56,7 +56,7 @@
         ]
       },
       {
-        "matcher": "write_to_file",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -66,7 +66,7 @@
         ]
       },
       {
-        "matcher": "replace_file_content",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "matcher": "multi_replace_file_content",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",

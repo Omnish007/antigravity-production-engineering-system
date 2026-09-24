@@ -19,7 +19,7 @@ Resolve task-scoped governance requirements during planning, record them in mach
 - When resolving mandatory rules, skills, and technology profiles for a task plan.
 - Before executing code modifications to verify action-space constraints.
 - During task verification to validate quality gates and evidence.
-- Before transitioning any task in `tasks.json` to `COMPLETED`.
+- Before transitioning the current task record `.agents/state/tasks/TASK-ID.json` to `COMPLETED`.
 </WHEN_TO_USE>
 
 <WHEN_NOT_TO_USE>
@@ -29,15 +29,15 @@ Resolve task-scoped governance requirements during planning, record them in mach
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task must be registered in `.agents/state/tasks.json`.
-- Task classification must be established (`type` and `risk`).
+- The current governed task must be registered in `.agents/state/tasks/TASK-ID.json`.
+- Task classification must be established (`type` and `risk`) in the canonical task record.
 - Repository stack must be detected in `.agents/state/stack.json`.
 
 ### Pre-flight Checklist
 - [ ] Task ID exists and is unique
 - [ ] Active stack profiles identified from `stack.json`
 - [ ] Canonical policy ownership matrix reviewed (`policy-ownership.md`)
-- [ ] Governance state record initialized in `.agents/state/governance.json`
+- [ ] Governance state record initialized in `.agents/state/governance/TASK-ID.json`
 </PRECONDITIONS>
 
 <INPUT_CONTRACT>
@@ -51,7 +51,7 @@ Resolve task-scoped governance requirements during planning, record them in mach
 - Governance policy: `.agents/orchestration/governance-enforcement-policy.md`
 - Policy ownership: `.agents/orchestration/policy-ownership.md`
 - Task state machine: `.agents/orchestration/task-lifecycle.md`
-- Governance state: `.agents/state/governance.json`
+- Governance state: `.agents/state/governance/TASK-ID.json`
 </SOURCE_OF_TRUTH>
 
 <CONTEXT_POLICY>
@@ -86,7 +86,7 @@ Use capability-oriented tool interactions. Inspect repository state files, run v
 
 <PROCEDURE>
 ## 1. Governance Resolution (Pre-Implementation)
-1. Read the task from `.agents/state/tasks/<task-id>.json` (or aggregate `tasks.json`).
+1. Read the task only from `.agents/state/tasks/<task-id>.json`.
 2. Determine applicable stable Rule IDs from `.agents/orchestration/context-router.md`.
 3. Determine applicable stable Skill IDs from the domain mapping.
 4. Match required technology profiles from `.agents/state/stack.json`.
@@ -131,7 +131,7 @@ When governance fails:
 </FAILURE_RECOVERY>
 
 <VERIFICATION_POLICY>
-The completion gate evaluates all 15 points in `governance-enforcement-policy.md`. A task is verified only when `validate-governance.py` exits with code 0 and all required evidence is present.
+The completion gate evaluates every applicable governance invariant and verification gate defined by the canonical policy. A task is verified only when `validate-governance.py` exits with code 0 and all required evidence is present.
 </VERIFICATION_POLICY>
 
 <EVIDENCE_REQUIREMENTS>
@@ -147,7 +147,7 @@ Every quality gate must record:
 </EVIDENCE_REQUIREMENTS>
 
 <STATE_POLICY>
-All governance state must be maintained in `.agents/state/governance.json` conforming to `governance.schema.json`. Never allow untracked tasks to bypass governance state.
+All governed work must be maintained in canonical per-task `.agents/state/governance/TASK-ID.json` conforming to `governance.schema.json`. Aggregate `governance.json` is a derived view and must not be used to bypass task-scoped governance.
 </STATE_POLICY>
 
 <OUTPUT_CONTRACT>

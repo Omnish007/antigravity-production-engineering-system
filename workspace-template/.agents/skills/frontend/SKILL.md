@@ -16,8 +16,8 @@ Activate this skill when executing tasks requiring frontend capabilities, workfl
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task in .agents/state/tasks.json must be IN_PROGRESS.
-    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
+    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
     - Must consult `.agents/state/stack.json` and load the matching profile from `.agents/technology/profiles/frontend/` (e.g. `react.md`, `nextjs.md`, `vue.md`, `nuxt.md`, `angular.md`, `sveltekit.md`).
     - Must be loaded as part of the Atomic Frontend Bundle alongside `.agents/skills/uiux/SKILL.md` and `.agents/rules/06-uiux.md`.
 

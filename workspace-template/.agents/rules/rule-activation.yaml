@@ -1,4 +1,4 @@
-version: "1.0.0"
+version: "1.1.0"
 description: "Declarative matrix defining rule activation triggers, stable IDs, and domain mappings."
 rules:
   - id: "RULE-CORE-001"
@@ -27,7 +27,7 @@ rules:
     file: "15-layered-architecture.md"
     activation: "CODE_TOUCH"
     precedence: 88
-    scope: "Mandates 4-layer separation (Routes -> Controllers -> Services -> Repositories) and forbids mixed-responsibility anti-patterns."
+    scope: "Provides a default layered-boundary pattern; active technology profiles and accepted ADRs define the concrete architecture. Do not impose Routes -> Controllers -> Services -> Repositories when the project uses another valid pattern."
 
   - id: "RULE-VERIFY-001"
     name: "Verification Rules"
@@ -109,9 +109,9 @@ rules:
   - id: "RULE-MEM-001"
     name: "Project Memory Discipline"
     file: "11-project-memory.md"
-    activation: "STATE_SYNC"
-    precedence: 55
-    scope: "Durable memory synchronization into docs/ upon milestone completion."
+    activation: "ALWAYS"
+    precedence: 92
+    scope: "Durable memory synchronization into docs/ and state updates."
 
   - id: "RULE-OBS-001"
     name: "Observability & Telemetry"

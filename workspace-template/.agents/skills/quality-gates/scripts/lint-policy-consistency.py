@@ -79,6 +79,8 @@ def lint_directory(target_dir: Path) -> Tuple[List[str], int]:
         dirs[:] = [d for d in dirs if not d.startswith(".") and d != "__pycache__" and d != "node_modules"]
         for f in files:
             fpath = Path(root) / f
+            if fpath.is_symlink():
+                continue
             if fpath.suffix in extensions:
                 # Do not lint audit scratch files or CHANGELOG
                 if "scratch" in str(fpath) or fpath.name == "CHANGELOG.md":
@@ -108,6 +110,9 @@ def main():
         total_errors.extend(errs)
         total_files += count
 
+    if total_files == 0:
+        total_errors.append("Policy Consistency Linter inspected zero files; configuration cannot be considered healthy.")
+
     print(f"Policy Consistency Linter: Inspected {total_files} file(s).")
 
     if total_errors:
@@ -116,7 +121,7 @@ def main():
             print(f"  - {err}", file=sys.stderr)
         sys.exit(1)
     else:
-        print("SUCCESS: All documentation and policy files are semantically consistent with V5 architecture.")
+        print("SUCCESS: All documentation and policy files are semantically consistent with the canonical architecture and policy model.")
         sys.exit(0)
 
 

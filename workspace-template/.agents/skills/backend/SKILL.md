@@ -16,14 +16,14 @@ Activate this skill when executing tasks requiring backend capabilities, workflo
 
 <PRECONDITIONS>
 ### Prerequisites
-- Active task in .agents/state/tasks.json must be IN_PROGRESS.
-    - TASK_STARTED event must be recorded in .agents/state/events.jsonl.
+- The current governed task record `.agents/state/tasks/TASK-ID.json` must be `IN_PROGRESS`.
+    - A `TASK_STARTED` event must be recorded in `.agents/state/events/TASK-ID.jsonl`.
     - Must consult `.agents/state/stack.json` and load the matching profile from `.agents/technology/profiles/backend/` and language profile from `.agents/technology/profiles/language/`.
     - Must be loaded as part of the Atomic Backend Bundle alongside `.agents/skills/api/SKILL.md`, `.agents/skills/security/SKILL.md`, and `.agents/rules/07-security.md`.
 
 ### Pre-flight Checklist
 - [ ] Active backend and language profiles loaded from `.agents/technology/profiles/`
-- [ ] 4-Layer directory structure verified (routes, controllers, services, repositories, dtos)
+- [ ] Architecture boundaries verified against the project architecture, active technology profile, and relevant ADRs
 - [ ] Architectural constraints loaded: no DB queries in routes/controllers, no HTTP objects in services
 - [ ] Worker concurrency bounded
 - [ ] Graceful shutdown and signal traps verified

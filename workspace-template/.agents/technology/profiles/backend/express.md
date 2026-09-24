@@ -29,7 +29,9 @@ Applies to HTTP services, REST APIs, and backend microservices built with Expres
 - Compatibility Target: Express 4.x (wrap async route handlers with an async boundary/error wrapper to catch unhandled rejections).
 
 ## 4. Core Architectural Guidance
-- **Mandatory 4-Layer Separation (RULE-ARCH-LAYER-001)**:
+
+The structure below is the profile's preferred boundary pattern. Follow the project's accepted architecture and ADRs when they intentionally use a different valid structure.
+- **Preferred Boundary Structure (RULE-ARCH-LAYER-001)**:
   - **Routes (`src/routes/`)**: Declarative HTTP route definitions, URL paths, HTTP verb bindings, and middleware attachment only. Handler logic exceeding 5 lines is FORBIDDEN.
   - **Controllers (`src/controllers/`)**: Thin adapters. Extract HTTP params/query/body, call domain services, and return HTTP status codes and JSON envelopes. Direct DB or ORM calls are FORBIDDEN.
   - **Services (`src/services/`)**: Pure business logic, calculations, domain workflows, and transactions. Zero HTTP knowledge; accepting `req`, `res`, `next`, or returning HTTP status codes is FORBIDDEN.
