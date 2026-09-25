@@ -2,6 +2,7 @@
 """Lifecycle and tool-safety regression tests for the framework itself."""
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -147,7 +148,9 @@ def test_bootstrap_injects_context_and_records_inquiry_session(tmp_path: Path) -
         assert proc.returncode == 0, proc.stderr
         result = json.loads(proc.stdout)
         assert "injectSteps" in result
-        assert all("toolCall" in step or "ephemeralMessage" in step for step in result["injectSteps"])
+        assert all("toolCall" in step or "userMessage" in step or "ephemeralMessage" in step for step in result["injectSteps"])
+        assert all("toolCall" not in step for step in result["injectSteps"])
+        assert any("deferred-read" in step.get("ephemeralMessage", "") for step in result["injectSteps"])
         session = json.loads((ROOT / ".agents" / "state" / "runtime" / "session.json").read_text())
         assert session["mode"] == "inquiry"
         assert session["conversationId"] == conversation_id
@@ -182,6 +185,8 @@ def test_bootstrap_preloads_task_specific_rules_and_skills(tmp_path: Path) -> No
         "workspacePaths": [str(ROOT)],
         "transcriptPath": str(transcript),
     }
+    before_tasks = {p.name for p in (ROOT / ".agents" / "state" / "tasks").glob("TASK-*.json")}
+    before_governance = {p.name for p in (ROOT / ".agents" / "state" / "governance").glob("TASK-*.json")}
     proc = subprocess.run(
         [sys.executable, str(script)],
         cwd=ROOT,
@@ -191,13 +196,7 @@ def test_bootstrap_preloads_task_specific_rules_and_skills(tmp_path: Path) -> No
     )
     assert proc.returncode == 0, proc.stderr
     result = json.loads(proc.stdout)
-    paths = []
-    for step in result["injectSteps"]:
-        call = step.get("toolCall", {})
-        args = call.get("args", {})
-        if call.get("name") == "view_file":
-            paths.append(args.get("AbsolutePath", ""))
-    joined = "\n".join(paths)
+    joined = "\n".join(step.get("ephemeralMessage", "") for step in result["injectSteps"])
     assert ".agents/rules/07-security.md" in joined
     assert ".agents/skills/bug-fix/SKILL.md" in joined
     assert ".agents/skills/frontend/SKILL.md" in joined
@@ -206,8 +205,9 @@ def test_bootstrap_preloads_task_specific_rules_and_skills(tmp_path: Path) -> No
     assert ".agents/orchestration/stack.json" not in joined
 
     task_files = list((ROOT / ".agents" / "state" / "tasks").glob("TASK-*.json"))
-    assert task_files
-    newest = max(task_files, key=lambda p: p.stat().st_mtime)
+    created_task_files = [p for p in task_files if p.name not in before_tasks]
+    assert created_task_files
+    newest = max(created_task_files, key=lambda p: p.stat().st_mtime)
     task = json.loads(newest.read_text())
     assert task["bootstrapProvisional"] is True
     governance_file = ROOT / ".agents" / "state" / "governance" / f"{task['id']}.json"
@@ -216,10 +216,142 @@ def test_bootstrap_preloads_task_specific_rules_and_skills(tmp_path: Path) -> No
     assert governance["taskId"] == task["id"]
     assert governance["governanceStatus"] == "pending"
 
-    # Keep framework tests hermetic: runtime/task state must never leak between pytest runs.
+    # Keep framework tests hermetic: remove every task/governance record created by this test.
+    created_governance = [
+        p for p in (ROOT / ".agents" / "state" / "governance").glob("TASK-*.json")
+        if p.name not in before_governance
+    ]
     for candidate in [
-        task_files[0],
-        governance_file,
+        *created_task_files,
+        *created_governance,
+        ROOT / ".agents" / "state" / "runtime" / "session.json",
+        ROOT / ".agents" / "state" / "runtime" / "context-plan.md",
+        ROOT / ".agents" / "state" / "runtime" / "sessions" / f"{conversation_id}.json",
+        ROOT / ".agents" / "state" / "runtime" / "context-plans" / f"{conversation_id}.md",
+    ]:
+        candidate.unlink(missing_ok=True)
+
+
+
+def _run_bootstrap_for_capability_test(tmp_path: Path, payload_extra=None, env_extra=None):
+    script = ROOT / ".agents" / "skills" / "quality-gates" / "scripts" / "bootstrap-session.py"
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_text(json.dumps({"role": "user", "content": "Inspect the project architecture."}) + "\n")
+    conversation_id = f"test-capability-{tmp_path.name}"
+    payload = {
+        "conversationId": conversation_id,
+        "workspacePaths": [str(ROOT)],
+        "transcriptPath": str(transcript),
+    }
+    if payload_extra:
+        payload.update(payload_extra)
+    env = dict(os.environ)
+    env.pop("ANTIGRAVITY_PREINVOCATION_MODE", None)
+    env.pop("ANTIGRAVITY_ENABLE_PREINVOCATION_TOOLCALLS", None)
+    env.pop("ANTIGRAVITY_CAPABILITIES_FILE", None)
+    if env_extra:
+        env.update(env_extra)
+    proc = subprocess.run(
+        [sys.executable, str(script)], cwd=ROOT,
+        input=json.dumps(payload), text=True, capture_output=True, env=env,
+    )
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout), conversation_id
+
+
+def _cleanup_capability_session(conversation_id: str) -> None:
+    for candidate in [
+        ROOT / ".agents" / "state" / "runtime" / "session.json",
+        ROOT / ".agents" / "state" / "runtime" / "context-plan.md",
+        ROOT / ".agents" / "state" / "runtime" / "sessions" / f"{conversation_id}.json",
+        ROOT / ".agents" / "state" / "runtime" / "context-plans" / f"{conversation_id}.md",
+    ]:
+        candidate.unlink(missing_ok=True)
+
+
+def test_bootstrap_unknown_capability_fails_closed_to_deferred(tmp_path: Path) -> None:
+    result, conversation_id = _run_bootstrap_for_capability_test(tmp_path)
+    try:
+        assert not any("toolCall" in step for step in result["injectSteps"])
+        guidance = next(step["ephemeralMessage"] for step in result["injectSteps"] if "ephemeralMessage" in step)
+        assert "Bootstrap mode=deferred-read" in guidance
+        assert "capability=unknown" in guidance
+        assert "reason=unknown-fails-closed" in guidance
+        session = json.loads((ROOT / ".agents" / "state" / "runtime" / "session.json").read_text())
+        assert session["preInvocationInjection"]["mode"] == "deferred-read"
+    finally:
+        _cleanup_capability_session(conversation_id)
+
+
+def test_bootstrap_accepts_explicit_host_capability_signal(tmp_path: Path) -> None:
+    result, conversation_id = _run_bootstrap_for_capability_test(
+        tmp_path,
+        payload_extra={"supportedInjectedStepTypes": ["ephemeralMessage", "toolCall"]},
+    )
+    try:
+        assert any("toolCall" in step for step in result["injectSteps"])
+        guidance = next(step["ephemeralMessage"] for step in result["injectSteps"] if "ephemeralMessage" in step)
+        assert "Bootstrap mode=native-toolCall" in guidance
+        assert "reason=host-capability-signal" in guidance
+    finally:
+        _cleanup_capability_session(conversation_id)
+
+
+def test_bootstrap_does_not_infer_toolcall_support_from_model_name(tmp_path: Path) -> None:
+    result, conversation_id = _run_bootstrap_for_capability_test(
+        tmp_path,
+        payload_extra={"modelName": "gemini-3.6-flash-medium"},
+    )
+    try:
+        assert not any("toolCall" in step for step in result["injectSteps"])
+    finally:
+        _cleanup_capability_session(conversation_id)
+
+
+def test_bootstrap_capability_file_can_authorize_native_injection(tmp_path: Path) -> None:
+    capability_file = tmp_path / "host-capabilities.json"
+    capability_file.write_text(json.dumps({
+        "preInvocation": {"toolCallSupport": "verified"}
+    }) + "\n")
+    result, conversation_id = _run_bootstrap_for_capability_test(
+        tmp_path,
+        env_extra={"ANTIGRAVITY_CAPABILITIES_FILE": str(capability_file)},
+    )
+    try:
+        assert any("toolCall" in step for step in result["injectSteps"])
+        guidance = next(step["ephemeralMessage"] for step in result["injectSteps"] if "ephemeralMessage" in step)
+        assert "reason=verified-capability-file" in guidance
+    finally:
+        _cleanup_capability_session(conversation_id)
+
+
+def test_bootstrap_explicit_deferred_mode_overrides_legacy_opt_in(tmp_path: Path) -> None:
+    result, conversation_id = _run_bootstrap_for_capability_test(
+        tmp_path,
+        env_extra={
+            "ANTIGRAVITY_PREINVOCATION_MODE": "deferred",
+            "ANTIGRAVITY_ENABLE_PREINVOCATION_TOOLCALLS": "1",
+        },
+    )
+    try:
+        assert not any("toolCall" in step for step in result["injectSteps"])
+    finally:
+        _cleanup_capability_session(conversation_id)
+
+
+def test_bootstrap_native_toolcall_injection_is_explicit_opt_in(tmp_path: Path) -> None:
+    script = ROOT / ".agents" / "skills" / "quality-gates" / "scripts" / "bootstrap-session.py"
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_text(json.dumps({"role": "user", "content": "Inspect the project architecture."}) + "\n")
+    conversation_id = f"test-toolcall-optin-{tmp_path.name}"
+    payload = {"conversationId": conversation_id, "workspacePaths": [str(ROOT)], "transcriptPath": str(transcript)}
+    env = dict(os.environ)
+    env["ANTIGRAVITY_ENABLE_PREINVOCATION_TOOLCALLS"] = "1"
+    proc = subprocess.run([sys.executable, str(script)], cwd=ROOT, input=json.dumps(payload), text=True, capture_output=True, env=env)
+    assert proc.returncode == 0, proc.stderr
+    result = json.loads(proc.stdout)
+    assert any("toolCall" in step for step in result["injectSteps"])
+    for candidate in [
         ROOT / ".agents" / "state" / "runtime" / "session.json",
         ROOT / ".agents" / "state" / "runtime" / "context-plan.md",
         ROOT / ".agents" / "state" / "runtime" / "sessions" / f"{conversation_id}.json",

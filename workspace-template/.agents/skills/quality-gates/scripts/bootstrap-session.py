@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -26,6 +27,18 @@ CONTEXT_PLANS_DIR = RUNTIME_DIR / "context-plans"
 SESSION_FILE = RUNTIME_DIR / "session.json"  # last-active convenience view; lifecycle logic uses per-conversation sessions
 CONTEXT_PLAN_FILE = RUNTIME_DIR / "context-plan.md"  # last-active convenience view
 TASKS_DIR = STATE_ROOT / "tasks"
+
+# Capability policy for PreInvocation injection.
+#
+# The public hook contract documents `toolCall` injection, but some live
+# runtimes have rejected the same shape with `unknown injected step type: <nil>`.
+# Therefore `auto` MUST fail closed to deferred messages unless the host sends
+# an explicit capability signal or the operator has explicitly verified native
+# injection. Never infer support from model name or product version alone.
+PREINVOCATION_MODE_ENV = "ANTIGRAVITY_PREINVOCATION_MODE"
+PREINVOCATION_CAPABILITIES_ENV = "ANTIGRAVITY_CAPABILITIES_FILE"
+PREINVOCATION_TOOLCALL_OPTIN_ENV = "ANTIGRAVITY_ENABLE_PREINVOCATION_TOOLCALLS"
+SUPPORTED_INJECTION_STEPS = {"toolCall", "userMessage", "ephemeralMessage"}
 
 INQUIRY_PATTERNS = [
     r"\bwhat is\b", r"\bwhat are\b", r"\bwhy\b", r"\bhow does\b",
@@ -82,6 +95,110 @@ def context_plan_path(conversation_id: str) -> Path:
 def write_json(path: Path, value: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+
+def _normalize_capability_types(value: Any) -> Optional[set[str]]:
+    """Normalize host-advertised injected-step capability names."""
+    if isinstance(value, (list, tuple, set)):
+        return {str(item) for item in value if isinstance(item, (str, int, float))}
+    return None
+
+
+def _extract_toolcall_capability(payload: Dict[str, Any]) -> Optional[bool]:
+    """Read only explicit host capability metadata; return None when unknown.
+
+    Future Antigravity runtimes may expose capability metadata on hook stdin.
+    This adapter accepts a few stable, namespaced shapes without guessing from
+    unrelated fields such as modelName. Positive support must be explicit.
+    """
+    direct = _normalize_capability_types(payload.get("supportedInjectedStepTypes"))
+    if direct is not None:
+        if "toolCall" in direct:
+            return True
+        if direct and direct.isdisjoint({"toolCall"}):
+            return False
+
+    caps = payload.get("capabilities")
+    if isinstance(caps, dict):
+        pre = caps.get("preInvocation") or caps.get("PreInvocation")
+        if isinstance(pre, dict):
+            value = pre.get("toolCallInjection")
+            if value is None:
+                value = pre.get("toolCall")
+            if isinstance(value, bool):
+                return value
+            types = _normalize_capability_types(pre.get("supportedInjectedStepTypes"))
+            if types is not None:
+                if "toolCall" in types:
+                    return True
+                if types and types.isdisjoint({"toolCall"}):
+                    return False
+
+    return None
+
+
+def _read_capability_file(workspace: Path) -> Optional[bool]:
+    """Read an operator-verified runtime capability file, if present."""
+    raw_path = os.getenv(PREINVOCATION_CAPABILITIES_ENV, "").strip()
+    path = Path(raw_path).expanduser() if raw_path else (
+        workspace / ".agents" / "state" / "runtime" / "host-capabilities.json"
+    )
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+    pre = data.get("preInvocation") if isinstance(data, dict) else None
+    if not isinstance(pre, dict):
+        return None
+    value = pre.get("toolCallInjection")
+    if isinstance(value, bool):
+        return value
+    status = str(pre.get("toolCallSupport", "")).strip().lower()
+    if status in {"verified", "supported", "enabled"}:
+        return True
+    if status in {"unsupported", "disabled", "blocked"}:
+        return False
+    return None
+
+
+def resolve_preinvocation_injection_mode(payload: Dict[str, Any], workspace: Path) -> Dict[str, str]:
+    """Resolve native vs deferred injection with fail-closed capability gating.
+
+    Precedence:
+    1. explicit mode env (`native`/`deferred`)
+    2. explicit host capability metadata in hook stdin
+    3. verified operator capability file
+    4. legacy explicit opt-in env (`...ENABLE_PREINVOCATION_TOOLCALLS=1`)
+    5. safe default: deferred
+    """
+    requested = os.getenv(PREINVOCATION_MODE_ENV, "auto").strip().lower()
+    if requested in {"deferred", "safe", "off", "disabled"}:
+        return {"mode": "deferred-read", "reason": "explicit-mode", "support": "disabled"}
+    if requested in {"native", "toolcall", "enabled"}:
+        return {"mode": "native-toolCall", "reason": "explicit-mode", "support": "verified-by-operator"}
+    if requested not in {"", "auto"}:
+        return {"mode": "deferred-read", "reason": "invalid-mode-fails-closed", "support": "unknown"}
+
+    host_signal = _extract_toolcall_capability(payload)
+    if host_signal is True:
+        return {"mode": "native-toolCall", "reason": "host-capability-signal", "support": "advertised"}
+    if host_signal is False:
+        return {"mode": "deferred-read", "reason": "host-capability-signal", "support": "unsupported"}
+
+    file_signal = _read_capability_file(workspace)
+    if file_signal is True:
+        return {"mode": "native-toolCall", "reason": "verified-capability-file", "support": "verified"}
+    if file_signal is False:
+        return {"mode": "deferred-read", "reason": "verified-capability-file", "support": "unsupported"}
+
+    legacy_optin = os.getenv(PREINVOCATION_TOOLCALL_OPTIN_ENV, "0").strip().lower()
+    if legacy_optin in {"1", "true", "yes", "on"}:
+        return {"mode": "native-toolCall", "reason": "legacy-explicit-opt-in", "support": "verified-by-operator"}
+
+    return {"mode": "deferred-read", "reason": "unknown-fails-closed", "support": "unknown"}
 
 
 def workspace_from_payload(payload: Dict[str, Any]) -> Path:
@@ -488,6 +605,8 @@ def main() -> int:
     active_task = ensure_provisional_task(prompt, conversation_id, workspace, task_type, risk_level) if mode == "governed" else None
     plan_path = write_context_plan(workspace, prompt, mode, active_task, conversation_id, task_type, risk_level)
 
+    injection_capability = resolve_preinvocation_injection_mode(payload, workspace)
+
     session = {
         "version": 1,
         "status": "bootstrapped",
@@ -504,6 +623,7 @@ def main() -> int:
         "lastInvocationAt": utc_now(),
         "invocationNum": payload.get("invocationNum"),
         "invocationCount": 1,
+        "preInvocationInjection": injection_capability,
     }
     write_json(conversation_session, session)
     write_json(SESSION_FILE, session)
@@ -562,12 +682,31 @@ def main() -> int:
             str((workspace / ".agents" / "state" / "governance" / f"{active_task}.json").relative_to(workspace)),
         ]
 
-    # Inject only existing, unique files and cap the preload set to prevent bootstrap itself from becoming context bloat.
+    # Resolve a bounded, deterministic preload plan. Keep the plan in runtime state
+    # regardless of host capabilities. Native tool-call injection is capability-gated
+    # and fails closed to deferred messages when support is unknown.
     for path in list(dict.fromkeys(candidate_paths))[:24]:
         if (workspace / path).is_file():
             injected_paths.append(path)
-            steps.append({"toolCall": {"name": "view_file", "args": {"AbsolutePath": str(workspace / path)}}})
-    steps.append({"ephemeralMessage": f"Runtime bootstrap complete: mode={mode}, candidateTaskType={task_type}, candidateRisk={risk_level}, activeTask={active_task or 'none'}. Preloaded {len(injected_paths)} context files; final classification is authoritative only after repository inspection."})
+            if injection_capability["mode"] == "native-toolCall":
+                steps.append({
+                    "toolCall": {
+                        "name": "view_file",
+                        "args": {"AbsolutePath": str(workspace / path)},
+                    }
+                })
+
+    relative_context = "\n".join(f"- {path}" for path in injected_paths)
+    injection_mode = injection_capability["mode"]
+    guidance = (
+        "Runtime bootstrap complete. Before mutation or final verification, inspect the context plan "
+        "and listed files with normal read tools; do not assume they were automatically opened. "
+        f"Bootstrap mode={injection_mode}; capability={injection_capability['support']}; "
+        f"reason={injection_capability['reason']}; context plan={plan_path}; "
+        f"activeTask={active_task or 'none'}.\n\n"
+        f"Required bootstrap context ({len(injected_paths)} files):\n{relative_context}"
+    )
+    steps.append({"ephemeralMessage": guidance})
     print(json.dumps({"injectSteps": steps}))
     return 0
 

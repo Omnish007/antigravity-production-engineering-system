@@ -88,6 +88,35 @@ Project-memory synchronization
 
 ---
 
+### 2.2.2 PreInvocation capability policy
+
+The bootstrap defaults to **safe deferred-read mode**. It does not guess whether the host can execute injected `toolCall` steps. Native injection is selected only by an explicit capability signal or explicit operator verification.
+
+Supported controls:
+
+```bash
+# Recommended: let the system negotiate safely; unknown => deferred-read
+export ANTIGRAVITY_PREINVOCATION_MODE=auto
+
+# Force the safe path
+export ANTIGRAVITY_PREINVOCATION_MODE=deferred
+
+# Enable native injection only after verifying the runtime
+export ANTIGRAVITY_PREINVOCATION_MODE=native
+```
+
+An operator-verified capability file can also be supplied through `ANTIGRAVITY_CAPABILITIES_FILE`, with this shape:
+
+```json
+{
+  "preInvocation": {
+    "toolCallSupport": "verified"
+  }
+}
+```
+
+Unknown capability is deliberately treated as unsupported.
+
 # Universal technology stack baseline
 
 **This system is stack-agnostic by design.** The core engineering discipline—validation, security, architecture, testing, verification, observability, and durable project memory—applies to any technology stack.
@@ -97,9 +126,11 @@ The runtime execution path is now explicit:
 ```text
 PreInvocation bootstrap
       ↓
+Capability negotiation (native toolCall vs safe deferred-read)
+      ↓
 Session + context plan + provisional task (governed work)
       ↓
-Injected bootstrap reads
+Capability-gated bootstrap context
       ↓
 Inspect → classify → load rules/skills → plan
       ↓
@@ -113,7 +144,7 @@ Stop completion gate
 ```
 
 
-## What changed in 2.2.0 — Legacy-Hardened
+## What changed in 2.2.0/2.2.1/2.2.2 — Legacy-Hardened + Runtime-Compatible + Capability-Gated
 
 Version 2.2.0 was compared against the older production-engineering system that had previously been used in a real project. The merge preserves its strongest proven behaviors—root-cause-first debugging, risk-based verification, minimum-sufficient context, explicit decision/research/escalation paths, structured recovery, parallel reconciliation, and durable memory sync—without restoring its duplicate control-plane structure.
 
@@ -737,3 +768,8 @@ Verify the archive is clean:
 # Should show 0 results:
 unzip -l production-engineering-system.zip | grep -E "(\.git/|__pycache__|\.pyc)"
 ```
+
+
+## Runtime compatibility
+
+Some Antigravity runtimes have been observed to reject `PreInvocation.injectSteps` entries containing native `toolCall` objects with `unknown injected step type: <nil>`. This package therefore defaults to a deferred-read `ephemeralMessage` bootstrap. Native tool-call injection is available only when explicitly enabled with `ANTIGRAVITY_ENABLE_PREINVOCATION_TOOLCALLS=1` on a verified runtime.

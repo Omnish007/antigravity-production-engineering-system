@@ -50,10 +50,18 @@ def main() -> int:
                 fail(errors, f"Bootstrap is missing mandatory context reference: {token}")
         if ".agents/orchestration/stack.json" in bootstrap:
             fail(errors, "Bootstrap contains stale stack path .agents/orchestration/stack.json")
-        if '"toolCall": {"name": "view_file"' not in bootstrap:
-            fail(errors, "Bootstrap does not inject native view_file toolCall reads")
+        if 'resolve_preinvocation_injection_mode' not in bootstrap:
+            fail(errors, "Bootstrap is missing fail-closed PreInvocation capability gating")
+        if 'PREINVOCATION_MODE_ENV' not in bootstrap:
+            fail(errors, "Bootstrap is missing explicit PreInvocation mode controls")
+        if 'supportedInjectedStepTypes' not in bootstrap or 'capabilities' not in bootstrap:
+            fail(errors, "Bootstrap is missing host capability-signal handling")
+        if '"ephemeralMessage"' not in bootstrap:
+            fail(errors, "Bootstrap does not provide a host-compatible deferred-read message")
         if "candidate_rules(prompt)" not in bootstrap or "candidate_skills(prompt)" not in bootstrap:
-            fail(errors, "Bootstrap does not inject task-specific rule/skill candidates")
+            fail(errors, "Bootstrap does not route task-specific rule/skill candidates")
+        if 'unknown-fails-closed' not in bootstrap:
+            fail(errors, "Bootstrap does not fail closed when PreInvocation injection capability is unknown")
         for required_skill in (
             '".agents/skills/planning/SKILL.md"',
             '".agents/skills/verification/SKILL.md"',
